@@ -1,8 +1,0 @@
-﻿namespace Doerffler.WarehousingEnvironment.MetadataModel
-{
-    public enum SourceAttributeRelationType
-    {
-        Undefined,
-        ForeignKeyConstraint
-    }
-}
