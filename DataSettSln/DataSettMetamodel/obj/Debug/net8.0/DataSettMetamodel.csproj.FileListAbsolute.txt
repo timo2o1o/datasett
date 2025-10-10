@@ -1,0 +1,11 @@
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\bin\Debug\net8.0\DataSettMetamodel.deps.json
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\bin\Debug\net8.0\DataSettMetamodel.dll
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\bin\Debug\net8.0\DataSettMetamodel.pdb
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\obj\Debug\net8.0\DataSettMetamodel.GeneratedMSBuildEditorConfig.editorconfig
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\obj\Debug\net8.0\DataSettMetamodel.AssemblyInfoInputs.cache
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\obj\Debug\net8.0\DataSettMetamodel.AssemblyInfo.cs
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\obj\Debug\net8.0\DataSettMetamodel.csproj.CoreCompileInputs.cache
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\obj\Debug\net8.0\DataSettMetamodel.dll
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\obj\Debug\net8.0\refint\DataSettMetamodel.dll
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\obj\Debug\net8.0\DataSettMetamodel.pdb
+D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettMetamodel\obj\Debug\net8.0\ref\DataSettMetamodel.dll

@@ -1,0 +1,26 @@
+﻿using System.Text.Json.Serialization;
+using System.Collections.Generic;
+
+namespace Doerffler.WarehousingEnvironment.MetadataModel
+{
+    public class BusinessObjectRelation
+    {
+        [JsonConstructor]
+        public BusinessObjectRelation()
+        {
+
+        }
+
+        public BusinessObjectRelation(string name)
+        {
+            Name = name;
+            RelatedKeys = new List<BusinessObjectRelationItem>();
+        }
+
+        [JsonPropertyName("businessRelationName")]
+        public string? Name { get; set; }
+
+        [JsonPropertyName("relatedKeys")]
+        public IList<BusinessObjectRelationItem>? RelatedKeys { get; set; }
+    }
+}

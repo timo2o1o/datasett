@@ -1,0 +1,36 @@
+﻿using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
+
+namespace Doerffler.WarehousingEnvironment.MetadataModel
+{
+    public class BusinessObject
+    {
+        [JsonConstructor]
+        public BusinessObject()
+        {
+            AttributeSets = new ObservableCollection<AttributeSet>();
+            AttributeSetIds = new ObservableCollection<string>();
+        }
+
+        public BusinessObject(string name, BusinessDomain? businessDomain = null)
+        {
+            Name = name;
+            Id = string.Format("{0}.{1}", businessDomain?.Name, Name);
+
+            AttributeSets = new ObservableCollection<AttributeSet>();
+            AttributeSetIds = new ObservableCollection<string>();
+        }
+
+        [JsonPropertyName("businessObjectId")]
+        public string? Id { get; set; }
+
+        [JsonPropertyName("businessObjectName")]
+        public string? Name { get; set; }
+
+        [JsonIgnore]
+        public ObservableCollection<AttributeSet>? AttributeSets { get; set; }
+
+        [JsonPropertyName("attributeSets")]
+        public ObservableCollection<string> AttributeSetIds { get; set; }
+    }
+}

@@ -1,0 +1,54 @@
+﻿using System.Text.Json.Serialization;
+
+namespace Doerffler.WarehousingEnvironment.MetadataModel
+{
+    public class SourceAttribute
+    {
+        [JsonPropertyName("name")]
+        public string? Name { get; set; } = "";
+
+        [JsonPropertyName("isPk")]
+        public bool? IsPk { get; set; } = false;
+
+        [JsonPropertyName("isFk")]
+        public bool? IsFk { get; set; } = false;
+
+        [JsonPropertyName("position")]
+        public int? Position { get; set; } = default!;
+
+        [JsonPropertyName("default")]
+        public string? Default { get; set; } = "";
+
+        [JsonPropertyName("nullable")]
+        public bool? Nullable { get; set; } = default!;
+
+        [JsonPropertyName("datatype")]
+        public string? Datatype { get; set; } = "";
+
+        [JsonPropertyName("length")]
+        public int? Length { get; set; } = default!;
+
+        [JsonPropertyName("precision")]
+        public int? Precision { get; set; } = default!;
+
+        [JsonIgnore]
+        public string? Transformation { get; set; }
+
+        [JsonIgnore]
+        public SourceAttributeRole? Role { get; set; }
+
+        [JsonIgnore]
+        public AttributeSet? AttributeSet { get; set; }
+
+        [JsonIgnore]
+        public BusinessObjectRelation? Relation { get; set; }
+
+        [JsonIgnore]
+        public BusinessObject? RelatedBusinessObject { get; set; }
+
+        public SourceAttribute()
+        {
+            Role = SourceAttributeRole.Unclassified;
+        }
+    }
+}

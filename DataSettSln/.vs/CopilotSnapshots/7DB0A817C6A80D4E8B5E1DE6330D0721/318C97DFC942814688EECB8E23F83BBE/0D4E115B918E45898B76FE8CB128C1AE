@@ -1,0 +1,43 @@
+﻿using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
+
+namespace Doerffler.WarehousingEnvironment.MetadataModel
+{
+    public class BusinessDomain
+    {
+        [JsonConstructor]
+        public BusinessDomain()
+        {
+            BusinessObjects = new ObservableCollection<BusinessObject>();
+            BusinessObjectIds = new ObservableCollection<string>();
+
+            BusinessRelations = new ObservableCollection<BusinessObjectRelation>();
+        }
+
+        public BusinessDomain(string name)
+        {
+            Name = name;
+            
+            BusinessObjects = new ObservableCollection<BusinessObject>();
+            BusinessObjectIds = new ObservableCollection<string>();
+
+            BusinessRelations = new ObservableCollection<BusinessObjectRelation>();
+        }
+
+
+        [JsonPropertyName("hierarchy")]
+        public BusinessDomain? Hierarchy { get; set; }
+
+        [JsonPropertyName("businessDomainName")]
+        public string? Name { get; set; }
+
+        [JsonIgnore]
+        public ObservableCollection<BusinessObject>? BusinessObjects { get; set; }
+
+        [JsonPropertyName("businessObjects")]
+        public ObservableCollection<string> BusinessObjectIds { get; set; }
+
+        [JsonPropertyName("businessRelations")]
+        public ObservableCollection<BusinessObjectRelation>? BusinessRelations { get; set; }
+    }
+}

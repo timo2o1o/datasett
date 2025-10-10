@@ -1,0 +1,10 @@
+﻿namespace DataSett.Metamodel
+{
+    public enum SourceAttributeRole
+    {
+        Unclassified = 0,
+        BusinessKey = 1,
+        Descriptive = 2,
+        SelfReferencedBusinessKey = 4
+    }
+}
