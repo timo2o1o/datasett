@@ -1,11 +1,15 @@
 using DataSettWorkbench.Client.Pages;
 using DataSettWorkbench.Components;
+using DataSett.ViewModel.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
+
+// Register ViewModel services
+builder.Services.AddSingleton<BusinessDomainService>();
 
 var app = builder.Build();
 
