@@ -30,7 +30,7 @@ DataSett provides a unified workbench for data professionals who need to:
 The DataSett solution is organized as follows:
 
 - **DataSettMetamodel**: A class library that defines the metadata model used within the toolkit. [Originally developed during my tenure at Dörffler & Partner GmbH](https://github.com/doerffler/MetadataModel), this version has been adapted and refined for the DataSett project.
-- **DataSettWorkbench**: Main Blazor Server application providing the user interface
+- **DataSettWorkbench**: The main Blazor Server application that serves as the user interface. Originally conceived as a WPF application named [MetaDataAdmin](https://github.com/doerffler/MetadataAdminTool) during my time at Dörffler & Partner GmbH, it has been reimagined and modernized for the web.
 - **DataSettWorkbench.Client**: Client-side components and resources
 
 ## Getting Started
