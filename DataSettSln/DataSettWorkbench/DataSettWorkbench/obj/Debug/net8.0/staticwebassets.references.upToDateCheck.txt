@@ -1,1 +1,0 @@
-D:\Dev\github\timo2o1o\datasett\DataSettSln\DataSettWorkbench\DataSettWorkbench.Client\obj\Debug\net8.0\staticwebassets.build.json
