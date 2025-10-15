@@ -1,0 +1,210 @@
+@page "/businessdomains/{domainName}"
+@using DataSett.ViewModel
+@using DataSett.ViewModel.Services
+@inject BusinessDomainService DomainService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveWebAssembly
+
+<PageTitle>@DomainName - Business Domain Details</PageTitle>
+
+@if (domain != null)
+{
+    <div class="mb-3">
+        <a href="/businessdomains" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <h1>Business Domain: @domain.Name</h1>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Business Objects</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <button class="btn btn-primary" @onclick="ShowCreateObjectDialog">
+                    <i class="bi bi-plus-circle"></i> Add Business Object
+                </button>
+            </div>
+
+            @if (showCreateObjectDialog)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6>Create New Business Object</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Object Name</label>
+                            <input type="text" class="form-control" @bind="newObjectName" />
+                        </div>
+                        <button class="btn btn-success" @onclick="CreateBusinessObject">Create</button>
+                        <button class="btn btn-secondary" @onclick="HideCreateObjectDialog">Cancel</button>
+                    </div>
+                </div>
+            }
+
+            @if (domain.BusinessObjects.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Attribute Sets</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var businessObject in domain.BusinessObjects)
+                        {
+                            <tr>
+                                <td>@businessObject.Id</td>
+                                <td>@businessObject.Name</td>
+                                <td>@businessObject.AttributeSets.Count</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => RemoveBusinessObject(businessObject)">Remove</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted">No business objects added yet.</p>
+            }
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Business Relations</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <button class="btn btn-primary" @onclick="ShowCreateRelationDialog">
+                    <i class="bi bi-plus-circle"></i> Add Business Relation
+                </button>
+            </div>
+
+            @if (showCreateRelationDialog)
+            {
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6>Create New Business Relation</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Relation Name</label>
+                            <input type="text" class="form-control" @bind="newRelationName" />
+                        </div>
+                        <button class="btn btn-success" @onclick="CreateBusinessRelation">Create</button>
+                        <button class="btn btn-secondary" @onclick="HideCreateRelationDialog">Cancel</button>
+                    </div>
+                </div>
+            }
+
+            @if (domain.BusinessRelations.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Relation Name</th>
+                            <th>Related Keys</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var relation in domain.BusinessRelations)
+                        {
+                            <tr>
+                                <td>@relation.Name</td>
+                                <td>@relation.RelatedKeys.Count</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => RemoveBusinessRelation(relation)">Remove</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted">No business relations added yet.</p>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-danger">Business domain not found.</p>
+    <a href="/businessdomains" class="btn btn-primary">Back to List</a>
+}
+
+@code {
+    [Parameter]
+    public string DomainName { get; set; } = string.Empty;
+
+    private BusinessDomainViewModel? domain;
+    private bool showCreateObjectDialog = false;
+    private bool showCreateRelationDialog = false;
+    private string newObjectName = string.Empty;
+    private string newRelationName = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        domain = DomainService.GetDomainByName(DomainName);
+    }
+
+    private void ShowCreateObjectDialog()
+    {
+        showCreateObjectDialog = true;
+        newObjectName = string.Empty;
+    }
+
+    private void HideCreateObjectDialog()
+    {
+        showCreateObjectDialog = false;
+        newObjectName = string.Empty;
+    }
+
+    private void CreateBusinessObject()
+    {
+        if (!string.IsNullOrWhiteSpace(newObjectName) && domain != null)
+        {
+            var businessObject = new BusinessObjectViewModel(new DataSett.Metamodel.BusinessObject(newObjectName, domain.Model));
+            domain.AddBusinessObject(businessObject);
+            HideCreateObjectDialog();
+        }
+    }
+
+    private void RemoveBusinessObject(BusinessObjectViewModel businessObject)
+    {
+        domain?.RemoveBusinessObject(businessObject);
+    }
+
+    private void ShowCreateRelationDialog()
+    {
+        showCreateRelationDialog = true;
+        newRelationName = string.Empty;
+    }
+
+    private void HideCreateRelationDialog()
+    {
+        showCreateRelationDialog = false;
+        newRelationName = string.Empty;
+    }
+
+    private void CreateBusinessRelation()
+    {
+        if (!string.IsNullOrWhiteSpace(newRelationName) && domain != null)
+        {
+            var relation = new BusinessObjectRelationViewModel(new DataSett.Metamodel.BusinessObjectRelation(newRelationName));
+            domain.AddBusinessRelation(relation);
+            HideCreateRelationDialog();
+        }
+    }
+
+    private void RemoveBusinessRelation(BusinessObjectRelationViewModel relation)
+    {
+        domain?.RemoveBusinessRelation(relation);
+    }
+}
