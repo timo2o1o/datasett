@@ -30,9 +30,9 @@ DataSett provides a unified workbench for data professionals who need to:
 The DataSett solution is organized as follows:
 
 - **DataSettMetamodel**: A class library that defines the metadata model used within the toolkit. [Originally developed during my tenure at Dörffler & Partner GmbH](https://github.com/doerffler/MetadataModel), this version has been adapted and refined for the DataSett project.
+- **DataSettMetamodelSerde**: A class library for (De-)Serializing the metadata model used within the toolkit. [Originally developed during my tenure at Dörffler & Partner GmbH](https://github.com/doerffler/MetadataParser), this version has been adapted and refined for the DataSett project.
 - **DataSettViewModel**: A standalone class library implementing the MVVM pattern for the metadata model. This library provides ViewModels that wrap the model entities with property change notification and can be used independently in any .NET application.
 - **DataSettWorkbench**: The main Blazor Server application that serves as the user interface. Originally conceived as a WPF application named [MetaDataAdmin](https://github.com/doerffler/MetadataAdminTool) during my time at Dörffler & Partner GmbH, it has been reimagined and modernized for the web using Blazor WebAssembly with the MVVM pattern.
-- **DataSettWorkbench.Client**: Client-side Blazor WebAssembly components implementing interactive UI features for metadata management
 
 ## Getting Started
 
