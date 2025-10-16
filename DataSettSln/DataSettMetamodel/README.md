@@ -162,7 +162,6 @@ classDiagram
     BusinessObject ||--o{ AttributeSet : contains
     BusinessObject ||--o{ BusinessObjectRelationItem : "related in"
     
-    AttributeSet ||--|| BusinessObject : "belongs to"
     AttributeSet ||--o{ AttributeSetMapping : "mapped by"
     
     AttributeSetMapping ||--|| SourceAttribute : "maps from"
@@ -170,7 +169,6 @@ classDiagram
     AttributeSetMapping ||--o| HistoryType : "has history type"
     
     BusinessObjectRelation ||--o{ BusinessObjectRelationItem : contains
-    BusinessObjectRelationItem ||--|| BusinessObject : "references"
     
     SourceSystem ||--o{ SourceInterface : contains
     SourceInterface ||--o{ SourceAttribute : contains
