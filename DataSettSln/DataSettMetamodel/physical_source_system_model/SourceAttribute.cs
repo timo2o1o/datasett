@@ -4,6 +4,7 @@ namespace DataSett.Metamodel
 {
     public class SourceAttribute
     {
+
         [JsonPropertyName("name")]
         public string? Name { get; set; } = "";
 
@@ -31,24 +32,5 @@ namespace DataSett.Metamodel
         [JsonPropertyName("precision")]
         public int? Precision { get; set; } = default!;
 
-        [JsonIgnore]
-        public string? Transformation { get; set; }
-
-        [JsonIgnore]
-        public SourceAttributeRole? Role { get; set; }
-
-        [JsonIgnore]
-        public AttributeSet? AttributeSet { get; set; }
-
-        [JsonIgnore]
-        public BusinessObjectRelation? Relation { get; set; }
-
-        [JsonIgnore]
-        public BusinessObject? RelatedBusinessObject { get; set; }
-
-        public SourceAttribute()
-        {
-            Role = SourceAttributeRole.Unclassified;
-        }
     }
 }

@@ -2,6 +2,10 @@
 
 namespace DataSett.Metamodel
 {
+    /// <summary>
+    /// An attribute set is a grouping of attributes of a business object.
+    /// A possible usage of this group is satellite splitting in data vault models.
+    /// </summary>
     public class AttributeSet
     {
         [JsonConstructor]

@@ -22,7 +22,5 @@ namespace DataSett.Metamodel
         [JsonPropertyName("sourceAttributes")]
         public IList<SourceAttribute>? SourceAttributes { get; set; } = default!;
 
-        [JsonPropertyName("sourceAttributeRelations")]
-        public IList<SourceAttributeRelation>? SourceAttributeRelations { get; set; } = default!;
     }
 }

@@ -10,20 +10,6 @@ namespace DataSett.Metamodel
 
         }
 
-        public AttributeSetMapping(int orderNo, SourceInterface sourceInterface, SourceAttribute sourceAttribute)
-        {
-            AttributeSetId = sourceAttribute.AttributeSet?.Id;
-            SourceInterfaceId = sourceInterface.SourceInterfaceId;
-            SourceAttributeName = sourceAttribute.Name;
-            Role = sourceAttribute.Role;
-            OrderNo = sourceAttribute.Position;
-            RelatedRelation = sourceAttribute.Relation;
-            Relation = RelatedRelation?.Name;
-            Length = sourceAttribute.Length;
-            Datatype = sourceAttribute.Datatype;
-            SourceAttribute = sourceAttribute;
-        }
-
         [JsonPropertyName("attributeSetId")]
         public string? AttributeSetId { get; set; }
 

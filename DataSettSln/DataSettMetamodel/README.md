@@ -19,84 +19,45 @@ The metamodel follows a layered architecture where business concepts are mapped 
 classDiagram
 namespace LogicalBusinessObjectModel {
 
-    class BusinessDomain {
-        +string? Name
-    }
-
-    class BusinessObject {
-        +string? Id
-        +string? Name
-    }
-
     class AttributeSet {
-        +string? Id
-        +string? Name
+        +string Name
     }
 
     class AttributeSetMapping {
-        +int? OrderNo
-        +string? SourceAttributeName
-        +string? Relation
-        +int? Position
-        +string? Default
-        +bool? Nullable
-        +string? Datatype
-        +int? Length
+        +int OrderNo
+        +string Relation
+        +int Position
+        +string Default
+        +bool Nullable
+        +string Datatype
+        +int Length
+    }
+
+    class BusinessDomain {
+        +string Name
+    }
+
+    class BusinessObject {
+        +string Name
     }
 
     class BusinessObjectRelation {
-        +string? Name
+        +string Name
     }
 
     class BusinessObjectRelationItem {
-        +bool? IsLeadingKey
+        +bool IsLeadingKey
     }
 
     class HistoryType {
-        +string? Name
-    }
-
-    class Transformation {
-        +string? TransformationValue
-    }
-}
-
-namespace PhysicalSourceSystemModel {
-
-    class SourceSystem {
-        +string? Driver
-        +string? ConnectionString
-        +string? SourceSystemId
-        +string? Server
-        +string? Name
-        +string? Version
-    }
-
-    class SourceInterface {
-        +string? SourceInterfaceId
-        +string? Schema
-        +string? Catalog
-        +string? Name
-    }
-
-    class SourceAttribute {
-        +string? Name
-        +bool? IsPk
-        +bool? IsFk
-        +int? Position
-        +string? Default
-        +bool? Nullable
-        +string? Datatype
-        +int? Length
-        +int? Precision
-    }
-
-    class SourceAttributeRelation {
-        +string? Name
-        +int? Order
-        +string? LocalKey
-        +string? ParentTable
-        +string? ParentKey
+        <<enumeration>>
+        None
+        EffectiveDated
+        Validated
+        Versioned
+        ChangedDateTime
+        DeleteFlag
+        Other
     }
 
     class SourceAttributeRole {
@@ -107,6 +68,45 @@ namespace PhysicalSourceSystemModel {
         SelfReferencedBusinessKey
     }
 
+    class Transformation {
+        +string TransformationValue
+    }
+}
+
+namespace PhysicalSourceSystemModel {
+
+    class SourceSystem {
+        +string Driver
+        +string ConnectionString
+        +string SourceSystemId
+        +string Server
+        +string Name
+        +string Version
+    }
+
+    class SourceInterface {
+        +string Schema
+        +string Catalog
+        +string Name
+    }
+
+    class SourceAttribute {
+        +string Name
+        +bool IsPk
+        +bool IsFk
+        +int Position
+        +string Default
+        +bool Nullable
+        +string Datatype
+        +int Length
+        +int Precision
+    }
+
+    class SourceAttributeRelation {
+        +string Name
+        +int Order
+    }
+
     class SourceAttributeRelationType {
         <<enumeration>>
         Undefined
@@ -115,33 +115,32 @@ namespace PhysicalSourceSystemModel {
 }
 
     %% Relationships
-    BusinessDomain "1" --> "0..1" BusinessDomain : hierarchy
-    BusinessDomain "1" --> "*" BusinessObject : contains
-    BusinessDomain "1" --> "*" BusinessObjectRelation : defines
+    %% relationships of the source system:
+    SourceSystem "1" <-- "*" SourceInterface
+    SourceInterface "1" <-- "*" SourceAttribute
+    SourceAttribute "1" <-- "*" SourceAttributeRelation : LocalKey
+    SourceAttribute "1" <-- "*" SourceAttributeRelation : ParentKey
+    SourceAttributeRelationType "1" <-- "*" SourceAttributeRelation
+
+    AttributeSetMapping "*" --> "1" SourceAttribute : "maps from"
+    AttributeSetMapping "*" --> "0..1" HistoryType
+    AttributeSetMapping "*" --> "1" SourceAttributeRole
+
+    AttributeSet "1" <-- "*" AttributeSetMapping : "maps to"
     
-    BusinessObject "1" --> "*" AttributeSet : contains
+    BusinessObject "1" <-- "*" AttributeSet
+    BusinessObjectRelationItem "*" --> "1" BusinessObject
+    BusinessObjectRelation "1" <-- "*" BusinessObjectRelationItem
+
+    BusinessDomain "1" <-- "0..1" BusinessDomain : hierarchy
+    BusinessDomain "1" <-- "*" BusinessObject
     
-    AttributeSet "1" --> "*" AttributeSetMapping : "mapped by"
-    
-    AttributeSetMapping "*" --> "1" AttributeSet : "maps to"
-    AttributeSetMapping "*" --> "1" SourceInterface : "maps from"
-    AttributeSetMapping "*" --> "0..1" HistoryType : "has history type"
-    AttributeSetMapping "*" --> "1" SourceAttributeRole : "has role"
-    
-    BusinessObjectRelation "1" --> "*" BusinessObjectRelationItem : contains
-    BusinessObjectRelationItem "*" --> "1" BusinessObject : "relates to"
-    
-    SourceSystem "1" --> "*" SourceInterface : contains
-    SourceInterface "1" --> "*" SourceAttribute : contains
-    SourceInterface "1" --> "*" SourceAttributeRelation : contains
-    
-    SourceAttributeRelation "*" --> "1" SourceAttributeRelationType : "has type"
-    
-    Transformation "*" --> "1" SourceInterface : "transforms from"
-    Transformation "*" --> "1" SourceAttribute : "transforms"
+    Transformation "0..1" --> "1" SourceAttribute
 ```
 
 ## Key Concepts
+The key concept is to implement a clean seperation between the physical source system and the business object model.
+This way parser for physical systems can be implemented independently from tools to harmonize these systems in a business model.
 
 ### Logical Business Object Model
 
