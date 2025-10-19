@@ -155,31 +155,31 @@ classDiagram
     }
 
     %% Relationships
-    BusinessDomain ||--o{ BusinessObject : contains
-    BusinessDomain ||--o{ BusinessObjectRelation : contains
-    BusinessDomain ||--o| BusinessDomain : hierarchy
+    BusinessDomain "1" --> "*" BusinessObject : contains
+    BusinessDomain "1" --> "*" BusinessObjectRelation : contains
+    BusinessDomain "1" --> "0..1" BusinessDomain : hierarchy
     
-    BusinessObject ||--o{ AttributeSet : contains
-    BusinessObject ||--o{ BusinessObjectRelationItem : "related in"
+    BusinessObject "1" --> "*" AttributeSet : contains
+    BusinessObject "1" --> "*" BusinessObjectRelationItem : "related in"
     
-    AttributeSet ||--o{ AttributeSetMapping : "mapped by"
+    AttributeSet "1" --> "*" AttributeSetMapping : "mapped by"
     
-    AttributeSetMapping ||--|| SourceAttribute : "maps from"
-    AttributeSetMapping ||--o| BusinessObjectRelation : "relates to"
-    AttributeSetMapping ||--o| HistoryType : "has history type"
+    AttributeSetMapping "*" --> "1" SourceAttribute : "maps from"
+    AttributeSetMapping "*" --> "0..1" BusinessObjectRelation : "relates to"
+    AttributeSetMapping "*" --> "0..1" HistoryType : "has history type"
     
-    BusinessObjectRelation ||--o{ BusinessObjectRelationItem : contains
+    BusinessObjectRelation "1" --> "*" BusinessObjectRelationItem : contains
     
-    SourceSystem ||--o{ SourceInterface : contains
-    SourceInterface ||--o{ SourceAttribute : contains
-    SourceInterface ||--o{ SourceAttributeRelation : contains
+    SourceSystem "1" --> "*" SourceInterface : contains
+    SourceInterface "1" --> "*" SourceAttribute : contains
+    SourceInterface "1" --> "*" SourceAttributeRelation : contains
     
-    SourceAttribute ||--|| SourceAttributeRole : "has role"
-    SourceAttribute ||--o| AttributeSet : "mapped to"
-    SourceAttribute ||--o| BusinessObjectRelation : "participates in"
-    SourceAttribute ||--o| BusinessObject : "related to"
+    SourceAttribute "*" --> "1" SourceAttributeRole : "has role"
+    SourceAttribute "*" --> "0..1" AttributeSet : "mapped to"
+    SourceAttribute "*" --> "0..1" BusinessObjectRelation : "participates in"
+    SourceAttribute "*" --> "0..1" BusinessObject : "related to"
     
-    SourceAttributeRelation ||--|| SourceAttributeRelationType : "has type"
+    SourceAttributeRelation "*" --> "1" SourceAttributeRelationType : "has type"
 ```
 
 ## Key Concepts
