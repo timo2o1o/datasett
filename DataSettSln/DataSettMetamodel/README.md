@@ -17,7 +17,8 @@ The metamodel follows a layered architecture where business concepts are mapped 
 
 ```mermaid
 classDiagram
-    %% Logical Business Object Model
+namespace LogicalBusinessObjectModel {
+
     class BusinessDomain {
         +BusinessDomain? Hierarchy
         +string? Name
@@ -78,7 +79,7 @@ classDiagram
         +string? RelatedKeyId
         +bool? IsLeadingKey
         +BusinessObjectRelationItem()
-        +BusinessObjectRelationItem(BusinessObject relatedKey, BusinessObjectRelation relation, bool isLeadingKey)
+        +BusinessObjectRelationItem(BusinessObject relatedKey, BusinessObjectRelation relation = null, bool isLeadingKey = false)
     }
 
     class HistoryType {
@@ -90,8 +91,10 @@ classDiagram
         +string? SourceAttributeName
         +string? TransformationValue
     }
+}
 
-    %% Physical Source System Model
+namespace PhysicalSourceSystemModel {
+
     class SourceSystem {
         +string? Driver
         +string? ConnectionString
@@ -153,6 +156,7 @@ classDiagram
         Undefined
         ForeignKeyConstraint
     }
+}
 
     %% Relationships
     BusinessDomain "1" --> "*" BusinessObject : contains
