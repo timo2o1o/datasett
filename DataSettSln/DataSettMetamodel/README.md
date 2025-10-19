@@ -20,60 +20,36 @@ classDiagram
 namespace LogicalBusinessObjectModel {
 
     class BusinessDomain {
-        +BusinessDomain? Hierarchy
         +string? Name
-        +IList~string~ BusinessObjectIds
-        +IList~BusinessObjectRelation~? BusinessRelations
-        +BusinessDomain()
-        +BusinessDomain(string name)
     }
 
     class BusinessObject {
         +string? Id
         +string? Name
-        +IList~string~ AttributeSetIds
-        +BusinessObject()
-        +BusinessObject(string name, BusinessDomain? businessDomain)
     }
 
     class AttributeSet {
         +string? Id
         +string? Name
-        +string? BusinessObjectId
-        +AttributeSet()
-        +AttributeSet(string name, BusinessObject businessObject)
     }
 
     class AttributeSetMapping {
-        +string? AttributeSetId
-        +string? SourceInterfaceId
         +int? OrderNo
         +string? SourceAttributeName
-        +HistoryType? HistoryType
-        +SourceAttributeRole? Role
         +string? Relation
         +int? Position
         +string? Default
         +bool? Nullable
         +string? Datatype
         +int? Length
-        +AttributeSetMapping()
-        +AttributeSetMapping(int orderNo, SourceInterface sourceInterface, SourceAttribute sourceAttribute)
     }
 
     class BusinessObjectRelation {
         +string? Name
-        +IList~BusinessObjectRelationItem~? RelatedKeys
-        +BusinessObjectRelation()
-        +BusinessObjectRelation(string name)
     }
 
     class BusinessObjectRelationItem {
-        +string? Parent
-        +string? RelatedKeyId
         +bool? IsLeadingKey
-        +BusinessObjectRelationItem()
-        +BusinessObjectRelationItem(BusinessObject relatedKey, BusinessObjectRelation relation = null, bool isLeadingKey = false)
     }
 
     class HistoryType {
@@ -81,8 +57,6 @@ namespace LogicalBusinessObjectModel {
     }
 
     class Transformation {
-        +string? SourceInterfaceId
-        +string? SourceAttributeName
         +string? TransformationValue
     }
 }
@@ -100,12 +74,9 @@ namespace PhysicalSourceSystemModel {
 
     class SourceInterface {
         +string? SourceInterfaceId
-        +string? SourceSystemId
         +string? Schema
         +string? Catalog
         +string? Name
-        +IList~SourceAttribute~? SourceAttributes
-        +IList~SourceAttributeRelation~? SourceAttributeRelations
     }
 
     class SourceAttribute {
@@ -118,17 +89,14 @@ namespace PhysicalSourceSystemModel {
         +string? Datatype
         +int? Length
         +int? Precision
-        +SourceAttribute()
     }
 
     class SourceAttributeRelation {
         +string? Name
-        +SourceAttributeRelationType? RelationType
         +int? Order
         +string? LocalKey
         +string? ParentTable
         +string? ParentKey
-        +SourceAttributeRelation()
     }
 
     class SourceAttributeRole {
@@ -147,19 +115,30 @@ namespace PhysicalSourceSystemModel {
 }
 
     %% Relationships
-    BusinessDomain "1" --> "*" BusinessObjectRelation : contains
     BusinessDomain "1" --> "0..1" BusinessDomain : hierarchy
+    BusinessDomain "1" --> "*" BusinessObject : contains
+    BusinessDomain "1" --> "*" BusinessObjectRelation : defines
+    
+    BusinessObject "1" --> "*" AttributeSet : contains
     
     AttributeSet "1" --> "*" AttributeSetMapping : "mapped by"
     
+    AttributeSetMapping "*" --> "1" AttributeSet : "maps to"
+    AttributeSetMapping "*" --> "1" SourceInterface : "maps from"
     AttributeSetMapping "*" --> "0..1" HistoryType : "has history type"
+    AttributeSetMapping "*" --> "1" SourceAttributeRole : "has role"
     
     BusinessObjectRelation "1" --> "*" BusinessObjectRelationItem : contains
+    BusinessObjectRelationItem "*" --> "1" BusinessObject : "relates to"
     
+    SourceSystem "1" --> "*" SourceInterface : contains
     SourceInterface "1" --> "*" SourceAttribute : contains
     SourceInterface "1" --> "*" SourceAttributeRelation : contains
     
     SourceAttributeRelation "*" --> "1" SourceAttributeRelationType : "has type"
+    
+    Transformation "*" --> "1" SourceInterface : "transforms from"
+    Transformation "*" --> "1" SourceAttribute : "transforms"
 ```
 
 ## Key Concepts
