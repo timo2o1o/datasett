@@ -22,7 +22,6 @@ namespace LogicalBusinessObjectModel {
     class BusinessDomain {
         +BusinessDomain? Hierarchy
         +string? Name
-        +IList~BusinessObject~? BusinessObjects
         +IList~string~ BusinessObjectIds
         +IList~BusinessObjectRelation~? BusinessRelations
         +BusinessDomain()
@@ -32,7 +31,6 @@ namespace LogicalBusinessObjectModel {
     class BusinessObject {
         +string? Id
         +string? Name
-        +IList~AttributeSet~? AttributeSets
         +IList~string~ AttributeSetIds
         +BusinessObject()
         +BusinessObject(string name, BusinessDomain? businessDomain)
@@ -41,7 +39,6 @@ namespace LogicalBusinessObjectModel {
     class AttributeSet {
         +string? Id
         +string? Name
-        +BusinessObject? BusinessObject
         +string? BusinessObjectId
         +AttributeSet()
         +AttributeSet(string name, BusinessObject businessObject)
@@ -52,11 +49,9 @@ namespace LogicalBusinessObjectModel {
         +string? SourceInterfaceId
         +int? OrderNo
         +string? SourceAttributeName
-        +SourceAttribute? SourceAttribute
         +HistoryType? HistoryType
         +SourceAttributeRole? Role
         +string? Relation
-        +BusinessObjectRelation? RelatedRelation
         +int? Position
         +string? Default
         +bool? Nullable
@@ -74,7 +69,6 @@ namespace LogicalBusinessObjectModel {
     }
 
     class BusinessObjectRelationItem {
-        +BusinessObject? RelatedKey
         +string? Parent
         +string? RelatedKeyId
         +bool? IsLeadingKey
@@ -102,7 +96,6 @@ namespace PhysicalSourceSystemModel {
         +string? Server
         +string? Name
         +string? Version
-        +IList~SourceInterface~? SourceInterfaces
     }
 
     class SourceInterface {
@@ -125,11 +118,6 @@ namespace PhysicalSourceSystemModel {
         +string? Datatype
         +int? Length
         +int? Precision
-        +string? Transformation
-        +SourceAttributeRole? Role
-        +AttributeSet? AttributeSet
-        +BusinessObjectRelation? Relation
-        +BusinessObject? RelatedBusinessObject
         +SourceAttribute()
     }
 
@@ -159,29 +147,17 @@ namespace PhysicalSourceSystemModel {
 }
 
     %% Relationships
-    BusinessDomain "1" --> "*" BusinessObject : contains
     BusinessDomain "1" --> "*" BusinessObjectRelation : contains
     BusinessDomain "1" --> "0..1" BusinessDomain : hierarchy
     
-    BusinessObject "1" --> "*" AttributeSet : contains
-    BusinessObject "1" --> "*" BusinessObjectRelationItem : "related in"
-    
     AttributeSet "1" --> "*" AttributeSetMapping : "mapped by"
     
-    AttributeSetMapping "*" --> "1" SourceAttribute : "maps from"
-    AttributeSetMapping "*" --> "0..1" BusinessObjectRelation : "relates to"
     AttributeSetMapping "*" --> "0..1" HistoryType : "has history type"
     
     BusinessObjectRelation "1" --> "*" BusinessObjectRelationItem : contains
     
-    SourceSystem "1" --> "*" SourceInterface : contains
     SourceInterface "1" --> "*" SourceAttribute : contains
     SourceInterface "1" --> "*" SourceAttributeRelation : contains
-    
-    SourceAttribute "*" --> "1" SourceAttributeRole : "has role"
-    SourceAttribute "*" --> "0..1" AttributeSet : "mapped to"
-    SourceAttribute "*" --> "0..1" BusinessObjectRelation : "participates in"
-    SourceAttribute "*" --> "0..1" BusinessObject : "related to"
     
     SourceAttributeRelation "*" --> "1" SourceAttributeRelationType : "has type"
 ```
