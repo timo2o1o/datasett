@@ -17,68 +17,39 @@ The metamodel follows a layered architecture where business concepts are mapped 
 
 ```mermaid
 classDiagram
-    %% Logical Business Object Model
+namespace LogicalBusinessObjectModel {
+
     class BusinessDomain {
-        +BusinessDomain? Hierarchy
         +string? Name
-        +IList~BusinessObject~? BusinessObjects
-        +IList~string~ BusinessObjectIds
-        +IList~BusinessObjectRelation~? BusinessRelations
-        +BusinessDomain()
-        +BusinessDomain(string name)
     }
 
     class BusinessObject {
         +string? Id
         +string? Name
-        +IList~AttributeSet~? AttributeSets
-        +IList~string~ AttributeSetIds
-        +BusinessObject()
-        +BusinessObject(string name, BusinessDomain? businessDomain)
     }
 
     class AttributeSet {
         +string? Id
         +string? Name
-        +BusinessObject? BusinessObject
-        +string? BusinessObjectId
-        +AttributeSet()
-        +AttributeSet(string name, BusinessObject businessObject)
     }
 
     class AttributeSetMapping {
-        +string? AttributeSetId
-        +string? SourceInterfaceId
         +int? OrderNo
         +string? SourceAttributeName
-        +SourceAttribute? SourceAttribute
-        +HistoryType? HistoryType
-        +SourceAttributeRole? Role
         +string? Relation
-        +BusinessObjectRelation? RelatedRelation
         +int? Position
         +string? Default
         +bool? Nullable
         +string? Datatype
         +int? Length
-        +AttributeSetMapping()
-        +AttributeSetMapping(int orderNo, SourceInterface sourceInterface, SourceAttribute sourceAttribute)
     }
 
     class BusinessObjectRelation {
         +string? Name
-        +IList~BusinessObjectRelationItem~? RelatedKeys
-        +BusinessObjectRelation()
-        +BusinessObjectRelation(string name)
     }
 
     class BusinessObjectRelationItem {
-        +BusinessObject? RelatedKey
-        +string? Parent
-        +string? RelatedKeyId
         +bool? IsLeadingKey
-        +BusinessObjectRelationItem()
-        +BusinessObjectRelationItem(BusinessObject relatedKey, BusinessObjectRelation relation, bool isLeadingKey)
     }
 
     class HistoryType {
@@ -86,12 +57,12 @@ classDiagram
     }
 
     class Transformation {
-        +string? SourceInterfaceId
-        +string? SourceAttributeName
         +string? TransformationValue
     }
+}
 
-    %% Physical Source System Model
+namespace PhysicalSourceSystemModel {
+
     class SourceSystem {
         +string? Driver
         +string? ConnectionString
@@ -99,17 +70,13 @@ classDiagram
         +string? Server
         +string? Name
         +string? Version
-        +IList~SourceInterface~? SourceInterfaces
     }
 
     class SourceInterface {
         +string? SourceInterfaceId
-        +string? SourceSystemId
         +string? Schema
         +string? Catalog
         +string? Name
-        +IList~SourceAttribute~? SourceAttributes
-        +IList~SourceAttributeRelation~? SourceAttributeRelations
     }
 
     class SourceAttribute {
@@ -122,22 +89,14 @@ classDiagram
         +string? Datatype
         +int? Length
         +int? Precision
-        +string? Transformation
-        +SourceAttributeRole? Role
-        +AttributeSet? AttributeSet
-        +BusinessObjectRelation? Relation
-        +BusinessObject? RelatedBusinessObject
-        +SourceAttribute()
     }
 
     class SourceAttributeRelation {
         +string? Name
-        +SourceAttributeRelationType? RelationType
         +int? Order
         +string? LocalKey
         +string? ParentTable
         +string? ParentKey
-        +SourceAttributeRelation()
     }
 
     class SourceAttributeRole {
@@ -153,35 +112,33 @@ classDiagram
         Undefined
         ForeignKeyConstraint
     }
+}
 
     %% Relationships
-    BusinessDomain ||--o{ BusinessObject : contains
-    BusinessDomain ||--o{ BusinessObjectRelation : contains
-    BusinessDomain ||--o| BusinessDomain : hierarchy
+    BusinessDomain "1" --> "0..1" BusinessDomain : hierarchy
+    BusinessDomain "1" --> "*" BusinessObject : contains
+    BusinessDomain "1" --> "*" BusinessObjectRelation : defines
     
-    BusinessObject ||--o{ AttributeSet : contains
-    BusinessObject ||--o{ BusinessObjectRelationItem : "related in"
+    BusinessObject "1" --> "*" AttributeSet : contains
     
-    AttributeSet ||--|| BusinessObject : "belongs to"
-    AttributeSet ||--o{ AttributeSetMapping : "mapped by"
+    AttributeSet "1" --> "*" AttributeSetMapping : "mapped by"
     
-    AttributeSetMapping ||--|| SourceAttribute : "maps from"
-    AttributeSetMapping ||--o| BusinessObjectRelation : "relates to"
-    AttributeSetMapping ||--o| HistoryType : "has history type"
+    AttributeSetMapping "*" --> "1" AttributeSet : "maps to"
+    AttributeSetMapping "*" --> "1" SourceInterface : "maps from"
+    AttributeSetMapping "*" --> "0..1" HistoryType : "has history type"
+    AttributeSetMapping "*" --> "1" SourceAttributeRole : "has role"
     
-    BusinessObjectRelation ||--o{ BusinessObjectRelationItem : contains
-    BusinessObjectRelationItem ||--|| BusinessObject : "references"
+    BusinessObjectRelation "1" --> "*" BusinessObjectRelationItem : contains
+    BusinessObjectRelationItem "*" --> "1" BusinessObject : "relates to"
     
-    SourceSystem ||--o{ SourceInterface : contains
-    SourceInterface ||--o{ SourceAttribute : contains
-    SourceInterface ||--o{ SourceAttributeRelation : contains
+    SourceSystem "1" --> "*" SourceInterface : contains
+    SourceInterface "1" --> "*" SourceAttribute : contains
+    SourceInterface "1" --> "*" SourceAttributeRelation : contains
     
-    SourceAttribute ||--|| SourceAttributeRole : "has role"
-    SourceAttribute ||--o| AttributeSet : "mapped to"
-    SourceAttribute ||--o| BusinessObjectRelation : "participates in"
-    SourceAttribute ||--o| BusinessObject : "related to"
+    SourceAttributeRelation "*" --> "1" SourceAttributeRelationType : "has type"
     
-    SourceAttributeRelation ||--|| SourceAttributeRelationType : "has type"
+    Transformation "*" --> "1" SourceInterface : "transforms from"
+    Transformation "*" --> "1" SourceAttribute : "transforms"
 ```
 
 ## Key Concepts
