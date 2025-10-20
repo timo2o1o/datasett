@@ -8,8 +8,9 @@ namespace DataSett.Metamodel
     //TODO: This seems to be unused currently. Consider removing it if not needed.
     public class SourceAttributeRelation
     {
+        
         [JsonPropertyName("name")]
-        public string? Name { get; set; } = "";
+        public string? Name { get; set; }
 
         [JsonPropertyName("relationType")]
         public SourceAttributeRelationType? RelationType { get; set; }
@@ -18,17 +19,13 @@ namespace DataSett.Metamodel
         public int? Order { get; set; }
 
         [JsonPropertyName("localKey")]
-        public string? LocalKey { get; set; } = "";
+        public string? LocalKey { get; set; }
 
         [JsonPropertyName("parentTable")]
-        public string? ParentTable { get; set; } = "";
+        public string? ParentTable { get; set; }
 
         [JsonPropertyName("parentKey")]
-        public string? ParentKey { get; set; } = "";
+        public string? ParentKey { get; set; }
 
-        public SourceAttributeRelation()
-        {
-            RelationType = SourceAttributeRelationType.Undefined;
-        }
     }
 }

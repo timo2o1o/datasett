@@ -4,15 +4,10 @@ namespace DataSett.Metamodel
 {
     /// <summary>
     /// An attribute set is a grouping of attributes of a business object.
-    /// A possible usage of this group is satellite splitting in data vault models.
+    /// A possible usage is satellite splitting in data vault models.
     /// </summary>
     public class AttributeSet
     {
-        [JsonConstructor]
-        public AttributeSet()
-        {
-
-        }
 
         public AttributeSet(string name, BusinessObject businessObject)
         {
@@ -22,16 +17,20 @@ namespace DataSett.Metamodel
             BusinessObjectId = BusinessObject?.Id;
         }
 
+        // Identification Properties
         [JsonPropertyName("attributeSetId")]
         public string? Id { get; set; } = null;
+        
+        [JsonPropertyName("businessObjectId")]
+        public string? BusinessObjectId { get; set; }
 
+        // Context properties
         [JsonPropertyName("name")]
         public string? Name { get; set; } = null;
 
+        // Navigation Properties
         [JsonIgnore]
         public BusinessObject? BusinessObject { get; set; }
 
-        [JsonPropertyName("businessObjectId")]
-        public string? BusinessObjectId { get; set; }
     }
 }

@@ -27,10 +27,15 @@ namespace DataSett.Metamodel
         [JsonPropertyName("businessObjectName")]
         public string? Name { get; set; }
 
+        [JsonPropertyName("attributeSets")]
+        public IList<string> AttributeSetIds { get; set; }
+
+        // Navigation Properties
         [JsonIgnore]
         public IList<AttributeSet>? AttributeSets { get; set; }
 
-        [JsonPropertyName("attributeSets")]
-        public IList<string> AttributeSetIds { get; set; }
+        [JsonIgnore]
+        public BusinessDomain? BusinessDomain { get; set; }
+
     }
 }

@@ -31,6 +31,7 @@ namespace LogicalBusinessObjectModel {
         +bool Nullable
         +string Datatype
         +int Length
+        +int Precision
     }
 
     class BusinessDomain {
@@ -69,7 +70,7 @@ namespace LogicalBusinessObjectModel {
     }
 
     class Transformation {
-        +string TransformationValue
+        +string TransformationExpression
     }
 }
 

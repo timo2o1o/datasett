@@ -2,6 +2,10 @@
 
 namespace DataSett.Metamodel
 {
+    /// <summary>
+    /// This is used to define transformations of source attributes,
+    /// like key concatenation, data type conversion, etc.
+    /// </summary>
     public class Transformation
     {
         [JsonPropertyName("sourceInterfaceId")]
@@ -11,6 +15,6 @@ namespace DataSett.Metamodel
         public string? SourceAttributeName { get; set; }
 
         [JsonPropertyName("transformation")]
-        public string? TransformationValue { get; set; }
+        public string? TransformationExpression { get; set; }
     }
 }

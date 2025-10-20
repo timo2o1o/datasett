@@ -8,13 +8,12 @@ namespace DataSett.Metamodel
         [JsonConstructor]
         public BusinessObjectRelation()
         {
-
+            RelatedKeys = new List<BusinessObjectRelationItem>();
         }
 
-        public BusinessObjectRelation(string name)
+        public BusinessObjectRelation(string name) : this()
         {
             Name = name;
-            RelatedKeys = new List<BusinessObjectRelationItem>();
         }
 
         [JsonPropertyName("businessRelationName")]
@@ -22,5 +21,6 @@ namespace DataSett.Metamodel
 
         [JsonPropertyName("relatedKeys")]
         public IList<BusinessObjectRelationItem>? RelatedKeys { get; set; }
+        
     }
 }
