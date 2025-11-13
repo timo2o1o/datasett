@@ -11,6 +11,24 @@ This project defines two main model categories:
 
 ## Architecture
 
+### Base/DTO/Domain Pattern
+
+The metamodel implements a clean separation pattern with three layers for each entity:
+
+- **Base Classes** (`[EntityName]Base`) - Contain only scalar/context properties (Id, Name, timestamps, etc.)
+- **DTO Classes** (`[EntityName]DTO`) - Inherit from base and add foreign key references for serialization
+- **Domain Classes** (`[EntityName]`) - Inherit from base and add navigation properties and business logic
+
+**Benefits:**
+- Clean serialization to separate JSON files with ID references
+- Clear separation of concerns
+- Easy to test and maintain
+- Supports complex object graphs without circular reference issues
+
+**For detailed documentation, see:** [BASE_DTO_DOMAIN_PATTERN.md](BASE_DTO_DOMAIN_PATTERN.md)
+
+### Layered Architecture
+
 The metamodel follows a layered architecture where business concepts are mapped to physical data sources through attribute set mappings, enabling data integration and transformation scenarios.
 
 ## Class Structure
@@ -176,3 +194,75 @@ This metamodel serves as the foundation for:
 ## JSON Serialization
 
 All classes are designed for JSON serialization using `System.Text.Json` with appropriate attributes for property naming and serialization control.
+## Using the Base/DTO/Domain Pattern
+
+### For Serialization (Writing JSON)
+
+When you need to serialize entities to JSON files:
+
+```csharp
+// Create domain entities with full object graph
+var domain = new BusinessDomain("Sales");
+var customer = new BusinessObject("Customer", domain);
+domain.BusinessObjects.Add(customer);
+
+// Convert to DTO for serialization
+BusinessDomainDTO domainDto = domain.ToDTO();
+
+// Serialize to JSON
+string json = JsonSerializer.Serialize(domainDto, new JsonSerializerOptions { WriteIndented = true });
+File.WriteAllText("BusinessDomain_Sales.json", json);
+```
+
+### For Deserialization (Reading JSON)
+
+When you need to deserialize entities from JSON files:
+
+```csharp
+// Read JSON file
+string json = File.ReadAllText("BusinessDomain_Sales.json");
+
+// Deserialize to DTO
+BusinessDomainDTO domainDto = JsonSerializer.Deserialize<BusinessDomainDTO>(json);
+
+// Convert DTO to domain entity
+BusinessDomain domain = BusinessDomain.FromDTO(domainDto);
+
+// Wire up navigation properties by loading related entities
+// (Load BusinessObjects from separate files and add to domain.BusinessObjects)
+```
+
+### For Business Logic (Working with Entities)
+
+When you need to work with entities in your application:
+
+```csharp
+// Always use domain classes for business logic
+BusinessDomain domain = new BusinessDomain("Sales");
+BusinessObject customer = new BusinessObject("Customer", domain);
+
+// Navigation properties are available
+domain.BusinessObjects.Add(customer);
+customer.BusinessDomain = domain;
+
+// You can traverse the object graph
+foreach (var bo in domain.BusinessObjects)
+{
+    Console.WriteLine($"Business Object: {bo.Name}");
+    foreach (var attrSet in bo.AttributeSets)
+    {
+        Console.WriteLine($"  Attribute Set: {attrSet.Name}");
+    }
+}
+```
+
+### Key Points
+
+1. **Domain classes** are for application logic and navigation - use these in your ViewModels and business logic
+2. **DTO classes** are for serialization only - use these when reading/writing JSON files
+3. **Base classes** are abstract and should not be instantiated directly
+4. Use `ToDTO()` to convert from domain to DTO before serialization
+5. Use `FromDTO()` to convert from DTO to domain after deserialization
+6. Navigation properties must be manually wired up after deserialization
+
+For more details, see [BASE_DTO_DOMAIN_PATTERN.md](BASE_DTO_DOMAIN_PATTERN.md).
