@@ -1,5 +1,7 @@
 ﻿@page "/"
+@using DataSett.Metamodel
 @using DataSett.ViewModel
+
 @inject WorkbenchMainViewmodel ViewModel
 
 <PageTitle>DataSett Workbench</PageTitle>
@@ -32,15 +34,14 @@
         <!-- TreeView nimmt 25% der Breite (2 von 12 Spalten) -->
         <MudItem xs="12" sm="2">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px; overflow-y: auto;">
-                <MudTreeView Items="@TreeItems" SelectionMode="SelectionMode.SingleSelection" @bind-SelectedValues="SelectedValue">
+                <MudTreeView
+                    T="SourceSystem"
+                    Items="@TreeItems"
+                    SelectionMode="SelectionMode.SingleSelection"
+                    @bind-SelectedValue="ViewModel.SelectedSourceSystem">
+
                     <ItemTemplate>
-                        @{
-                            // Casting context from TreeItemData<string> to our own derived class TreeItemPresenter
-                            // for convenient usage in the template
-                            var presenter = context as TreeItemPresenter;
-                        }
-                        <MudTreeViewItem @bind-Expanded="@context.Expanded" Items="@context.Children" Value="@context.Value"
-                                         Icon="@context.Icon" Text="@context.Text" EndText="@presenter?.Number?.ToString()" EndTextTypo="@Typo.caption" />
+                        <MudTreeViewItem Value="@context.Value" Text="@context.Text" Icon="@context.Icon" />
                     </ItemTemplate>
                 </MudTreeView>
             </MudPaper>
@@ -49,13 +50,21 @@
         <!-- DataGrid nimmt 75% der Breite (9 von 12 Spalten) -->
         <MudItem xs="12" sm="10">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px;">
-                <MudDataGrid Items="@ViewModel.SourceSystems">
-                    <Columns>
-                        <PropertyColumn Property="x => x.Server" Title="Nr" />
-                        <PropertyColumn Property="x => x.Version" />
-                        <PropertyColumn Property="x => x.Name" />
-                    </Columns>
-                </MudDataGrid>
+                @if (ViewModel.SelectedSourceSystem?.SourceInterfaces != null)
+                {
+                    <MudDataGrid Items="@ViewModel.SelectedSourceSystem.SourceInterfaces">
+                        <Columns>
+                            <PropertyColumn Property="x => x.Name" />
+                            <PropertyColumn Property="x => x.Schema" />
+                        </Columns>
+                    </MudDataGrid>
+                }
+                else
+                {
+                    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+                        Bitte wählen Sie ein Quellsystem aus.
+                    </MudText>
+                }
             </MudPaper>
         </MudItem>
     </MudGrid>
@@ -63,21 +72,7 @@
 
 @code {
 
-    public IReadOnlyCollection<string> SelectedValue { get; set; }
-
-    public List<TreeItemData<string>> TreeItems { get; set; } = new();
-
-    public class TreeItemPresenter : TreeItemData<string>
-    {
-        public int? Number { get; set; }
-
-        public TreeItemPresenter(string text, string icon, int? number = null) : base(text)
-        {
-            Text = text;
-            Icon = icon;
-            Number = number;
-        }
-    }
+    public List<TreeItemData<SourceSystem>> TreeItems { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,37 +82,15 @@
     private async Task LoadDataFromPath()
     {
         await ViewModel.LoadDataFromPathAsync(ViewModel.ServerPath);
-        LoadTreeItems();
+        TreeItems = ViewModel.SourceSystems
+            .Select(ss => new TreeItemData<SourceSystem>
+            {
+                Text = ss.Name,
+                Value = ss,
+                Icon = Icons.Material.Filled.Storage
+            })
+            .ToList();
         StateHasChanged();
-    }
-
-    private void LoadTreeItems()
-    {
-        TreeItems.Clear();
-
-        // SourceSystems zur TreeView hinzufügen
-        if (ViewModel.SourceSystems != null && ViewModel.SourceSystems.Any())
-        {
-            var sourceSystemsRoot = new TreeItemPresenter("Source Systems", Icons.Material.Filled.Storage)
-            {
-                Expanded = true,
-                Children = new List<TreeItemData<string>>()
-            };
-
-            foreach (var sourceSystem in ViewModel.SourceSystems)
-            {
-                var systemNode = new TreeItemPresenter(
-                    sourceSystem.Name ?? "Unnamed System", 
-                    Icons.Material.Filled.Computer,
-                    sourceSystem.SourceInterfaces?.Count
-                );
-                
-                sourceSystemsRoot.Children.Add(systemNode);
-            }
-
-            TreeItems.Add(sourceSystemsRoot);
-        }
-
     }
 
 }
