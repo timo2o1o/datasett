@@ -1,10 +1,18 @@
+using DataSett.ViewModel;
+using DataSett.ViewModel.Services;
 using DataSettWorkbench.Components;
+
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddMudServices();
+builder.Services.AddScoped<MetaDataIOService>();
+builder.Services.AddScoped<WorkbenchMainViewmodel>();
 
 var app = builder.Build();
 

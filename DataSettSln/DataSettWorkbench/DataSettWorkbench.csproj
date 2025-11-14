@@ -6,4 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="8.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataSettMetamodel\DataSettMetamodel.csproj" />
+    <ProjectReference Include="..\DataSettViewModel\DataSettViewModel.csproj" />
+  </ItemGroup>
+
 </Project>
