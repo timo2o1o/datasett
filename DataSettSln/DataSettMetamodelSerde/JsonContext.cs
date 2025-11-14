@@ -17,7 +17,7 @@ public class JsonContext
     private readonly IList<SourceSystemDTO> _sourceSystemDTOs;
     private readonly IList<SourceInterfaceDTO> _sourceInterfaceDTOs;
 
-    JsonContext()
+    public JsonContext()
     {
         _sourceSystemDTOs = new List<SourceSystemDTO>();
         _sourceInterfaceDTOs = new List<SourceInterfaceDTO>();
@@ -30,7 +30,7 @@ public class JsonContext
     public async Task LoadAsync(string repositoryPath)
     {
 
-        foreach (string current_source_system_file_path in Directory.EnumerateFiles(repositoryPath, "SourceSystem_*.json"))
+        foreach (string current_source_system_file_path in Directory.EnumerateFiles(repositoryPath, "SourceSystem_*.json", SearchOption.AllDirectories))
         {
 
             using (FileStream source_system_filestream = File.OpenRead(current_source_system_file_path))
@@ -44,7 +44,7 @@ public class JsonContext
 
         }
 
-        foreach (string current_source_interface_file_path in Directory.EnumerateFiles(repositoryPath, "SourceInterface_{0}.*.json"))
+        foreach (string current_source_interface_file_path in Directory.EnumerateFiles(repositoryPath, "SourceInterface_*.json", SearchOption.AllDirectories))
         {
 
             using (FileStream source_interface_filestream = File.OpenRead(current_source_interface_file_path))
@@ -71,7 +71,7 @@ public class JsonContext
             // Find all SourceInterfaceDTOs that belong to this SourceSystemDTO:
             foreach (SourceInterfaceDTO current_sourceInterface_dto in SourceInterfaceDTOs)
             {
-                if (current_sourceInterface_dto.ParentSourceSystemId == current_sourceSystem_dto.SourceSystemId)
+                if (current_sourceInterface_dto.SourceSystemId == current_sourceSystem_dto.SourceSystemId)
                 {
                     // Convert DTO to domain entity:
                     SourceInterface sourceInterface = SourceInterface.FromDTO(current_sourceInterface_dto, newSourceSystem);
@@ -84,7 +84,7 @@ public class JsonContext
         }
     }
 
-    public void SaveChanges(string repositoryPath, IEnumerable<SourceSystem> sourceSystems)
+    public Task SaveChangesAsync(string repositoryPath, IEnumerable<SourceSystem> sourceSystems)
     {
         // Implementation for saving domain entities as DTOs to JSON files would go here
         throw new NotImplementedException();

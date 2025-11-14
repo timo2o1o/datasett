@@ -19,14 +19,15 @@ namespace DataSett.Metamodel
         {
             get
             {
-                return $"{this.ParentSourceSystemId}.{this.Name}";
+                return $"{this.SourceSystemId}.{this.Name}";
             }
         }
 
         /// <summary>
         /// Unique identifier for the associated source system
         /// </summary>
-        public string? ParentSourceSystemId { get; set; }
+        [JsonPropertyName("sourceSystemId")]
+        public string? SourceSystemId { get; set; }
 
     }
 

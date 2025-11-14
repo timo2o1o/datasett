@@ -1,13 +1,32 @@
 using DataSett.Metamodel;
+using DataSett.Metamodel.Serde;
 
 namespace DataSett.ViewModel.Services
 {
-    public class MetaDataIOService
+    public interface IMetaDataIOService
     {
+        Task<IEnumerable<SourceSystem>> LoadSourceSystemsAsync(string repositoryPath);
+        Task SaveSourceSystemsAsync(string repositoryPath, IEnumerable<SourceSystem> sourceSystems);
+    }
 
-        // TODO: We might need some interface for this in near future
+    public class MetaDataIOService : IMetaDataIOService
+    {
+        private readonly JsonContext _dataContext;
 
+        public MetaDataIOService()
+        {
+            _dataContext = new JsonContext();
+        }
 
+        public async Task<IEnumerable<SourceSystem>> LoadSourceSystemsAsync(string repositoryPath)
+        {
+            await _dataContext.LoadAsync(repositoryPath);
+            return _dataContext.GetSourceSystems();
+        }
 
+        public async Task SaveSourceSystemsAsync(string repositoryPath, IEnumerable<SourceSystem> sourceSystems)
+        {
+            await _dataContext.SaveChangesAsync(repositoryPath, sourceSystems);
+        }
     }
 }

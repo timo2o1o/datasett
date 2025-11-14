@@ -11,7 +11,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
-builder.Services.AddScoped<MetaDataIOService>();
+builder.Services.AddScoped<IMetaDataIOService, MetaDataIOService>();
 builder.Services.AddScoped<WorkbenchMainViewmodel>();
 
 var app = builder.Build();
