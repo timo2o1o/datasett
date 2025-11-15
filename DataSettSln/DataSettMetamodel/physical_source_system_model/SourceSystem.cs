@@ -16,18 +16,17 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Navigation property to source interfaces within this system
         /// </summary>
-        [JsonIgnore]
         public IList<SourceInterface> SourceInterfaces { get; set; }
 
-        public static SourceSystem FromDTO(SourceSystemDTO current_sourceSystem_dto)
+        public static SourceSystem FromDTO(SourceSystemDTO dto)
         {
             return new SourceSystem()
             {
-                ConnectionString = current_sourceSystem_dto.ConnectionString,
-                Driver = current_sourceSystem_dto.Driver,
-                Name = current_sourceSystem_dto.Name,
-                Server = current_sourceSystem_dto.Server,
-                Version = current_sourceSystem_dto.Version
+                ConnectionString = dto.ConnectionString,
+                Driver = dto.Driver,
+                Name = dto.Name,
+                Server = dto.Server,
+                Version = dto.Version
             };
         }
     }

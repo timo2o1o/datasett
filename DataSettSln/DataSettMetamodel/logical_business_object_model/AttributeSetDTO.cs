@@ -14,13 +14,12 @@ namespace DataSett.Metamodel
         {
         }
 
-        public AttributeSetDTO(string name, string? businessObjectId = null)
+        [JsonIgnore]
+        public string? AttributeSetId
         {
-            Name = name;
-            BusinessObjectId = businessObjectId;
-            if (!string.IsNullOrEmpty(businessObjectId) && !string.IsNullOrEmpty(name))
+            get
             {
-                Id = string.Format("{0}.{1}", businessObjectId, name);
+                return $"{BusinessObjectId}.{Name}";
             }
         }
 

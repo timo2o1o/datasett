@@ -16,15 +16,15 @@ namespace DataSett.Metamodel
         [JsonIgnore]
         public SourceSystem? ParentSourceSystem { get; set; }
 
-        public static SourceInterface FromDTO(SourceInterfaceDTO current_sourceInterface_dto, SourceSystem newSourceSystem)
+        public static SourceInterface FromDTO(SourceInterfaceDTO dto, SourceSystem parentSourceSystem)
         {
             return new SourceInterface()
             {
-                Catalog = current_sourceInterface_dto.Catalog,
-                Name = current_sourceInterface_dto.Name,
-                ParentSourceSystem = newSourceSystem,
-                Schema = current_sourceInterface_dto.Schema,
-                SourceAttributes = current_sourceInterface_dto.SourceAttributes
+                Catalog = dto.Catalog,
+                Name = dto.Name,
+                ParentSourceSystem = parentSourceSystem,
+                Schema = dto.Schema,
+                SourceAttributes = dto.SourceAttributes
             };
         }
     }
