@@ -29,31 +29,38 @@ public class JsonContext
 
     public async Task LoadAsync(string repositoryPath)
     {
+        _sourceSystemDTOs.Clear();
+        _sourceInterfaceDTOs.Clear();
 
-        foreach (string current_source_system_file_path in Directory.EnumerateFiles(repositoryPath, "SourceSystem_*.json", SearchOption.AllDirectories))
+        if (Directory.Exists(repositoryPath))
         {
 
-            using (FileStream source_system_filestream = File.OpenRead(current_source_system_file_path))
+            foreach (string current_source_system_file_path in Directory.EnumerateFiles(repositoryPath, "SourceSystem_*.json", SearchOption.AllDirectories))
             {
-                SourceSystemDTO? sourceSystemDto = await JsonSerializer.DeserializeAsync<SourceSystemDTO>(source_system_filestream);
-                if (sourceSystemDto != null)
+
+                using (FileStream source_system_filestream = File.OpenRead(current_source_system_file_path))
                 {
-                    _sourceSystemDTOs.Add(sourceSystemDto);
+                    SourceSystemDTO? sourceSystemDto = await JsonSerializer.DeserializeAsync<SourceSystemDTO>(source_system_filestream);
+                    if (sourceSystemDto != null)
+                    {
+                        _sourceSystemDTOs.Add(sourceSystemDto);
+                    }
                 }
+
             }
 
-        }
-
-        foreach (string current_source_interface_file_path in Directory.EnumerateFiles(repositoryPath, "SourceInterface_*.json", SearchOption.AllDirectories))
-        {
-
-            using (FileStream source_interface_filestream = File.OpenRead(current_source_interface_file_path))
+            foreach (string current_source_interface_file_path in Directory.EnumerateFiles(repositoryPath, "SourceInterface_*.json", SearchOption.AllDirectories))
             {
-                SourceInterfaceDTO? sourceInterfaceDto = await JsonSerializer.DeserializeAsync<SourceInterfaceDTO>(source_interface_filestream);
-                if (sourceInterfaceDto != null)
+
+                using (FileStream source_interface_filestream = File.OpenRead(current_source_interface_file_path))
                 {
-                    _sourceInterfaceDTOs.Add(sourceInterfaceDto);
+                    SourceInterfaceDTO? sourceInterfaceDto = await JsonSerializer.DeserializeAsync<SourceInterfaceDTO>(source_interface_filestream);
+                    if (sourceInterfaceDto != null)
+                    {
+                        _sourceInterfaceDTOs.Add(sourceInterfaceDto);
+                    }
                 }
+
             }
 
         }

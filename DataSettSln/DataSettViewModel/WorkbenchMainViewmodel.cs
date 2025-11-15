@@ -45,6 +45,20 @@ namespace DataSett.ViewModel
             }
         }
 
+        private SourceInterface? _selectedSourceInterface;
+        public SourceInterface? SelectedSourceInterface
+        {
+            get => _selectedSourceInterface;
+            set
+            {
+                if (_selectedSourceInterface != value)
+                {
+                    _selectedSourceInterface = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private string _serverPath;
         public string ServerPath
         {

@@ -35,13 +35,16 @@
         <MudItem xs="12" sm="2">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px; overflow-y: auto;">
                 <MudTreeView
-                    T="SourceSystem"
+                    T="object"
                     Items="@TreeItems"
                     SelectionMode="SelectionMode.SingleSelection"
-                    @bind-SelectedValue="ViewModel.SelectedSourceSystem">
+                    SelectedValueChanged="OnTreeItemSelected">
 
                     <ItemTemplate>
-                        <MudTreeViewItem Value="@context.Value" Text="@context.Text" Icon="@context.Icon" />
+                        <MudTreeViewItem Value="@context.Value"
+                                         Text="@context.Text"
+                                         Icon="@context.Icon"
+                                         Items="@context.Children" />
                     </ItemTemplate>
                 </MudTreeView>
             </MudPaper>
@@ -50,19 +53,26 @@
         <!-- DataGrid nimmt 75% der Breite (9 von 12 Spalten) -->
         <MudItem xs="12" sm="10">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px;">
-                @if (ViewModel.SelectedSourceSystem?.SourceInterfaces != null)
+                @if (ViewModel.SelectedSourceInterface != null && ViewModel.SelectedSourceInterface.SourceAttributes != null)
                 {
-                    <MudDataGrid Items="@ViewModel.SelectedSourceSystem.SourceInterfaces">
+                    <MudDataGrid Items="@ViewModel.SelectedSourceInterface.SourceAttributes">
                         <Columns>
                             <PropertyColumn Property="x => x.Name" />
-                            <PropertyColumn Property="x => x.Schema" />
+                            <PropertyColumn Property="x => x.Datatype" />
+                            <PropertyColumn Property="x => x.Default" />
+                            <PropertyColumn Property="x => x.IsFk" />
+                            <PropertyColumn Property="x => x.IsPk" />
+                            <PropertyColumn Property="x => x.Length" />
+                            <PropertyColumn Property="x => x.Nullable" />
+                            <PropertyColumn Property="x => x.Position" />
+                            <PropertyColumn Property="x => x.Precision" />
                         </Columns>
                     </MudDataGrid>
                 }
                 else
                 {
                     <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
-                        Bitte wählen Sie ein Quellsystem aus.
+                        Please choose a source interface to display its attribute mapping.
                     </MudText>
                 }
             </MudPaper>
@@ -72,7 +82,7 @@
 
 @code {
 
-    public List<TreeItemData<SourceSystem>> TreeItems { get; set; } = new();
+    public HashSet<TreeItemData<object>> TreeItems { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,14 +93,38 @@
     {
         await ViewModel.LoadDataFromPathAsync(ViewModel.ServerPath);
         TreeItems = ViewModel.SourceSystems
-            .Select(ss => new TreeItemData<SourceSystem>
+            .Select(ss => new TreeItemData<object>
             {
                 Text = ss.Name,
                 Value = ss,
-                Icon = Icons.Material.Filled.Storage
+                Icon = Icons.Material.Filled.Storage,
+                Children = ss.SourceInterfaces?
+                    .Select(si => new TreeItemData<object>
+                    {
+                        Text = si.Name,
+                        Value = si,
+                        Icon = Icons.Material.Filled.TableRows
+                    })
+                    .ToList()
             })
-            .ToList();
+            .ToHashSet();
         StateHasChanged();
+    }
+
+    private void OnTreeItemSelected(object selectedValue)
+    {
+        // Wenn ein SourceSystem ausgewählt wurde, setze es im ViewModel
+        if (selectedValue is SourceSystem sourceSystem)
+        {
+            ViewModel.SelectedSourceSystem = sourceSystem;
+            ViewModel.SelectedSourceInterface = null;
+        }
+        // Wenn ein SourceInterface ausgewählt wurde, setze das Parent SourceSystem
+        else if (selectedValue is SourceInterface sourceInterface)
+        {
+            ViewModel.SelectedSourceSystem = sourceInterface.ParentSourceSystem;
+            ViewModel.SelectedSourceInterface = sourceInterface;
+        }
     }
 
 }

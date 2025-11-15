@@ -1,6 +1,12 @@
 ﻿<MudNavMenu>
-    <MudNavLink Href="/" Match="NavLinkMatch.All">Workbench</MudNavLink>
-    <MudNavGroup Title="Settings" Expanded="true">
+    <MudNavLink Href="/" Match="NavLinkMatch.All">Logical Business Object Mapping</MudNavLink>
+    <MudNavLink Href="/relationmodeling" Match="NavLinkMatch.Prefix">Business Object Relation Modeling</MudNavLink>
+    <MudNavGroup Title="Sett Foundations" Expanded="true">
+        <MudNavLink Href="/sourcesystems" Match="NavLinkMatch.Prefix">Source System Definition</MudNavLink>
+        <MudNavLink Href="/businessdomains" Match="NavLinkMatch.Prefix">Business Domain Definition</MudNavLink>
+        <MudNavLink Href="/businessobjects" Match="NavLinkMatch.Prefix">Business Object Definition</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="Settings" Expanded="false">
         <MudNavLink Href="/paths" Match="NavLinkMatch.Prefix">Repo Paths</MudNavLink>
         <MudNavLink Href="/users" Match="NavLinkMatch.Prefix">Users</MudNavLink>
         <MudNavLink Href="/security" Match="NavLinkMatch.Prefix">Security</MudNavLink>
