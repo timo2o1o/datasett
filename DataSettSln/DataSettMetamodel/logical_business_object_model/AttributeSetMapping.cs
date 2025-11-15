@@ -44,7 +44,9 @@ namespace DataSett.Metamodel
                 Datatype = this.Datatype,
                 Length = this.Length,
                 Precision = this.Precision,
-                AttributeSetId = this.AttributeSet?.Id,
+                AttributeSetId = this.AttributeSet?.BusinessObject?.Name != null && this.AttributeSet?.Name != null 
+                    ? $"{this.AttributeSet.BusinessObject.Name}.{this.AttributeSet.Name}" 
+                    : null,
                 SourceAttributeName = this.SourceAttribute?.Name
                 // SourceInterfaceId would need to be obtained from SourceAttribute's parent
             };
