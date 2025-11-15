@@ -1,6 +1,8 @@
 ﻿using DataSett.Metamodel;
 using DataSett.ViewModel.Services;
 
+using Microsoft.Extensions.Options;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,13 +16,13 @@ namespace DataSett.ViewModel
 {
     public class WorkbenchMainViewmodel : INotifyPropertyChanged
     {
-        public WorkbenchMainViewmodel(IMetaDataIOService metaDataIOService)
+        public WorkbenchMainViewmodel(IMetaDataIOService metaDataIOService, IOptions<AppSettings> appSettings)
         {
             MetaDataIOService = metaDataIOService;
 
             // Set standard values for properties:
             _sourceSystems = new ObservableCollection<SourceSystem>();
-            _serverPath = @"d:\Dev\github\timo2o1o\willibald-metadata\";
+            _serverPath = appSettings.Value.RepositoryPath ?? string.Empty;
         }
 
         private IMetaDataIOService MetaDataIOService { get; set; }
