@@ -7,7 +7,6 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Name of the business object
         /// </summary>
-        [JsonPropertyName("name")]
         public string? Name { get; set; }
     }
 }

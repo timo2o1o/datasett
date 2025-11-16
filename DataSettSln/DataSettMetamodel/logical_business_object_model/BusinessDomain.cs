@@ -21,7 +21,6 @@ namespace DataSett.Metamodel
         [JsonIgnore]
         public BusinessDomain? ParentBusinessDomain { get; set; }
 
-        [JsonPropertyName("childBusinessDomains")]
         public IList<BusinessDomain> ChildBusinessDomains { get; set; }
 
         /// <summary>

@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSettMetamodelSerde", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSettWorkbench", "DataSettWorkbench\DataSettWorkbench.csproj", "{9315DAC0-703B-45F7-8260-C2489FEE8D1C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSettMetamodelSerde.Tests", "DataSettMetamodelSerde.Tests\DataSettMetamodelSerde.Tests.csproj", "{543EBFCB-7E3D-4BC2-AE95-94A74900CC84}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{9315DAC0-703B-45F7-8260-C2489FEE8D1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9315DAC0-703B-45F7-8260-C2489FEE8D1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9315DAC0-703B-45F7-8260-C2489FEE8D1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{543EBFCB-7E3D-4BC2-AE95-94A74900CC84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{543EBFCB-7E3D-4BC2-AE95-94A74900CC84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{543EBFCB-7E3D-4BC2-AE95-94A74900CC84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{543EBFCB-7E3D-4BC2-AE95-94A74900CC84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

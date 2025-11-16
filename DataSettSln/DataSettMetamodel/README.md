@@ -193,4 +193,10 @@ This metamodel serves as the foundation for:
 
 ## JSON Serialization
 
-All classes are designed for JSON serialization using `System.Text.Json` with appropriate attributes for property naming and serialization control.
+All classes are designed for JSON serialization using `System.Text.Json`. The [DataSettMetamodelSerde](../DataSettMetamodelSerde/README.md) library provides a shared `JsonSerializerOptions` instance (`JsonDefaults.Web`) that automatically converts PascalCase property names to camelCase in JSON output.
+
+**Key Points:**
+- Property naming is handled globally through `JsonDefaults.Web` options
+- No `[JsonPropertyName]` attributes are needed on properties
+- All JSON output uses consistent camelCase naming
+- For detailed serialization information, see [DataSettMetamodelSerde/README.md](../DataSettMetamodelSerde/README.md)

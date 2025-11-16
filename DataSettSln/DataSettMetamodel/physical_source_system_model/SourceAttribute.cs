@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace DataSett.Metamodel
+﻿namespace DataSett.Metamodel
 {
 
     /// <summary>
@@ -13,31 +11,22 @@ namespace DataSett.Metamodel
     {
         
         // Context Properties
-        [JsonPropertyName("name")]
         public string? Name { get; set; }
 
-        [JsonPropertyName("isPk")]
         public bool? IsPk { get; set; }
 
-        [JsonPropertyName("isFk")]
         public bool? IsFk { get; set; }
 
-        [JsonPropertyName("position")]
         public int? Position { get; set; }
 
-        [JsonPropertyName("default")]
         public string? Default { get; set; }
 
-        [JsonPropertyName("nullable")]
         public bool? Nullable { get; set; }
 
-        [JsonPropertyName("datatype")]
         public string? Datatype { get; set; }
 
-        [JsonPropertyName("length")]
         public int? Length { get; set; }
 
-        [JsonPropertyName("precision")]
         public int? Precision { get; set; }
 
     }
