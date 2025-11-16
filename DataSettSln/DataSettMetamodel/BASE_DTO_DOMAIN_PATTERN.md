@@ -35,10 +35,7 @@ Base classes contain only scalar and context properties:
 ```csharp
 public abstract class BusinessObjectBase
 {
-    [JsonPropertyName("businessObjectId")]
-    public string? Id { get; set; }
-
-    [JsonPropertyName("businessObjectName")]
+    [JsonPropertyName("name")]
     public string? Name { get; set; }
 }
 ```
@@ -58,8 +55,19 @@ public class BusinessObjectDTO : BusinessObjectBase
     [JsonConstructor]
     public BusinessObjectDTO() { }
 
-    [JsonPropertyName("attributeSets")]
-    public IList<string> AttributeSetIds { get; set; }
+    [JsonIgnore]
+    public string BusinessObjectId
+    {
+        get
+        {
+            return string.Format("{0}.{1}", BusinessDomainId, Name);
+        }
+    }
+
+    /// <summary>
+    /// Reference to parent business domain
+    /// </summary>
+    public string? BusinessDomainId { get; set; }
 }
 ```
 
