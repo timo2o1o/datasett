@@ -42,8 +42,6 @@ public abstract class BusinessObjectBase
 }
 ```
 
-**Note:** Property names are automatically converted to camelCase during JSON serialization through the shared `JsonSerializerOptions` in `DataSettMetamodelSerde.JsonDefaults.Web`. Individual `[JsonPropertyName]` attributes are no longer needed.
-
 ### DTO Classes (`[EntityName]DTO`)
 
 DTO classes inherit from base classes and add:
