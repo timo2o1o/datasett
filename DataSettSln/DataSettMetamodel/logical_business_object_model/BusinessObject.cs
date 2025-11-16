@@ -8,7 +8,6 @@ namespace DataSett.Metamodel
     /// </summary>
     public class BusinessObject : BusinessObjectBase
     {
-        [JsonConstructor]
         public BusinessObject()
         {
             AttributeSets = new List<AttributeSet>();
@@ -19,7 +18,7 @@ namespace DataSett.Metamodel
         /// Navigation property to attribute sets
         /// </summary>
         public IList<AttributeSet> AttributeSets { get; set; }
-
+                
         /// <summary>
         /// Navigation property to parent business domain
         /// </summary>

@@ -25,33 +25,9 @@ namespace DataSett.Metamodel
         public SourceAttributeRole? Role { get; set; }
 
         /// <summary>
-        /// Position of the attribute
+        /// Attribute properties in the attribute set
+        /// This might override the properties of the source attribute.
         /// </summary>
-        public int? Position { get; set; }
-
-        /// <summary>
-        /// Default value
-        /// </summary>
-        public string? Default { get; set; }
-
-        /// <summary>
-        /// Whether the attribute is nullable
-        /// </summary>
-        public bool? Nullable { get; set; }
-
-        /// <summary>
-        /// Data type of the attribute
-        /// </summary>
-        public string? Datatype { get; set; }
-
-        /// <summary>
-        /// Length of the attribute
-        /// </summary>
-        public int? Length { get; set; }
-
-        /// <summary>
-        /// Precision of the attribute
-        /// </summary>
-        public int? Precision { get; set; }
+        public AttributeProperties? AttributeProperties { get; set; }
     }
 }

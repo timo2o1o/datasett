@@ -17,17 +17,7 @@
 
         public bool? IsFk { get; set; }
 
-        public int? Position { get; set; }
-
-        public string? Default { get; set; }
-
-        public bool? Nullable { get; set; }
-
-        public string? Datatype { get; set; }
-
-        public int? Length { get; set; }
-
-        public int? Precision { get; set; }
+        public AttributeProperties? AttributeProperties { get; set; }
 
     }
 }

@@ -5,7 +5,6 @@ namespace DataSett.Metamodel
 
     public class SourceInterfaceDTO : SourceInterfaceBase
     {
-        [JsonConstructor]
         public SourceInterfaceDTO()
         {
         

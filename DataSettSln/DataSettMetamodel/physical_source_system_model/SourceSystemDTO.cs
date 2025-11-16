@@ -5,7 +5,6 @@ namespace DataSett.Metamodel
 
     public class SourceSystemDTO : SourceSystemBase
     {
-        [JsonConstructor]
         public SourceSystemDTO()
         {
         }

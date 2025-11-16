@@ -11,6 +11,8 @@ namespace DataSett.Metamodel
         
         public AttributeSet()
         {
+
+            AttributeSetMappings = new List<AttributeSetMapping>();
         }
 
         // Navigation Properties
@@ -18,7 +20,9 @@ namespace DataSett.Metamodel
         /// Navigation property to parent business object
         /// </summary>
         [JsonIgnore]
-        public BusinessObject? BusinessObject { get; set; }
+        public BusinessObject? ParentBusinessObject { get; set; }
+
+        public IList<AttributeSetMapping> AttributeSetMappings { get; set; }
 
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)
@@ -28,7 +32,7 @@ namespace DataSett.Metamodel
             return new AttributeSet
             {
                 Name = dto.Name,
-                BusinessObject = parentBusinessObject
+                ParentBusinessObject = parentBusinessObject
             };
         }
     }

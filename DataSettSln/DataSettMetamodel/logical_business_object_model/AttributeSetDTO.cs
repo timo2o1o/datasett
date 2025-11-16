@@ -9,9 +9,9 @@ namespace DataSett.Metamodel
     /// </summary>
     public class AttributeSetDTO : AttributeSetBase
     {
-        [JsonConstructor]
         public AttributeSetDTO()
         {
+            AttributeSetMappings = new List<AttributeSetMappingDTO>();
         }
 
         [JsonIgnore]
@@ -27,5 +27,7 @@ namespace DataSett.Metamodel
         /// Foreign key reference to parent business object
         /// </summary>
         public string? BusinessObjectId { get; set; }
-    }
+
+        public IList<AttributeSetMappingDTO> AttributeSetMappings { get; set; }
+        }
 }

@@ -58,14 +58,14 @@
                     <MudDataGrid Items="@ViewModel.SelectedSourceInterface.SourceAttributes">
                         <Columns>
                             <PropertyColumn Property="x => x.Name" />
-                            <PropertyColumn Property="x => x.Datatype" />
-                            <PropertyColumn Property="x => x.Default" />
+                            <PropertyColumn Property="x => x.AttributeProperties.Datatype" />
+                            <PropertyColumn Property="x => x.AttributeProperties.Default" />
                             <PropertyColumn Property="x => x.IsFk" />
                             <PropertyColumn Property="x => x.IsPk" />
-                            <PropertyColumn Property="x => x.Length" />
-                            <PropertyColumn Property="x => x.Nullable" />
-                            <PropertyColumn Property="x => x.Position" />
-                            <PropertyColumn Property="x => x.Precision" />
+                            <PropertyColumn Property="x => x.AttributeProperties.Length" />
+                            <PropertyColumn Property="x => x.AttributeProperties.Nullable" />
+                            <PropertyColumn Property="x => x.AttributeProperties.Position" />
+                            <PropertyColumn Property="x => x.AttributeProperties.Precision" />
                         </Columns>
                     </MudDataGrid>
                 }

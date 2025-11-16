@@ -3,17 +3,15 @@ using System.Collections.Generic;
 
 namespace DataSett.Metamodel
 {
-    public class BusinessObjectRelation
+    public class BusinessObjectRelation : BusinessObjectRelationBase
     {
-        [JsonConstructor]
+
         public BusinessObjectRelation()
         {
             RelatedObjects = new List<BusinessObjectRelationItem>();
         }
 
-        public string? Name { get; set; }
-
         public IList<BusinessObjectRelationItem>? RelatedObjects { get; set; }
-        
+
     }
 }

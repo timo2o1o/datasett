@@ -54,7 +54,6 @@ DTO classes inherit from base classes and add:
 ```csharp
 public class BusinessObjectDTO : BusinessObjectBase
 {
-    [JsonConstructor]
     public BusinessObjectDTO() { }
 
     [JsonIgnore]

@@ -5,7 +5,6 @@ namespace DataSett.Metamodel
     
     public class BusinessDomainDTO : BusinessDomainBase
     {
-        [JsonConstructor]
         public BusinessDomainDTO()
         {
             

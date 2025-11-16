@@ -9,16 +9,7 @@ namespace DataSett.Metamodel
     /// </summary>
     public class AttributeSetMappingDTO : AttributeSetMappingBase
     {
-        [JsonConstructor]
-        public AttributeSetMappingDTO()
-        {
-        }
-
-        /// <summary>
-        /// Foreign key reference to attribute set
-        /// </summary>
-        public string? AttributeSetId { get; set; }
-
+       
         /// <summary>
         /// Foreign key reference to source interface
         /// </summary>
