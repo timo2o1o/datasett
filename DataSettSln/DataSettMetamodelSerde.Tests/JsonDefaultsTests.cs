@@ -88,9 +88,12 @@ public class JsonDefaultsTests
                 {
                     Name = "Id",
                     IsPk = true,
-                    Datatype = "int",
-                    Position = 1,
-                    Nullable = false
+                    AttributeProperties = new AttributeProperties
+                    {
+                        Datatype = "int",
+                        Position = 1,
+                        Nullable = false
+                    }
                 }
             }
         };
@@ -105,6 +108,7 @@ public class JsonDefaultsTests
         Assert.Contains("\"sourceSystemId\":", json);
         Assert.Contains("\"sourceAttributes\":", json);
         Assert.Contains("\"isPk\":", json);
+        Assert.Contains("\"attributeProperties\":", json);
         Assert.Contains("\"datatype\":", json);
         Assert.Contains("\"position\":", json);
         Assert.Contains("\"nullable\":", json);
@@ -120,7 +124,7 @@ public class JsonDefaultsTests
     public void SourceInterfaceDTO_Deserialization_ShouldUseCamelCase()
     {
         // Arrange
-        var json = "{\"name\":\"TestTable\",\"schema\":\"dbo\",\"catalog\":\"TestCatalog\",\"sourceSystemId\":\"TestSystem\",\"sourceAttributes\":[{\"name\":\"Id\",\"isPk\":true,\"isFk\":false,\"position\":1,\"nullable\":false,\"datatype\":\"int\"}]}";
+        var json = "{\"name\":\"TestTable\",\"schema\":\"dbo\",\"catalog\":\"TestCatalog\",\"sourceSystemId\":\"TestSystem\",\"sourceAttributes\":[{\"name\":\"Id\",\"isPk\":true,\"isFk\":false,\"attributeProperties\":{\"position\":1,\"nullable\":false,\"datatype\":\"int\"}}]}";
 
         // Act
         var sourceInterface = JsonSerializer.Deserialize<SourceInterfaceDTO>(json, JsonDefaults.Web);
@@ -135,7 +139,8 @@ public class JsonDefaultsTests
         Assert.Single(sourceInterface.SourceAttributes);
         Assert.Equal("Id", sourceInterface.SourceAttributes[0].Name);
         Assert.True(sourceInterface.SourceAttributes[0].IsPk);
-        Assert.Equal("int", sourceInterface.SourceAttributes[0].Datatype);
+        Assert.NotNull(sourceInterface.SourceAttributes[0].AttributeProperties);
+        Assert.Equal("int", sourceInterface.SourceAttributes[0].AttributeProperties.Datatype);
     }
 
     [Fact]
@@ -147,12 +152,15 @@ public class JsonDefaultsTests
             Name = "TestColumn",
             IsPk = true,
             IsFk = false,
-            Position = 1,
-            Default = "0",
-            Nullable = false,
-            Datatype = "varchar",
-            Length = 50,
-            Precision = 0
+            AttributeProperties = new AttributeProperties
+            {
+                Position = 1,
+                Default = "0",
+                Nullable = false,
+                Datatype = "varchar",
+                Length = 50,
+                Precision = 0
+            }
         };
 
         // Act
@@ -162,6 +170,7 @@ public class JsonDefaultsTests
         Assert.Contains("\"name\":", json);
         Assert.Contains("\"isPk\":", json);
         Assert.Contains("\"isFk\":", json);
+        Assert.Contains("\"attributeProperties\":", json);
         Assert.Contains("\"position\":", json);
         Assert.Contains("\"default\":", json);
         Assert.Contains("\"nullable\":", json);
@@ -220,26 +229,32 @@ public class JsonDefaultsTests
         // Arrange
         var mapping = new AttributeSetMappingDTO
         {
-            AttributeSetId = "TestAttributeSet",
             SourceInterfaceId = "TestInterface",
             SourceAttributeName = "TestAttribute",
             OrderNo = 1,
-            Position = 1,
-            Default = "0",
-            Nullable = false,
-            Datatype = "int",
-            Length = 4,
-            Precision = 0
+            HistoryType = HistoryType.None,
+            Role = SourceAttributeRole.BusinessKey,
+            AttributeProperties = new AttributeProperties
+            {
+                Position = 1,
+                Default = "0",
+                Nullable = false,
+                Datatype = "int",
+                Length = 4,
+                Precision = 0
+            }
         };
 
         // Act
         var json = JsonSerializer.Serialize(mapping, JsonDefaults.Web);
 
         // Assert
-        Assert.Contains("\"attributeSetId\":", json);
         Assert.Contains("\"sourceInterfaceId\":", json);
         Assert.Contains("\"sourceAttributeName\":", json);
         Assert.Contains("\"orderNo\":", json);
+        Assert.Contains("\"historyType\":", json);
+        Assert.Contains("\"role\":", json);
+        Assert.Contains("\"attributeProperties\":", json);
         Assert.Contains("\"position\":", json);
         Assert.Contains("\"default\":", json);
         Assert.Contains("\"nullable\":", json);
@@ -249,10 +264,10 @@ public class JsonDefaultsTests
     }
 
     [Fact]
-    public void Transformation_Serialization_ShouldUseCamelCase()
+    public void TransformationDTO_Serialization_ShouldUseCamelCase()
     {
         // Arrange
-        var transformation = new Transformation
+        var transformation = new TransformationDTO
         {
             SourceInterfaceId = "TestInterface",
             SourceAttributeName = "TestAttribute",

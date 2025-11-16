@@ -9,6 +9,12 @@ namespace DataSett.Metamodel
     /// </summary>
     public abstract class AttributeSetMappingBase
     {
+
+        public AttributeSetMappingBase()
+        {
+            AttributeProperties = new AttributeProperties();
+        }
+
         /// <summary>
         /// Order number for the mapping
         /// </summary>
@@ -28,6 +34,6 @@ namespace DataSett.Metamodel
         /// Attribute properties in the attribute set
         /// This might override the properties of the source attribute.
         /// </summary>
-        public AttributeProperties? AttributeProperties { get; set; }
+        public AttributeProperties AttributeProperties { get; set; }
     }
 }

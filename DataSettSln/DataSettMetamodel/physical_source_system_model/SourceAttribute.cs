@@ -9,7 +9,12 @@
     /// </summary>
     public class SourceAttribute
     {
-        
+
+        public SourceAttribute()
+        {
+            AttributeProperties = new AttributeProperties();
+        }
+
         // Context Properties
         public string? Name { get; set; }
 
@@ -17,7 +22,7 @@
 
         public bool? IsFk { get; set; }
 
-        public AttributeProperties? AttributeProperties { get; set; }
+        public AttributeProperties AttributeProperties { get; set; }
 
     }
 }
