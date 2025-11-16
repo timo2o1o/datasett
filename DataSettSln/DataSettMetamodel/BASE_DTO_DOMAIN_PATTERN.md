@@ -35,10 +35,14 @@ Base classes contain only scalar and context properties:
 ```csharp
 public abstract class BusinessObjectBase
 {
-    [JsonPropertyName("name")]
+    /// <summary>
+    /// Name of the business object
+    /// </summary>
     public string? Name { get; set; }
 }
 ```
+
+**Note:** Property names are automatically converted to camelCase during JSON serialization through the shared `JsonSerializerOptions` in `DataSettMetamodelSerde.JsonDefaults.Web`. Individual `[JsonPropertyName]` attributes are no longer needed.
 
 ### DTO Classes (`[EntityName]DTO`)
 
