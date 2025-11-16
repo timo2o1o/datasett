@@ -23,7 +23,7 @@ DataSett provides a unified workbench for data professionals who need to:
 - 🔧 **Metadata Management**: Centralized repository for all your data source metadata
 - 🚀 **ETL Pipeline Generation**: Transform metadata into actionable ETL processes
 - 🎨 **Visual Workbench**: User-friendly interface built with Blazor for seamless workflow management
-- 🔄 **Cross-Platform Compatibility**: Built on .NET 8 for Windows, macOS, and Linux support
+- 🔄 **Cross-Platform Compatibility**: Built on .NET 9 for Windows, macOS, and Linux support
 
 ## Project Structure
 
@@ -38,7 +38,7 @@ The DataSett solution is organized as follows:
 
 ### Prerequisites
 
-- .NET 8.0 SDK or later
+- .NET 9.0 SDK or later
 - A modern web browser
 
 ### Running the Application
