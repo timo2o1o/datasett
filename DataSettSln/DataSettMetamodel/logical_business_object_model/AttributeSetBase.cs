@@ -8,7 +8,6 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Name of the attribute set
         /// </summary>
-        [JsonPropertyName("name")]
         public string? Name { get; set; }
 
     }

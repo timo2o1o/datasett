@@ -23,7 +23,6 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Reference to parent/hierarchy domain (nullable for root domains)
         /// </summary>
-        [JsonPropertyName("parentBusinessDomainId")]
         public string? ParentBusinessDomainId { get; set; }
 
     }

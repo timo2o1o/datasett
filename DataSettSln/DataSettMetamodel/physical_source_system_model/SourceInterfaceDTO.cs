@@ -26,7 +26,6 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Unique identifier for the associated source system
         /// </summary>
-        [JsonPropertyName("sourceSystemId")]
         public string? SourceSystemId { get; set; }
 
     }

@@ -11,10 +11,8 @@ namespace DataSett.Metamodel
             RelatedObjects = new List<BusinessObjectRelationItem>();
         }
 
-        [JsonPropertyName("name")]
         public string? Name { get; set; }
 
-        [JsonPropertyName("relatedKeys")]
         public IList<BusinessObjectRelationItem>? RelatedObjects { get; set; }
         
     }

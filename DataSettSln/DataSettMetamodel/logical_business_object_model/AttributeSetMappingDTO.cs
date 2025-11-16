@@ -17,19 +17,16 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Foreign key reference to attribute set
         /// </summary>
-        [JsonPropertyName("attributeSetId")]
         public string? AttributeSetId { get; set; }
 
         /// <summary>
         /// Foreign key reference to source interface
         /// </summary>
-        [JsonPropertyName("sourceInterfaceId")]
         public string? SourceInterfaceId { get; set; }
 
         /// <summary>
         /// Foreign key reference to source attribute
         /// </summary>
-        [JsonPropertyName("sourceAttributeName")]
         public string? SourceAttributeName { get; set; }
     }
 }

@@ -40,7 +40,7 @@ public class JsonContext
 
                 using (FileStream source_system_filestream = File.OpenRead(current_source_system_file_path))
                 {
-                    SourceSystemDTO? sourceSystemDto = await JsonSerializer.DeserializeAsync<SourceSystemDTO>(source_system_filestream);
+                    SourceSystemDTO? sourceSystemDto = await JsonSerializer.DeserializeAsync<SourceSystemDTO>(source_system_filestream, JsonDefaults.Web);
                     if (sourceSystemDto != null)
                     {
                         _sourceSystemDTOs.Add(sourceSystemDto);
@@ -54,7 +54,7 @@ public class JsonContext
 
                 using (FileStream source_interface_filestream = File.OpenRead(current_source_interface_file_path))
                 {
-                    SourceInterfaceDTO? sourceInterfaceDto = await JsonSerializer.DeserializeAsync<SourceInterfaceDTO>(source_interface_filestream);
+                    SourceInterfaceDTO? sourceInterfaceDto = await JsonSerializer.DeserializeAsync<SourceInterfaceDTO>(source_interface_filestream, JsonDefaults.Web);
                     if (sourceInterfaceDto != null)
                     {
                         _sourceInterfaceDTOs.Add(sourceInterfaceDto);

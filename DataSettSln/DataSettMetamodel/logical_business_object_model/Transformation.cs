@@ -8,13 +8,10 @@ namespace DataSett.Metamodel
     /// </summary>
     public class Transformation
     {
-        [JsonPropertyName("sourceInterfaceId")]
         public string? SourceInterfaceId { get; set; }
 
-        [JsonPropertyName("sourceAttribute")]
         public string? SourceAttributeName { get; set; }
 
-        [JsonPropertyName("transformation")]
         public string? TransformationExpression { get; set; }
     }
 }

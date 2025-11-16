@@ -26,7 +26,6 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Foreign key reference to parent business object
         /// </summary>
-        [JsonPropertyName("businessObjectId")]
         public string? BusinessObjectId { get; set; }
     }
 }
