@@ -11,6 +11,7 @@ namespace DataSett.Metamodel
         public BusinessObject()
         {
             AttributeSets = new List<AttributeSet>();
+            KeyParts = new List<BusinessObjectKeyPart>();
         }
 
         // Navigation Properties
@@ -18,6 +19,11 @@ namespace DataSett.Metamodel
         /// Navigation property to attribute sets
         /// </summary>
         public IList<AttributeSet> AttributeSets { get; set; }
+
+        /// <summary>
+        /// Each Business Object contains of one or more Key Parts
+        /// </summary>
+        public IList<BusinessObjectKeyPart> KeyParts { get; set; }
                 
         /// <summary>
         /// Navigation property to parent business domain

@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace DataSett.Metamodel
 {
-
-    public class BusinessObjectRelationItemDTO : BusinessObjectRelationItemBase
+    public class BusinessObjectKeyPart : BusinessObjectKeyPartBase
     {
-        public string? RelatedBusinessObjectId { get; set; }
+
+        public BusinessObject? ParentBusinessObject { get; set; }
+
     }
 }

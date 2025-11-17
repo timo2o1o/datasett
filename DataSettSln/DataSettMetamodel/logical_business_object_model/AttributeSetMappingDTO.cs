@@ -19,5 +19,7 @@ namespace DataSett.Metamodel
         /// Foreign key reference to source attribute
         /// </summary>
         public string? SourceAttributeName { get; set; }
+
+        public string? BusinessObjectKeyPartId { get; set; }
     }
 }

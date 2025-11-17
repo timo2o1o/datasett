@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DataSett.Metamodel
 {
-    internal class BusinessObjectRelationDTO : BusinessObjectRelationBase
+    public class BusinessObjectRelationDTO : BusinessObjectRelationBase
     {
 
         public BusinessObjectRelationDTO()
