@@ -14,13 +14,22 @@ namespace DataSett.Metamodel.Serde;
 /// </summary>
 public class JsonContext
 {
+
+    // Physical Source System DTOs:
     private readonly IList<SourceSystemDTO> _sourceSystemDTOs;
     private readonly IList<SourceInterfaceDTO> _sourceInterfaceDTOs;
+
+    // Logical Business Object Model DTOs
+    private readonly IList<BusinessDomainDTO> _businessDomainDTOs;
+    private readonly IList<BusinessObjectDTO> _businessObjectDTOs;
 
     public JsonContext()
     {
         _sourceSystemDTOs = new List<SourceSystemDTO>();
         _sourceInterfaceDTOs = new List<SourceInterfaceDTO>();
+
+        _businessDomainDTOs = new List<BusinessDomainDTO>();
+        _businessObjectDTOs = new List<BusinessObjectDTO>();
     }
 
     public IEnumerable<SourceSystemDTO> SourceSystemDTOs => _sourceSystemDTOs;
@@ -32,35 +41,55 @@ public class JsonContext
         _sourceSystemDTOs.Clear();
         _sourceInterfaceDTOs.Clear();
 
+        _businessDomainDTOs.Clear();
+        _businessObjectDTOs.Clear();
+
         if (Directory.Exists(repositoryPath))
         {
 
-            foreach (string current_source_system_file_path in Directory.EnumerateFiles(repositoryPath, "SourceSystem_*.json", SearchOption.AllDirectories))
+            await DeserializeMetadataObjectsAsync<SourceSystemDTO>(repositoryPath, "SourceSystem_*.json", _sourceSystemDTOs);
+            await DeserializeMetadataObjectsAsync<SourceInterfaceDTO>(repositoryPath, "SourceInterface_*.json", _sourceInterfaceDTOs);
+
+            string businessDomainsFilePath = Path.Combine(repositoryPath, "LogicalBusinessObjectModel", "BusinessDomains.json");
+            await DeserializeListOfMetadataObjectsAsync<BusinessDomainDTO>(businessDomainsFilePath, _businessDomainDTOs);
+
+            string businessObjectsFilePath = Path.Combine(repositoryPath, "LogicalBusinessObjectModel", "BusinessObjects.json");
+            await DeserializeListOfMetadataObjectsAsync<BusinessObjectDTO>(businessObjectsFilePath, _businessObjectDTOs);
+
+        }
+    }
+
+    private async Task DeserializeMetadataObjectsAsync<T>(string repositoryPath, string searchPattern, IList<T> targetList)
+    {
+        foreach (string currentFilePath in Directory.EnumerateFiles(repositoryPath, searchPattern, SearchOption.AllDirectories))
+        {
+
+            using (FileStream filestream = File.OpenRead(currentFilePath))
             {
-
-                using (FileStream source_system_filestream = File.OpenRead(current_source_system_file_path))
+                T? objectDto = await JsonSerializer.DeserializeAsync<T>(filestream, JsonDefaults.Web);
+                if (objectDto != null)
                 {
-                    SourceSystemDTO? sourceSystemDto = await JsonSerializer.DeserializeAsync<SourceSystemDTO>(source_system_filestream, JsonDefaults.Web);
-                    if (sourceSystemDto != null)
-                    {
-                        _sourceSystemDTOs.Add(sourceSystemDto);
-                    }
+                    targetList.Add(objectDto);
                 }
-
             }
 
-            foreach (string current_source_interface_file_path in Directory.EnumerateFiles(repositoryPath, "SourceInterface_*.json", SearchOption.AllDirectories))
-            {
+        }
+    }
 
-                using (FileStream source_interface_filestream = File.OpenRead(current_source_interface_file_path))
+    private async Task DeserializeListOfMetadataObjectsAsync<T>(string listObjectFilepath, IList<T> targetList)
+    {
+        if (File.Exists(listObjectFilepath))
+        {
+            using (FileStream objectsFilestream = File.OpenRead(listObjectFilepath))
+            {
+                IList<T>? objectDTOs = await JsonSerializer.DeserializeAsync<List<T>>(objectsFilestream, JsonDefaults.Web);
+                if (objectDTOs != null)
                 {
-                    SourceInterfaceDTO? sourceInterfaceDto = await JsonSerializer.DeserializeAsync<SourceInterfaceDTO>(source_interface_filestream, JsonDefaults.Web);
-                    if (sourceInterfaceDto != null)
+                    foreach (T currentObject in objectDTOs)
                     {
-                        _sourceInterfaceDTOs.Add(sourceInterfaceDto);
+                        targetList.Add(currentObject);
                     }
                 }
-
             }
 
         }

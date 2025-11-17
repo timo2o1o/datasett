@@ -25,6 +25,11 @@ namespace DataSett.Metamodel
         public string? Name { get; set; }
 
         /// <summary>
+        /// Gets or sets the short name associated with this System.
+        /// </summary>
+        public string? ShortName { get; set; }
+
+        /// <summary>
         /// Version of the source system
         /// </summary>
         public string? Version { get; set; }
