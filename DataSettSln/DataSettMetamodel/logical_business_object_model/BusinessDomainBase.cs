@@ -9,5 +9,8 @@ namespace DataSett.Metamodel
         /// Name of the business domain
         /// </summary>
         public string? Name { get; set; }
+
+        public string? Description { get; set; }
+
     }
 }

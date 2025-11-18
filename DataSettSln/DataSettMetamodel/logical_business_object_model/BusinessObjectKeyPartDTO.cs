@@ -19,6 +19,7 @@ namespace DataSett.Metamodel.logical_business_object_model
             }
         }
 
+        [JsonIgnore]
         public string? BusinessObjectId { get; set; }
 
     }
