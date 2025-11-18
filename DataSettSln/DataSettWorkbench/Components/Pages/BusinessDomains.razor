@@ -7,30 +7,13 @@
 
 <PageTitle>Business Domain Management</PageTitle>
 
-<MudText Typo="Typo.h1" Align="Align.Center" GutterBottom="true">Business Domain Management</MudText>
+<MudText Typo="Typo.h1" Align="Align.Center" GutterBottom="true">
+    <MudIcon Icon="@Icons.Material.Filled.Domain" Class="mr-2" Size="Size.Large" Style="font-size: 4rem;" />
+    Business Domain Management
+</MudText>
 
 <MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
     <MudGrid>
-        <!-- Server Path Selection -->
-        <MudItem xs="12">
-            <MudPaper Elevation="2" Class="pa-4">
-                <MudTextField @bind-Value="ViewModel.ServerPath" 
-                              Label="Server Path" 
-                              Variant="Variant.Outlined" 
-                              Adornment="Adornment.End" 
-                              AdornmentIcon="@Icons.Material.Filled.Folder"
-                              AdornmentColor="Color.Primary"
-                              HelperText="Choose your repository path"
-                              Immediate="false"/>
-                <MudButton Variant="Variant.Filled" 
-                           Color="Color.Primary" 
-                           StartIcon="@Icons.Material.Filled.Upload"
-                           OnClick="LoadDataFromPath"
-                           Class="mt-2">
-                    Refresh
-                </MudButton>
-            </MudPaper>
-        </MudItem>
         
         <!-- DataGrid showing business domains -->
         <MudItem xs="12" md="6">
@@ -104,9 +87,9 @@
 </MudContainer>
 
 @code {
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await LoadDataFromPath();
+        GetData();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -122,9 +105,9 @@
         }
     }
 
-    private async Task LoadDataFromPath()
+    private void GetData()
     {
-        await ViewModel.LoadDataFromPathAsync(ViewModel.ServerPath);
+        ViewModel.GetBusinessDomainData();
         StateHasChanged();
     }
 

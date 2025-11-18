@@ -27,9 +27,11 @@ window.initializeCytoscape = function() {
                     'width': '100px',
                     'height': '60px',
                     'shape': 'roundrectangle',
-                    'font-size': '14px',
+                    'font-size': '10px',
                     'text-wrap': 'wrap',
-                    'text-max-width': '90px'
+                    'text-max-width': '85px',
+                    'text-overflow-wrap': 'whitespace',
+                    'line-height': 1.2
                 }
             },
             {

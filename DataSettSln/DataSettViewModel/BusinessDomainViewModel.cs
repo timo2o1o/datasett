@@ -13,7 +13,6 @@ namespace DataSett.ViewModel
         {
             MetaDataIOService = metaDataIOService;
             _businessDomains = new ObservableCollection<BusinessDomain>();
-            _serverPath = appSettings.Value.RepositoryPath ?? string.Empty;
         }
 
         private IMetaDataIOService MetaDataIOService { get; set; }
@@ -35,32 +34,16 @@ namespace DataSett.ViewModel
             }
         }
 
-        private string _serverPath;
-        public string ServerPath
+        public void GetBusinessDomainData()
         {
-            get => _serverPath;
-            set
-            {
-                if (_serverPath != value)
-                {
-                    _serverPath = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public async Task LoadDataFromPathAsync(string path)
-        {
-            if (string.IsNullOrWhiteSpace(path))
-                return;
             
             _businessDomains.Clear();
 
-            var domains = await MetaDataIOService.LoadBusinessDomainsAsync(path);
-            foreach (var domain in domains)
+            foreach (BusinessDomain currentDomain in MetaDataIOService.GetBusinessDomains())
             {
-                _businessDomains.Add(domain);
+                _businessDomains.Add(currentDomain);
             }
+
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

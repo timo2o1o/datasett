@@ -5,9 +5,10 @@ namespace DataSett.ViewModel.Services
 {
     public interface IMetaDataIOService
     {
-        Task<IEnumerable<SourceSystem>> LoadSourceSystemsAsync(string repositoryPath);
+        Task LoadDataAsync(string repositoryPath);
+        IEnumerable<SourceSystem> GetSourceSystems();
         Task SaveSourceSystemsAsync(string repositoryPath, IEnumerable<SourceSystem> sourceSystems);
-        Task<IEnumerable<BusinessDomain>> LoadBusinessDomainsAsync(string repositoryPath);
+        IEnumerable<BusinessDomain> GetBusinessDomains();
     }
 
     public class MetaDataIOService : IMetaDataIOService
@@ -17,11 +18,16 @@ namespace DataSett.ViewModel.Services
         public MetaDataIOService()
         {
             _dataContext = new JsonContext();
+
         }
 
-        public async Task<IEnumerable<SourceSystem>> LoadSourceSystemsAsync(string repositoryPath)
+        public async Task LoadDataAsync(string repositoryPath)
         {
             await _dataContext.LoadAsync(repositoryPath);
+        }
+
+        public IEnumerable<SourceSystem> GetSourceSystems()
+        {
             return _dataContext.GetSourceSystems();
         }
 
@@ -30,9 +36,8 @@ namespace DataSett.ViewModel.Services
             await _dataContext.SaveChangesAsync(repositoryPath, sourceSystems);
         }
 
-        public async Task<IEnumerable<BusinessDomain>> LoadBusinessDomainsAsync(string repositoryPath)
+        public IEnumerable<BusinessDomain> GetBusinessDomains()
         {
-            await _dataContext.LoadAsync(repositoryPath);
             return _dataContext.GetBusinessDomains();
         }
     }
