@@ -16,21 +16,26 @@ public class JsonContext
 {
     private readonly IList<SourceSystemDTO> _sourceSystemDTOs;
     private readonly IList<SourceInterfaceDTO> _sourceInterfaceDTOs;
+    private readonly IList<BusinessDomainDTO> _businessDomainDTOs;
 
     public JsonContext()
     {
         _sourceSystemDTOs = new List<SourceSystemDTO>();
         _sourceInterfaceDTOs = new List<SourceInterfaceDTO>();
+        _businessDomainDTOs = new List<BusinessDomainDTO>();
     }
 
     public IEnumerable<SourceSystemDTO> SourceSystemDTOs => _sourceSystemDTOs;
 
     public IEnumerable<SourceInterfaceDTO> SourceInterfaceDTOs => _sourceInterfaceDTOs;
 
+    public IEnumerable<BusinessDomainDTO> BusinessDomainDTOs => _businessDomainDTOs;
+
     public async Task LoadAsync(string repositoryPath)
     {
         _sourceSystemDTOs.Clear();
         _sourceInterfaceDTOs.Clear();
+        _businessDomainDTOs.Clear();
 
         if (Directory.Exists(repositoryPath))
         {
@@ -63,6 +68,20 @@ public class JsonContext
 
             }
 
+            foreach (string current_business_domain_file_path in Directory.EnumerateFiles(repositoryPath, "BusinessDomain_*.json", SearchOption.AllDirectories))
+            {
+
+                using (FileStream business_domain_filestream = File.OpenRead(current_business_domain_file_path))
+                {
+                    BusinessDomainDTO? businessDomainDto = await JsonSerializer.DeserializeAsync<BusinessDomainDTO>(business_domain_filestream, JsonDefaults.Web);
+                    if (businessDomainDto != null)
+                    {
+                        _businessDomainDTOs.Add(businessDomainDto);
+                    }
+                }
+
+            }
+
         }
     }
 
@@ -89,6 +108,43 @@ public class JsonContext
 
             yield return newSourceSystem;
         }
+    }
+
+    public IEnumerable<BusinessDomain> GetBusinessDomains()
+    {
+        // Build a dictionary to track all BusinessDomain entities by their ID (Name)
+        var businessDomainDict = new Dictionary<string, BusinessDomain>();
+        
+        // First pass: Create all BusinessDomain entities
+        foreach (BusinessDomainDTO dto in BusinessDomainDTOs)
+        {
+            if (!string.IsNullOrEmpty(dto.Name))
+            {
+                var businessDomain = BusinessDomain.FromDTO(dto, null);
+                businessDomainDict[dto.Name] = businessDomain;
+            }
+        }
+        
+        // Second pass: Set up parent-child relationships
+        foreach (BusinessDomainDTO dto in BusinessDomainDTOs)
+        {
+            if (!string.IsNullOrEmpty(dto.Name) && businessDomainDict.ContainsKey(dto.Name))
+            {
+                var currentDomain = businessDomainDict[dto.Name];
+                
+                // Set parent relationship if ParentBusinessDomainId is specified
+                if (!string.IsNullOrEmpty(dto.ParentBusinessDomainId) && 
+                    businessDomainDict.ContainsKey(dto.ParentBusinessDomainId))
+                {
+                    var parentDomain = businessDomainDict[dto.ParentBusinessDomainId];
+                    currentDomain.ParentBusinessDomain = parentDomain;
+                    parentDomain.ChildBusinessDomains.Add(currentDomain);
+                }
+            }
+        }
+        
+        // Return all business domains
+        return businessDomainDict.Values;
     }
 
     public Task SaveChangesAsync(string repositoryPath, IEnumerable<SourceSystem> sourceSystems)
