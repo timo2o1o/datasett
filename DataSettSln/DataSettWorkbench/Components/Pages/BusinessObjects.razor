@@ -1,0 +1,51 @@
+﻿@page "/businessobjects"
+@using DataSett.Metamodel
+@using DataSett.ViewModel
+
+@inject BusinessObjectViewModel ViewModel
+
+<PageTitle>Business Object Management</PageTitle>
+
+<MudText Typo="Typo.h1" Align="Align.Center" GutterBottom="true">
+    <MudIcon Icon="@Icons.Material.Filled.BusinessCenter" Class="mr-2" Size="Size.Large" Style="font-size: 4rem;" />
+    Business Object Management
+</MudText>
+
+<MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
+    <MudGrid>
+
+        <!-- List showing business objects-->
+        <MudItem xs="12" md="4">
+            <MudPaper>
+                <MudList T="string" Clickable="true">
+                    @foreach (var businessObject in ViewModel.BusinessObjects)
+                    {
+                        <MudListItem T="string" Text="@businessObject.Name" @onclick="() => ViewModel.SelectedBusinessObject = businessObject">
+                        </MudListItem>
+                    }
+                </MudList>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Detail view of selected business object -->
+        <MudItem xs="12" md="8">
+
+        </MudItem>
+
+    </MudGrid>
+</MudContainer>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        GetData();
+    }
+
+    private void GetData()
+    {
+        ViewModel.GetBusinessObjectData();
+        StateHasChanged();
+    }
+
+}

@@ -38,6 +38,8 @@ public class JsonContext
 
     public IEnumerable<BusinessDomainDTO> BusinessDomainDTOs => _businessDomainDTOs;
 
+    public IEnumerable<BusinessObjectDTO> BusinessObjectDTOs => _businessObjectDTOs;
+
     public async Task LoadAsync(string repositoryPath)
     {
         _sourceSystemDTOs.Clear();
@@ -154,6 +156,7 @@ public class JsonContext
                 if (parentBusinessDomain != null)
                 {
                     BusinessDomain newBD = BusinessDomain.FromDTO(dto, parentBusinessDomain);
+                    parentBusinessDomain.ChildBusinessDomains.Add(newBD);
                     listBusinessDomainCache.Add(newBD);
                     return newBD;
                 }
@@ -165,10 +168,15 @@ public class JsonContext
                     {
                         parentBusinessDomain = CreateBusinessDomainFromDTO(parentDto, listBusinessDomainCache);
 
-                        if (parentBusinessDomain != null)
-                            listBusinessDomainCache.Add(parentBusinessDomain);
+                        BusinessDomain newBD = BusinessDomain.FromDTO(dto, parentBusinessDomain);
 
-                        return BusinessDomain.FromDTO(dto, parentBusinessDomain);
+                        if (parentBusinessDomain != null)
+                        { 
+                            parentBusinessDomain.ChildBusinessDomains.Add(newBD);
+                            listBusinessDomainCache.Add(parentBusinessDomain);
+                        }
+
+                        return newBD;
                     }
                     else
                     {
@@ -189,15 +197,29 @@ public class JsonContext
         
         IList<BusinessDomain> businessDomains = new List<BusinessDomain>();
 
-        // First pass: Create all BusinessDomain entities
         foreach (BusinessDomainDTO dto in BusinessDomainDTOs)
         {
             if (!string.IsNullOrEmpty(dto.Name))
             {
                 // Watch out: List of business domains gets updated within the method!
-                // This is why we check here if the business domain is already in the list:
                 _ = CreateBusinessDomainFromDTO(dto, businessDomains);
             }
+        }
+
+        foreach (BusinessDomain currentBusinessDomain in businessDomains)
+        {
+
+            foreach (BusinessObjectDTO currentBODTO in BusinessObjectDTOs)
+            {
+
+                if (currentBODTO.BusinessDomainId == currentBusinessDomain.Name)
+                {
+                    BusinessObject businessObject = BusinessObject.FromDTO(currentBODTO, currentBusinessDomain);
+                    currentBusinessDomain.BusinessObjects.Add(businessObject);
+                }
+
+            }
+
         }
 
         return businessDomains;
