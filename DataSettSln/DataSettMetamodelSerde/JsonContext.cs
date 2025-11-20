@@ -36,6 +36,8 @@ public class JsonContext
 
     public IEnumerable<SourceInterfaceDTO> SourceInterfaceDTOs => _sourceInterfaceDTOs;
 
+    public IEnumerable<BusinessDomainDTO> BusinessDomainDTOs => _businessDomainDTOs;
+
     public async Task LoadAsync(string repositoryPath)
     {
         _sourceSystemDTOs.Clear();
@@ -118,6 +120,87 @@ public class JsonContext
 
             yield return newSourceSystem;
         }
+    }
+
+    private BusinessDomain? CreateBusinessDomainFromDTO(BusinessDomainDTO dto, IList<BusinessDomain> listBusinessDomainCache)
+    {
+
+        if (!string.IsNullOrEmpty(dto.Name))
+        {
+
+            BusinessDomain? parentBusinessDomain = null;
+
+            foreach (BusinessDomain bd in listBusinessDomainCache)
+            {
+                if (bd.Name == dto.Name)
+                {
+                    return bd;
+                }
+                else if (bd.Name == dto.ParentBusinessDomainId)
+                {
+                    parentBusinessDomain = bd;
+                }
+            }
+
+            if (string.IsNullOrEmpty(dto.ParentBusinessDomainId))
+            {
+                BusinessDomain newBD = BusinessDomain.FromDTO(dto, null);
+                listBusinessDomainCache.Add(newBD);
+                return newBD;
+            }
+            else
+            {
+
+                if (parentBusinessDomain != null)
+                {
+                    BusinessDomain newBD = BusinessDomain.FromDTO(dto, parentBusinessDomain);
+                    listBusinessDomainCache.Add(newBD);
+                    return newBD;
+                }
+                else
+                {
+                    // If we have a ParentBusinessDomainId, but cannot find the according object in the cache, we search it in our DTOs and create it recursively:
+                    var parentDto = BusinessDomainDTOs.FirstOrDefault(x => x.Name == dto.ParentBusinessDomainId);
+                    if (parentDto != null)
+                    {
+                        parentBusinessDomain = CreateBusinessDomainFromDTO(parentDto, listBusinessDomainCache);
+
+                        if (parentBusinessDomain != null)
+                            listBusinessDomainCache.Add(parentBusinessDomain);
+
+                        return BusinessDomain.FromDTO(dto, parentBusinessDomain);
+                    }
+                    else
+                    {
+                        throw new InvalidDataException($"Cannot find ParentBusinessDomainDTO with Name '{dto.ParentBusinessDomainId}' for BusinessDomainDTO with Name '{dto.Name}'.");
+                    }
+                }
+            }
+        }
+        else
+        {
+            return null;
+        }
+
+    }
+
+    public IEnumerable<BusinessDomain> GetBusinessDomains()
+    {
+        
+        IList<BusinessDomain> businessDomains = new List<BusinessDomain>();
+
+        // First pass: Create all BusinessDomain entities
+        foreach (BusinessDomainDTO dto in BusinessDomainDTOs)
+        {
+            if (!string.IsNullOrEmpty(dto.Name))
+            {
+                // Watch out: List of business domains gets updated within the method!
+                // This is why we check here if the business domain is already in the list:
+                _ = CreateBusinessDomainFromDTO(dto, businessDomains);
+            }
+        }
+
+        return businessDomains;
     }
 
     public Task SaveChangesAsync(string repositoryPath, IEnumerable<SourceSystem> sourceSystems)

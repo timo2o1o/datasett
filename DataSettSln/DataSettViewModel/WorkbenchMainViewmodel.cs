@@ -75,28 +75,25 @@ namespace DataSett.ViewModel
 
         public async Task InitializeAsync()
         {
-            // Laden Sie Daten asynchron
-            var systems = await MetaDataIOService.LoadSourceSystemsAsync(ServerPath);
-            foreach (var system in systems)
-            {
-                _sourceSystems.Add(system);
-            }
+            await LoadDataFromPathAsync(ServerPath);
         }
 
         public async Task LoadDataFromPathAsync(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
-                return;
-            
-            // Bestehende Daten löschen
-            _sourceSystems.Clear();
 
-            // Neue Daten vom angegebenen Pfad laden
-            var systems = await MetaDataIOService.LoadSourceSystemsAsync(path);
-            foreach (var system in systems)
+            if (!string.IsNullOrWhiteSpace(path))
             {
-                _sourceSystems.Add(system);
+                _sourceSystems.Clear();
+
+                await MetaDataIOService.LoadDataAsync(path);
+
+                foreach (SourceSystem currentSourceSystem in MetaDataIOService.GetSourceSystems())
+                {
+                    _sourceSystems.Add(currentSourceSystem);
+                }
+
             }
+
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

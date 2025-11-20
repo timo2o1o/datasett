@@ -1,0 +1,146 @@
+@page "/businessdomains"
+@using DataSett.Metamodel
+@using DataSett.ViewModel
+
+@inject BusinessDomainViewModel ViewModel
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Business Domain Management</PageTitle>
+
+<MudText Typo="Typo.h1" Align="Align.Center" GutterBottom="true">
+    <MudIcon Icon="@Icons.Material.Filled.Domain" Class="mr-2" Size="Size.Large" Style="font-size: 4rem;" />
+    Business Domain Management
+</MudText>
+
+<MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
+    <MudGrid>
+        
+        <!-- DataGrid showing business domains -->
+        <MudItem xs="12" md="6">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 600px; overflow-y: auto;">
+                <MudText Typo="Typo.h6" GutterBottom="true">Business Domains</MudText>
+                @if (ViewModel.BusinessDomains != null && ViewModel.BusinessDomains.Any())
+                {
+                    <MudDataGrid T="BusinessDomain" 
+                                 Items="@ViewModel.BusinessDomains"
+                                 SelectedItemChanged="@OnBusinessDomainSelected"
+                                 Hover="true"
+                                 Dense="true">
+                        <Columns>
+                            <PropertyColumn Property="x => x.Name" Title="Domain Name" />
+                            <PropertyColumn Property="x => x.ParentBusinessDomain != null ? x.ParentBusinessDomain.Name : string.Empty" 
+                                          Title="Parent Domain" />
+                            <PropertyColumn Property="x => x.ChildBusinessDomains.Count" Title="Child Domains" />
+                            <PropertyColumn Property="x => x.BusinessObjects.Count" Title="Business Objects" />
+                        </Columns>
+                    </MudDataGrid>
+                }
+                else
+                {
+                    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+                        No business domains found. Please load data from a repository path.
+                    </MudText>
+                }
+            </MudPaper>
+        </MudItem>
+        
+        <!-- Hierarchy Visualization -->
+        <MudItem xs="12" md="6">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 600px;">
+                <MudText Typo="Typo.h6" GutterBottom="true">Domain Hierarchy</MudText>
+                @if (ViewModel.SelectedBusinessDomain != null)
+                {
+                    <MudText Typo="Typo.subtitle2" Class="mb-4">
+                        Selected: <strong>@ViewModel.SelectedBusinessDomain.Name</strong>
+                    </MudText>
+                    @if (ViewModel.SelectedBusinessDomain.ParentBusinessDomain != null)
+                    {
+                        <MudText Typo="Typo.body2">
+                            Parent: @ViewModel.SelectedBusinessDomain.ParentBusinessDomain.Name
+                        </MudText>
+                    }
+                    @if (ViewModel.SelectedBusinessDomain.ChildBusinessDomains.Any())
+                    {
+                        <MudText Typo="Typo.body2" Class="mt-2">
+                            Children:
+                        </MudText>
+                        <MudList T="string" Dense="true">
+                            @foreach (var child in ViewModel.SelectedBusinessDomain.ChildBusinessDomains)
+                            {
+                                <MudListItem T="string">@child.Name</MudListItem>
+                            }
+                        </MudList>
+                    }
+                }
+                else
+                {
+                    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+                        Select a business domain to view its details and hierarchy.
+                    </MudText>
+                }
+                
+                <!-- Graph visualization container -->
+                <div id="cy" style="width: 100%; height: 450px; border: 1px solid #ddd; margin-top: 16px;"></div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    protected override void OnInitialized()
+    {
+        GetData();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeCytoscape();
+        }
+        
+        if (ViewModel.BusinessDomains != null && ViewModel.BusinessDomains.Any())
+        {
+            await UpdateGraph();
+        }
+    }
+
+    private void GetData()
+    {
+        ViewModel.GetBusinessDomainData();
+        StateHasChanged();
+    }
+
+    private void OnBusinessDomainSelected(BusinessDomain? selectedDomain)
+    {
+        ViewModel.SelectedBusinessDomain = selectedDomain;
+        StateHasChanged();
+    }
+
+    private async Task InitializeCytoscape()
+    {
+        await JSRuntime.InvokeVoidAsync("initializeCytoscape");
+    }
+
+    private async Task UpdateGraph()
+    {
+        var nodes = new List<object>();
+        var edges = new List<object>();
+
+        foreach (var domain in ViewModel.BusinessDomains)
+        {
+            nodes.Add(new { id = domain.Name, label = domain.Name });
+            
+            if (domain.ParentBusinessDomain != null)
+            {
+                edges.Add(new 
+                { 
+                    source = domain.ParentBusinessDomain.Name, 
+                    target = domain.Name 
+                });
+            }
+        }
+
+        await JSRuntime.InvokeVoidAsync("updateCytoscapeGraph", nodes, edges);
+    }
+}
