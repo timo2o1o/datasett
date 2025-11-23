@@ -14,7 +14,7 @@ namespace DataSett.Metamodel
         /// Unique identifier for the source interface
         /// </summary>
         [JsonIgnore]
-        public string? SourceInterfaceId
+        public string SourceInterfaceId
         {
             get
             {

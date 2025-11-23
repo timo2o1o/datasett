@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DataSett.Metamodel.Serde;
 
@@ -9,9 +10,6 @@ namespace DataSett.Metamodel.Serde;
 /// <remarks>
 /// This class ensures that all JSON serialization/deserialization operations use consistent
 /// settings, particularly camelCase naming conventions for properties and dictionary keys.
-/// 
-/// Note: Individual properties can override the global naming policy by using [JsonPropertyName]
-/// attributes, though this is discouraged to maintain consistency.
 /// </remarks>
 public static class JsonDefaults
 {
@@ -31,6 +29,7 @@ public static class JsonDefaults
     public static JsonSerializerOptions Web { get; } = new JsonSerializerOptions(JsonSerializerDefaults.Web)
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter() }
     };
 }

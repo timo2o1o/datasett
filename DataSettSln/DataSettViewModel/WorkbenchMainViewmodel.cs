@@ -23,6 +23,8 @@ namespace DataSett.ViewModel
             // Set standard values for properties:
             _sourceSystems = new ObservableCollection<SourceSystem>();
             _serverPath = appSettings.Value.RepositoryPath ?? string.Empty;
+            _businessDomains = new ObservableCollection<BusinessDomain>();
+            _attributeSetMappings = new ObservableCollection<AttributeSetMapping>();
         }
 
         private IMetaDataIOService MetaDataIOService { get; set; }
@@ -55,9 +57,17 @@ namespace DataSett.ViewModel
                 {
                     _selectedSourceInterface = value;
                     OnPropertyChanged();
+
+                    GetAttributeSetMappings(_selectedSourceInterface);
                 }
             }
         }
+
+        private ObservableCollection<BusinessDomain> _businessDomains;
+        public ObservableCollection<BusinessDomain> BusinessDomains => _businessDomains;
+
+        private ObservableCollection<AttributeSetMapping> _attributeSetMappings;
+        public ObservableCollection<AttributeSetMapping> AttributeSetMappings => _attributeSetMappings;
 
         private string _serverPath;
         public string ServerPath
@@ -83,17 +93,48 @@ namespace DataSett.ViewModel
 
             if (!string.IsNullOrWhiteSpace(path))
             {
-                _sourceSystems.Clear();
-
                 await MetaDataIOService.LoadDataAsync(path);
 
+                _sourceSystems.Clear();
                 foreach (SourceSystem currentSourceSystem in MetaDataIOService.GetSourceSystems())
                 {
                     _sourceSystems.Add(currentSourceSystem);
                 }
 
+                _businessDomains.Clear();
+                foreach (BusinessDomain currentBusinessDomain in MetaDataIOService.GetBusinessDomains())
+                {
+                    _businessDomains.Add(currentBusinessDomain);
+                }
+
             }
 
+        }
+
+        private void GetAttributeSetMappings(SourceInterface selectedSourceInterface)
+        {
+            _attributeSetMappings.Clear();
+
+            if (selectedSourceInterface != null && selectedSourceInterface.SourceAttributes != null)
+            {
+                foreach (SourceAttribute currentSrcAttribute in selectedSourceInterface.SourceAttributes)
+                {
+                    IEnumerable<AttributeSetMapping> matchingMappings = BusinessDomains
+                        .SelectMany(bd => bd.BusinessObjects)
+                        .SelectMany(bo => bo.AttributeSets)
+                        .SelectMany(attributeSet => attributeSet.AttributeSetMappings)
+                        .Where(asm => asm.SourceAttribute == currentSrcAttribute);
+
+                    if (matchingMappings.Count() == 1)
+                    {
+                        _attributeSetMappings.Add(matchingMappings.First());
+                    }
+                    else
+                    {
+                        _attributeSetMappings.Add(new AttributeSetMapping());
+                    }
+                }
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

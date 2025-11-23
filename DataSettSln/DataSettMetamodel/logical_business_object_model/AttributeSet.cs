@@ -27,13 +27,21 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)
         /// </summary>
-        public static AttributeSet FromDTO(AttributeSetDTO dto, BusinessObject parentBusinessObject)
+        public static AttributeSet FromDTO(AttributeSetDTO dto, BusinessObject parentBusinessObject, IDictionary<string, SourceAttribute> attributeCache)
         {
-            return new AttributeSet
+            AttributeSet result = new AttributeSet
             {
                 Name = dto.Name,
                 ParentBusinessObject = parentBusinessObject
             };
+
+            foreach (AttributeSetMappingDTO currentMapping in dto.AttributeSetMappings)
+            {
+                SourceAttribute srcAttribute = attributeCache[$"{currentMapping.SourceInterfaceId}.{currentMapping.SourceAttributeName}"];
+                result.AttributeSetMappings.Add(AttributeSetMapping.FromDTO(currentMapping, result, srcAttribute));
+            }
+
+            return result;
         }
     }
 }

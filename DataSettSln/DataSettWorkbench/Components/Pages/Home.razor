@@ -56,15 +56,17 @@
         <!-- DataGrid nimmt 75% der Breite (9 von 12 Spalten) -->
         <MudItem xs="12" sm="10">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px;">
-                @if (ViewModel.SelectedSourceInterface != null && ViewModel.SelectedSourceInterface.SourceAttributes != null)
+                @if (ViewModel.SelectedSourceInterface != null && ViewModel.AttributeSetMappings != null)
                 {
-                    <MudDataGrid Items="@ViewModel.SelectedSourceInterface.SourceAttributes">
+                    <MudDataGrid Items="@ViewModel.AttributeSetMappings">
                         <Columns>
-                            <PropertyColumn Property="x => x.Name" />
+                            <PropertyColumn Property="x => x.SourceAttribute != null ? x.SourceAttribute.Name : string.Empty" />
+                            <PropertyColumn Property="x => x.OrderNo" />
+                            <PropertyColumn Property="x => x.AttributeSet != null ? x.AttributeSet.Name : string.Empty" />
+                            <PropertyColumn Property="x => x.HistoryType" />
+                            <PropertyColumn Property="x => x.Role" />
                             <PropertyColumn Property="x => x.AttributeProperties.Datatype" />
                             <PropertyColumn Property="x => x.AttributeProperties.Default" />
-                            <PropertyColumn Property="x => x.IsFk" />
-                            <PropertyColumn Property="x => x.IsPk" />
                             <PropertyColumn Property="x => x.AttributeProperties.Length" />
                             <PropertyColumn Property="x => x.AttributeProperties.Nullable" />
                             <PropertyColumn Property="x => x.AttributeProperties.Position" />

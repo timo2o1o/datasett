@@ -26,14 +26,16 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)
         /// </summary>
-        public static AttributeSetMapping FromDTO(AttributeSetMappingDTO dto)
+        public static AttributeSetMapping FromDTO(AttributeSetMappingDTO dto, AttributeSet attributeSet, SourceAttribute srcAttribute)
         {
             return new AttributeSetMapping
             {
+                AttributeSet = attributeSet,
                 OrderNo = dto.OrderNo,
                 HistoryType = dto.HistoryType,
                 Role = dto.Role,
-                AttributeProperties = dto.AttributeProperties
+                AttributeProperties = dto.AttributeProperties,
+                SourceAttribute = srcAttribute
             };
         }
     }
