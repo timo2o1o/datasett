@@ -58,13 +58,34 @@
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px;">
                 @if (ViewModel.SelectedSourceInterface != null && ViewModel.AttributeSetMappings != null)
                 {
-                    <MudDataGrid Items="@ViewModel.AttributeSetMappings">
+                    <MudDataGrid
+                        Items="@ViewModel.AttributeSetMappings"
+                        ReadOnly=false
+                        EditMode="DataGridEditMode.Cell">
                         <Columns>
                             <PropertyColumn Property="x => x.SourceAttribute != null ? x.SourceAttribute.Name : string.Empty" />
                             <PropertyColumn Property="x => x.OrderNo" />
                             <PropertyColumn Property="x => x.AttributeSet != null ? x.AttributeSet.Name : string.Empty" />
-                            <PropertyColumn Property="x => x.HistoryType" />
-                            <PropertyColumn Property="x => x.Role" />
+                            <PropertyColumn Property="x => x.HistoryType">
+                                <EditTemplate>
+                                    <MudSelect @bind-Value="context.Item.HistoryType" Required RequiredError="Please select an history type." Margin="@Margin.Dense">
+                                        @foreach (var type in Enum.GetValues<HistoryType>())
+                                        {
+                                            <MudSelectItem Value="@(type)">@type</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </EditTemplate>
+                            </PropertyColumn>
+                            <PropertyColumn Property="x => x.Role">
+                                <EditTemplate>
+                                    <MudSelect @bind-Value="context.Item.Role" Required RequiredError="Please select a role." Margin="@Margin.Dense">
+                                        @foreach (var role in Enum.GetValues<SourceAttributeRole>())
+                                        {
+                                            <MudSelectItem Value="@(role)">@role</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </EditTemplate>
+                            </PropertyColumn>
                             <PropertyColumn Property="x => x.AttributeProperties.Datatype" />
                             <PropertyColumn Property="x => x.AttributeProperties.Default" />
                             <PropertyColumn Property="x => x.AttributeProperties.Length" />

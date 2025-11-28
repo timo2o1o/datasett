@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace DataSett.Metamodel
 {
+
+    /// <summary>
+    /// This describes mostly physical properties of an attribute.
+    /// </summary>
     public class AttributeProperties
+        // Could be a record?
     {
 
         /// <summary>
@@ -38,6 +43,20 @@ namespace DataSett.Metamodel
         /// Precision of the attribute
         /// </summary>
         public int? Precision { get; set; }
+
+
+        public AttributeProperties Copy()
+        {
+            return new AttributeProperties
+            {
+                Position = this.Position,
+                Default = this.Default,
+                Nullable = this.Nullable,
+                Datatype = this.Datatype,
+                Length = this.Length,
+                Precision = this.Precision
+            };
+        }
 
     }
 }

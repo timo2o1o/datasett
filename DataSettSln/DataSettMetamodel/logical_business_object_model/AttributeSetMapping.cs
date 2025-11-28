@@ -23,6 +23,20 @@ namespace DataSett.Metamodel
         [JsonIgnore]
         public AttributeSet? AttributeSet { get; set; }
 
+        public static AttributeSetMapping FromSourceAttribute(SourceAttribute srcAttribute)
+        {
+            return new AttributeSetMapping
+            {
+                AttributeSet = null,
+                AttributeProperties = srcAttribute.AttributeProperties.Copy(),
+                HarmonizedName = srcAttribute.Name,
+                HistoryType = Metamodel.HistoryType.None,
+                OrderNo = null,
+                Role = SourceAttributeRole.Unclassified,
+                SourceAttribute = srcAttribute
+            };
+        }
+
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)
         /// </summary>

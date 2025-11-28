@@ -12,6 +12,9 @@ namespace DataSett.Metamodel
 
         public AttributeSetMappingBase()
         {
+            Role = SourceAttributeRole.Unclassified;
+            HistoryType = Metamodel.HistoryType.None;
+
             AttributeProperties = new AttributeProperties();
         }
 
@@ -21,14 +24,21 @@ namespace DataSett.Metamodel
         public int? OrderNo { get; set; }
 
         /// <summary>
+        /// New name of the attribute in the business context.
+        /// Possibility to rename the source attribute.
+        /// Could maybe be used for translations.
+        /// </summary>
+        public string? HarmonizedName { get; set; }
+
+        /// <summary>
         /// History type for this attribute
         /// </summary>
-        public HistoryType? HistoryType { get; set; }
+        public HistoryType HistoryType { get; set; }
 
         /// <summary>
         /// Role of the source attribute in business context
         /// </summary>
-        public SourceAttributeRole? Role { get; set; }
+        public SourceAttributeRole Role { get; set; }
 
         /// <summary>
         /// Attribute properties in the attribute set

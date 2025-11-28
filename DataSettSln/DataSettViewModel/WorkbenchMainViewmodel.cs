@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -131,7 +132,7 @@ namespace DataSett.ViewModel
                     }
                     else
                     {
-                        _attributeSetMappings.Add(new AttributeSetMapping());
+                        _attributeSetMappings.Add(AttributeSetMapping.FromSourceAttribute(currentSrcAttribute));
                     }
                 }
             }
