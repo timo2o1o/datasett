@@ -66,6 +66,7 @@
                             <PropertyColumn Property="x => x.SourceAttribute != null ? x.SourceAttribute.Name : string.Empty" />
                             <PropertyColumn Property="x => x.OrderNo" />
                             <PropertyColumn Property="x => x.AttributeSet != null ? x.AttributeSet.Name : string.Empty" />
+                            <PropertyColumn Property="x => x.AttributeSet != null ? x.AttributeSet.ParentBusinessObject != null ? x.AttributeSet.ParentBusinessObject.Name : string.Empty : string.Empty" Title="BusinessObject" />
                             <PropertyColumn Property="x => x.HistoryType">
                                 <EditTemplate>
                                     <MudSelect @bind-Value="context.Item.HistoryType" Required RequiredError="Please select an history type." Margin="@Margin.Dense">
