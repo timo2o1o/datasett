@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace DataSett.Metamodel.logical_business_object_model
 {
-    public class BusinessObjectKeyPartDTO : BusinessObjectKeyPartBase
+    public class BusinessConceptKeyPartDTO : BusinessConceptKeyPartBase
     {
 
         [JsonIgnore]
-        public string? BusinessObjectKeyPartId
+        public string? BusinessConceptKeyPartId
         {
             get
             {
-                return $"{BusinessObjectId}.{Name}";
+                return $"{BusinessConceptId}.{Name}";
             }
         }
 
         [JsonIgnore]
-        public string? BusinessObjectId { get; set; }
+        public string? BusinessConceptId { get; set; }
 
     }
 }

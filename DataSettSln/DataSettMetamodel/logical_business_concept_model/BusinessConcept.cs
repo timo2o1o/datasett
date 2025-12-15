@@ -1,17 +1,17 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace DataSett.Metamodel
 {
     /// <summary>
-    /// Domain class for BusinessObject containing navigation properties and business logic.
+    /// Domain class for BusinessConcept containing navigation properties and business logic.
     /// </summary>
-    public class BusinessObject : BusinessObjectBase
+    public class BusinessConcept : BusinessConceptBase
     {
-        public BusinessObject()
+        public BusinessConcept()
         {
             AttributeSets = new List<AttributeSet>();
-            KeyParts = new List<BusinessObjectKeyPart>();
+            KeyParts = new List<BusinessConceptKeyPart>();
         }
 
         // Navigation Properties
@@ -21,9 +21,9 @@ namespace DataSett.Metamodel
         public IList<AttributeSet> AttributeSets { get; set; }
 
         /// <summary>
-        /// Each Business Object contains of one or more Key Parts
+        /// Each Business Concept contains of one or more Key Parts
         /// </summary>
-        public IList<BusinessObjectKeyPart> KeyParts { get; set; }
+        public IList<BusinessConceptKeyPart> KeyParts { get; set; }
                 
         /// <summary>
         /// Navigation property to parent business domain
@@ -34,9 +34,9 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)
         /// </summary>
-        public static BusinessObject FromDTO(BusinessObjectDTO dto, BusinessDomain parentBusinessDomain)
+        public static BusinessConcept FromDTO(BusinessConceptDTO dto, BusinessDomain parentBusinessDomain)
         {
-            return new BusinessObject
+            return new BusinessConcept
             {
                 Name = dto.Name,
                 ParentBusinessDomain = parentBusinessDomain

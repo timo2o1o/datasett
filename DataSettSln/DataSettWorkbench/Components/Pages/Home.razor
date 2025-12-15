@@ -8,7 +8,7 @@
 
 <MudText Typo="Typo.h1" Align="Align.Center" GutterBottom="true">
     <MudIcon Icon="@Icons.Material.Filled.DatasetLinked" Class="mr-2" Size="Size.Large" Style="font-size: 4rem;" />
-    Logical Business Object Mapping
+    Logical Business Concept Mapping
 </MudText>
 
 <MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
@@ -66,7 +66,7 @@
                             <PropertyColumn Property="x => x.SourceAttribute != null ? x.SourceAttribute.Name : string.Empty" />
                             <PropertyColumn Property="x => x.OrderNo" />
                             <PropertyColumn Property="x => x.AttributeSet != null ? x.AttributeSet.Name : string.Empty" />
-                            <PropertyColumn Property="x => x.AttributeSet != null ? x.AttributeSet.ParentBusinessObject != null ? x.AttributeSet.ParentBusinessObject.Name : string.Empty : string.Empty" Title="BusinessObject" />
+                            <PropertyColumn Property="x => x.AttributeSet != null ? x.AttributeSet.ParentBusinessConcept != null ? x.AttributeSet.ParentBusinessConcept.Name : string.Empty : string.Empty" Title="BusinessConcept" />
                             <PropertyColumn Property="x => x.HistoryType">
                                 <EditTemplate>
                                     <MudSelect @bind-Value="context.Item.HistoryType" Required RequiredError="Please select an history type." Margin="@Margin.Dense">

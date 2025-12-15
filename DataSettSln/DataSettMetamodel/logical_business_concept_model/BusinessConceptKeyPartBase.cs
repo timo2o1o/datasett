@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace DataSett.Metamodel
 {
-    public class BusinessObjectKeyPartBase
+    public class BusinessConceptKeyPartBase
     {
 
-        public BusinessObjectKeyPartBase()
+        public BusinessConceptKeyPartBase()
         {
             KeyProperties = new AttributeProperties();
         }

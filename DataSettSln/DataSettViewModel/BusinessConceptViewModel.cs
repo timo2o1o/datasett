@@ -1,4 +1,4 @@
-﻿using DataSett.Metamodel;
+using DataSett.Metamodel;
 using DataSett.ViewModel.Services;
 using Microsoft.Extensions.Options;
 using System;
@@ -12,43 +12,43 @@ using System.Threading.Tasks;
 
 namespace DataSett.ViewModel
 {
-    public class BusinessObjectViewModel : INotifyPropertyChanged
+    public class BusinessConceptViewModel : INotifyPropertyChanged
     {
-        public BusinessObjectViewModel(IMetaDataIOService metaDataIOService, IOptions<AppSettings> appSettings)
+        public BusinessConceptViewModel(IMetaDataIOService metaDataIOService, IOptions<AppSettings> appSettings)
         {
             MetaDataIOService = metaDataIOService;
-            _businessObjects = new ObservableCollection<BusinessObject>();
+            _businessConcepts = new ObservableCollection<BusinessConcept>();
         }
 
         private IMetaDataIOService MetaDataIOService { get; set; }
 
-        private ObservableCollection<BusinessObject> _businessObjects;
-        public ObservableCollection<BusinessObject> BusinessObjects => _businessObjects;
+        private ObservableCollection<BusinessConcept> _businessConcepts;
+        public ObservableCollection<BusinessConcept> BusinessConcepts => _businessConcepts;
 
-        private BusinessObject? _selectedBusinessObject;
-        public BusinessObject? SelectedBusinessObject
+        private BusinessConcept? _selectedBusinessConcept;
+        public BusinessConcept? SelectedBusinessConcept
         {
-            get => _selectedBusinessObject;
+            get => _selectedBusinessConcept;
             set
             {
-                if (_selectedBusinessObject != value)
+                if (_selectedBusinessConcept != value)
                 {
-                    _selectedBusinessObject = value;
+                    _selectedBusinessConcept = value;
                     OnPropertyChanged();
                 }
             }
         }
 
-        public void GetBusinessObjectData()
+        public void GetBusinessConceptData()
         {
 
-            _businessObjects.Clear();
+            _businessConcepts.Clear();
 
             foreach (BusinessDomain currentDomain in MetaDataIOService.GetBusinessDomains())
             {
-                foreach (BusinessObject currentBusinessObject in currentDomain.BusinessObjects)
+                foreach (BusinessConcept currentBusinessConcept in currentDomain.BusinessConcepts)
                 {
-                    _businessObjects.Add(currentBusinessObject);
+                    _businessConcepts.Add(currentBusinessConcept);
                 }
             }
 

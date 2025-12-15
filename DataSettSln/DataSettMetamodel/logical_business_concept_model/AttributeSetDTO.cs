@@ -19,14 +19,14 @@ namespace DataSett.Metamodel
         {
             get
             {
-                return $"{BusinessObjectId}.{Name}";
+                return $"{BusinessConceptId}.{Name}";
             }
         }
 
         /// <summary>
-        /// Foreign key reference to parent business object
+        /// Foreign key reference to parent business concept
         /// </summary>
-        public string? BusinessObjectId { get; set; }
+        public string? BusinessConceptId { get; set; }
 
         public IList<AttributeSetMappingDTO> AttributeSetMappings { get; set; }
         }

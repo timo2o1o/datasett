@@ -19,9 +19,9 @@ public class JsonContext
     private readonly IList<SourceSystemDTO> _sourceSystemDTOs;
     private readonly IList<SourceInterfaceDTO> _sourceInterfaceDTOs;
 
-    // Logical Business Object Model DTOs
+    // Logical Business Concept Model DTOs
     private readonly IList<BusinessDomainDTO> _businessDomainDTOs;
-    private readonly IList<BusinessObjectDTO> _businessObjectDTOs;
+    private readonly IList<BusinessConceptDTO> _businessConceptDTOs;
     private readonly IList<AttributeSetDTO> _attributeSetDTOs;
 
     // Some private fields to cache deserializing information:
@@ -33,7 +33,7 @@ public class JsonContext
         _sourceInterfaceDTOs = new List<SourceInterfaceDTO>();
 
         _businessDomainDTOs = new List<BusinessDomainDTO>();
-        _businessObjectDTOs = new List<BusinessObjectDTO>();
+        _businessConceptDTOs = new List<BusinessConceptDTO>();
         _attributeSetDTOs = new List<AttributeSetDTO>();
 
         _sourceAttributeCache = new Dictionary<string, SourceAttribute>();
@@ -45,7 +45,7 @@ public class JsonContext
 
     public IEnumerable<BusinessDomainDTO> BusinessDomainDTOs => _businessDomainDTOs;
 
-    public IEnumerable<BusinessObjectDTO> BusinessObjectDTOs => _businessObjectDTOs;
+    public IEnumerable<BusinessConceptDTO> BusinessConceptDTOs => _businessConceptDTOs;
 
     public IEnumerable<AttributeSetDTO> AttributeSetDTOs => _attributeSetDTOs;
 
@@ -57,7 +57,7 @@ public class JsonContext
         _sourceInterfaceDTOs.Clear();
 
         _businessDomainDTOs.Clear();
-        _businessObjectDTOs.Clear();
+        _businessConceptDTOs.Clear();
         _attributeSetDTOs.Clear();
 
         if (Directory.Exists(repositoryPath))
@@ -76,18 +76,18 @@ public class JsonContext
                 _sourceInterfaceDTOs.Add(currentInterface);
             }
 
-            string logicalBOMPath = Path.Combine(repositoryPath, "LogicalBusinessObjectModel");
+            string logicalBOMPath = Path.Combine(repositoryPath, "LogicalBusinessConceptModel");
             
             string businessDomainsFilePath = Path.Combine(logicalBOMPath, "BusinessDomains.json");
-            foreach (BusinessDomainDTO currentBD in await DeserializeListOfMetadataObjectsAsync<BusinessDomainDTO>(businessDomainsFilePath))
+            foreach (BusinessDomainDTO currentBD in await DeserializeListOfMetadataConceptsAsync<BusinessDomainDTO>(businessDomainsFilePath))
             {
                 _businessDomainDTOs.Add(currentBD);
             }
 
-            string businessObjectsFilePath = Path.Combine(logicalBOMPath, "BusinessObjects.json");
-            foreach (BusinessObjectDTO currentBO in await DeserializeListOfMetadataObjectsAsync<BusinessObjectDTO>(businessObjectsFilePath))
+            string businessConceptsFilePath = Path.Combine(logicalBOMPath, "BusinessConcepts.json");
+            foreach (BusinessConceptDTO currentBC in await DeserializeListOfMetadataConceptsAsync<BusinessConceptDTO>(businessConceptsFilePath))
             {
-                _businessObjectDTOs.Add(currentBO);
+                _businessConceptDTOs.Add(currentBC);
             }
 
             foreach (AttributeSetDTO[] currentAttributeSets in await DeserializeMetadataObjectsAsync<AttributeSetDTO[]>(logicalBOMPath, "AttributeSets_*.json"))
@@ -122,7 +122,7 @@ public class JsonContext
         return result;
     }
 
-    private async Task<IList<T>> DeserializeListOfMetadataObjectsAsync<T>(string listObjectFilepath)
+    private async Task<IList<T>> DeserializeListOfMetadataConceptsAsync<T>(string listObjectFilepath)
     {
         List<T> result = new List<T>();
 
@@ -249,13 +249,13 @@ public class JsonContext
 
     }
 
-    private IEnumerable<AttributeSet> GetAttributeSetsOfBusinessObjectFromDTO(string businessObjectID, BusinessObject businessObject)
+    private IEnumerable<AttributeSet> GetAttributeSetsOfBusinessConceptFromDTO(string businessConceptID, BusinessConcept businessConcept)
     {
         foreach (AttributeSetDTO currentAttributeSetDTO in AttributeSetDTOs)
         {
-            if (currentAttributeSetDTO.BusinessObjectId == businessObjectID)
+            if (currentAttributeSetDTO.BusinessConceptId == businessConceptID)
             {
-                AttributeSet attributeSet = AttributeSet.FromDTO(currentAttributeSetDTO, businessObject, SourceAttributeCache);
+                AttributeSet attributeSet = AttributeSet.FromDTO(currentAttributeSetDTO, businessConcept, SourceAttributeCache);
                 yield return attributeSet;
             }
         }
@@ -278,16 +278,16 @@ public class JsonContext
         foreach (BusinessDomain currentBusinessDomain in businessDomains)
         {
 
-            foreach (BusinessObjectDTO currentBODTO in BusinessObjectDTOs)
+            foreach (BusinessConceptDTO currentBCDTO in BusinessConceptDTOs)
             {
 
-                if (currentBODTO.BusinessDomainId == currentBusinessDomain.Name)
+                if (currentBCDTO.BusinessDomainId == currentBusinessDomain.Name)
                 {
-                    BusinessObject businessObject = BusinessObject.FromDTO(currentBODTO, currentBusinessDomain);
+                    BusinessConcept businessConcept = BusinessConcept.FromDTO(currentBCDTO, currentBusinessDomain);
 
-                    businessObject.AttributeSets = GetAttributeSetsOfBusinessObjectFromDTO(currentBODTO.BusinessObjectId, businessObject).ToList();
+                    businessConcept.AttributeSets = GetAttributeSetsOfBusinessConceptFromDTO(currentBCDTO.BusinessConceptId, businessConcept).ToList();
 
-                    currentBusinessDomain.BusinessObjects.Add(businessObject);
+                    currentBusinessDomain.BusinessConcepts.Add(businessConcept);
 
                 }
 

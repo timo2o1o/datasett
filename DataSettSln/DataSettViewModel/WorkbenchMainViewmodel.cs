@@ -121,8 +121,8 @@ namespace DataSett.ViewModel
                 foreach (SourceAttribute currentSrcAttribute in selectedSourceInterface.SourceAttributes)
                 {
                     IEnumerable<AttributeSetMapping> matchingMappings = BusinessDomains
-                        .SelectMany(bd => bd.BusinessObjects)
-                        .SelectMany(bo => bo.AttributeSets)
+                        .SelectMany(bd => bd.BusinessConcepts)
+                        .SelectMany(bc => bc.AttributeSets)
                         .SelectMany(attributeSet => attributeSet.AttributeSetMappings)
                         .Where(asm => asm.SourceAttribute == currentSrcAttribute);
 

@@ -3,7 +3,7 @@
 namespace DataSett.Metamodel
 {
     /// <summary>
-    /// An attribute set is a grouping of attributes of a business object.
+    /// An attribute set is a grouping of attributes of a business concept.
     /// A possible usage is satellite splitting in data vault models.
     /// </summary>
     public class AttributeSet : AttributeSetBase
@@ -17,22 +17,22 @@ namespace DataSett.Metamodel
 
         // Navigation Properties
         /// <summary>
-        /// Navigation property to parent business object
+        /// Navigation property to parent business concept
         /// </summary>
         [JsonIgnore]
-        public BusinessObject? ParentBusinessObject { get; set; }
+        public BusinessConcept? ParentBusinessConcept { get; set; }
 
         public IList<AttributeSetMapping> AttributeSetMappings { get; set; }
 
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)
         /// </summary>
-        public static AttributeSet FromDTO(AttributeSetDTO dto, BusinessObject parentBusinessObject, IDictionary<string, SourceAttribute> attributeCache)
+        public static AttributeSet FromDTO(AttributeSetDTO dto, BusinessConcept parentBusinessConcept, IDictionary<string, SourceAttribute> attributeCache)
         {
             AttributeSet result = new AttributeSet
             {
                 Name = dto.Name,
-                ParentBusinessObject = parentBusinessObject
+                ParentBusinessConcept = parentBusinessConcept
             };
 
             foreach (AttributeSetMappingDTO currentMapping in dto.AttributeSetMappings)

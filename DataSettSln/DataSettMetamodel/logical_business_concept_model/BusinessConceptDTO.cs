@@ -4,15 +4,15 @@ using System.Text.Json.Serialization;
 namespace DataSett.Metamodel
 {
     
-    public class BusinessObjectDTO : BusinessObjectBase
+    public class BusinessConceptDTO : BusinessConceptBase
     {
-        public BusinessObjectDTO()
+        public BusinessConceptDTO()
         {
-            KeyParts = new List<BusinessObjectKeyPartDTO>();
+            KeyParts = new List<BusinessConceptKeyPartDTO>();
         }
 
         [JsonIgnore]
-        public string BusinessObjectId
+        public string BusinessConceptId
         {
             get
             {
@@ -20,7 +20,7 @@ namespace DataSett.Metamodel
             }
         }
 
-        public IList<BusinessObjectKeyPartDTO> KeyParts { get; set; }
+        public IList<BusinessConceptKeyPartDTO> KeyParts { get; set; }
 
         /// <summary>
         /// Reference to parent business domain

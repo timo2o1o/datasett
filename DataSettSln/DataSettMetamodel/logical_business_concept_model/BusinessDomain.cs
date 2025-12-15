@@ -3,14 +3,14 @@
 namespace DataSett.Metamodel
 {
     /// <summary>
-    /// Represents a category for business objects.
+    /// Represents a category for business concepts.
     /// </summary>
     public class BusinessDomain : BusinessDomainBase
     {
         
         public BusinessDomain()
         {
-            BusinessObjects = new List<BusinessObject>();
+            BusinessConcepts = new List<BusinessConcept>();
             ChildBusinessDomains = new List<BusinessDomain>();
         }
 
@@ -24,10 +24,10 @@ namespace DataSett.Metamodel
         public IList<BusinessDomain> ChildBusinessDomains { get; set; }
 
         /// <summary>
-        /// Navigation property to business objects in this domain
+        /// Navigation property to business concepts in this domain
         /// </summary>
         [JsonIgnore]
-        public IList<BusinessObject> BusinessObjects { get; set; }
+        public IList<BusinessConcept> BusinessConcepts { get; set; }
 
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)

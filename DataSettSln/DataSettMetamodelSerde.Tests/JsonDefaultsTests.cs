@@ -208,7 +208,7 @@ public class JsonDefaultsTests
         var attributeSet = new AttributeSetDTO
         {
             Name = "TestAttributeSet",
-            BusinessObjectId = "TestBusinessObject"
+            BusinessConceptId = "TestBusinessConcept"
         };
 
         // Act
@@ -216,11 +216,11 @@ public class JsonDefaultsTests
 
         // Assert
         Assert.Contains("\"name\":", json);
-        Assert.Contains("\"businessObjectId\":", json);
+        Assert.Contains("\"businessConceptId\":", json);
         
         // Verify that PascalCase keys are NOT present
         Assert.DoesNotContain("\"Name\":", json);
-        Assert.DoesNotContain("\"BusinessObjectId\":", json);
+        Assert.DoesNotContain("\"BusinessConceptId\":", json);
     }
 
     [Fact]

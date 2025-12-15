@@ -45,7 +45,7 @@ public abstract class BusinessDomainBase
 }
 
 // Base with scalar properties and value object
-public abstract class BusinessObjectKeyPartBase
+public abstract class BusinessConceptKeyPartBase
 {
     public string? Name { get; set; }
     public AttributeProperties KeyProperties { get; set; }
@@ -72,7 +72,7 @@ DTO classes inherit from base classes and add:
 
 **Key Characteristics:**
 - All relationships are represented as string IDs
-- Child collections use DTO types (e.g., `IList<BusinessObjectKeyPartDTO>`)
+- Child collections use DTO types (e.g., `IList<BusinessConceptKeyPartDTO>`)
 - ID properties are typically computed from Name or other properties
 - IDs are often marked `[JsonIgnore]` to exclude them from serialization
 
@@ -92,51 +92,51 @@ public class BusinessDomainDTO : BusinessDomainBase
 }
 
 // DTO with computed composite ID and parent reference
-public class BusinessObjectDTO : BusinessObjectBase
+public class BusinessConceptDTO : BusinessConceptBase
 {
-    public BusinessObjectDTO()
+    public BusinessConceptDTO()
     {
-        KeyParts = new List<BusinessObjectKeyPartDTO>();
+        KeyParts = new List<BusinessConceptKeyPartDTO>();
     }
 
     [JsonIgnore]
-    public string BusinessObjectId
+    public string BusinessConceptId
     {
         get { return string.Format("{0}.{1}", BusinessDomainId, Name); }
     }
 
-    public IList<BusinessObjectKeyPartDTO> KeyParts { get; set; }
+    public IList<BusinessConceptKeyPartDTO> KeyParts { get; set; }
     public string? BusinessDomainId { get; set; }
 }
 
 // Nested DTO with computed ID
-public class BusinessObjectKeyPartDTO : BusinessObjectKeyPartBase
+public class BusinessConceptKeyPartDTO : BusinessConceptKeyPartBase
 {
     [JsonIgnore]
-    public string? BusinessObjectKeyPartId
+    public string? BusinessConceptKeyPartId
     {
-        get { return $"{BusinessObjectId}.{Name}"; }
+        get { return $"{BusinessConceptId}.{Name}"; }
     }
 
     [JsonIgnore]
-    public string? BusinessObjectId { get; set; }
+    public string? BusinessConceptId { get; set; }
 }
 
 // DTO with child collection of DTOs
-public class BusinessObjectRelationDTO : BusinessObjectRelationBase
+public class BusinessConceptRelationDTO : BusinessConceptRelationBase
 {
-    public BusinessObjectRelationDTO()
+    public BusinessConceptRelationDTO()
     {
-        RelatedObjects = new List<BusinessObjectRelationItemDTO>();
+        RelatedConcepts = new List<BusinessConceptRelationItemDTO>();
     }
 
     [JsonIgnore]
-    public string? BusinessObjectRelationId
+    public string? BusinessConceptRelationId
     {
         get { return Name; }
     }
 
-    public IList<BusinessObjectRelationItemDTO> RelatedObjects { get; set; }
+    public IList<BusinessConceptRelationItemDTO> RelatedConcepts { get; set; }
 }
 ```
 
@@ -150,7 +150,7 @@ Domain classes inherit from base classes and add:
 
 **Key Characteristics:**
 - Navigation properties are typically marked with `[JsonIgnore]`
-- Child collections use domain types (e.g., `IList<BusinessObject>`)
+- Child collections use domain types (e.g., `IList<BusinessConcept>`)
 - Constructor initializes child collections to empty lists
 - `FromDTO()` method handles conversion from DTO, navigation properties set separately
 
@@ -162,7 +162,7 @@ public class BusinessDomain : BusinessDomainBase
 {
     public BusinessDomain()
     {
-        BusinessObjects = new List<BusinessObject>();
+        BusinessConcepts = new List<BusinessConcept>();
         ChildBusinessDomains = new List<BusinessDomain>();
     }
 
@@ -172,7 +172,7 @@ public class BusinessDomain : BusinessDomainBase
     public IList<BusinessDomain> ChildBusinessDomains { get; set; }
 
     [JsonIgnore]
-    public IList<BusinessObject> BusinessObjects { get; set; }
+    public IList<BusinessConcept> BusinessConcepts { get; set; }
 
     public static BusinessDomain FromDTO(BusinessDomainDTO dto, BusinessDomain? parentBusinessDomain)
     {
@@ -186,23 +186,23 @@ public class BusinessDomain : BusinessDomainBase
 }
 
 // Domain with navigation and child collections
-public class BusinessObject : BusinessObjectBase
+public class BusinessConcept : BusinessConceptBase
 {
-    public BusinessObject()
+    public BusinessConcept()
     {
         AttributeSets = new List<AttributeSet>();
-        KeyParts = new List<BusinessObjectKeyPart>();
+        KeyParts = new List<BusinessConceptKeyPart>();
     }
 
     public IList<AttributeSet> AttributeSets { get; set; }
-    public IList<BusinessObjectKeyPart> KeyParts { get; set; }
+    public IList<BusinessConceptKeyPart> KeyParts { get; set; }
     
     [JsonIgnore]
     public BusinessDomain? ParentBusinessDomain { get; set; }
 
-    public static BusinessObject FromDTO(BusinessObjectDTO dto, BusinessDomain parentBusinessDomain)
+    public static BusinessConcept FromDTO(BusinessConceptDTO dto, BusinessDomain parentBusinessDomain)
     {
-        return new BusinessObject
+        return new BusinessConcept
         {
             Name = dto.Name,
             ParentBusinessDomain = parentBusinessDomain
@@ -211,20 +211,20 @@ public class BusinessObject : BusinessObjectBase
 }
 
 // Domain with single navigation property
-public class BusinessObjectKeyPart : BusinessObjectKeyPartBase
+public class BusinessConceptKeyPart : BusinessConceptKeyPartBase
 {
-    public BusinessObject? ParentBusinessObject { get; set; }
+    public BusinessConcept? ParentBusinessConcept { get; set; }
 }
 
 // Domain with collection of domain entities
-public class BusinessObjectRelation : BusinessObjectRelationBase
+public class BusinessConceptRelation : BusinessConceptRelationBase
 {
-    public BusinessObjectRelation()
+    public BusinessConceptRelation()
     {
-        RelatedObjects = new List<BusinessObjectRelationItem>();
+        RelatedConcepts = new List<BusinessConceptRelationItem>();
     }
 
-    public IList<BusinessObjectRelationItem>? RelatedObjects { get; set; }
+    public IList<BusinessConceptRelationItem>? RelatedConcepts { get; set; }
 }
 ```
 
@@ -235,10 +235,10 @@ public class BusinessObjectRelation : BusinessObjectRelationBase
 Some DTOs include collections of child DTOs directly embedded (not separate files):
 
 ```csharp
-public class BusinessObjectDTO : BusinessObjectBase
+public class BusinessConceptDTO : BusinessConceptBase
 {
-    public IList<BusinessObjectKeyPartDTO> KeyParts { get; set; }
-    // KeyParts are serialized inline with the BusinessObject
+    public IList<BusinessConceptKeyPartDTO> KeyParts { get; set; }
+    // KeyParts are serialized inline with the BusinessConcept
 }
 ```
 
@@ -269,7 +269,7 @@ DTOs often have computed ID properties that are also marked `[JsonIgnore]`:
 
 ```csharp
 [JsonIgnore]
-public string BusinessObjectId
+public string BusinessConceptId
 {
     get { return string.Format("{0}.{1}", BusinessDomainId, Name); }
 }
