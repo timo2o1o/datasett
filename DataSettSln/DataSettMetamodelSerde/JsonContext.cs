@@ -301,10 +301,10 @@ public class JsonContext
         return businessDomains;
     }
 
-    public Task SaveChangesAsync(string repositoryPath, IEnumerable<SourceSystem> sourceSystems)
+    public async Task WriteLBCMAsync(string repositoryPath, IEnumerable<BusinessDomain> businessDomains)
     {
         // Implementation for saving domain entities as DTOs to JSON files would go here
-        throw new NotImplementedException();
+        
     }
 
 }

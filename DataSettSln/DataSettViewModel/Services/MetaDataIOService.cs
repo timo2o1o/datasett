@@ -26,7 +26,7 @@ namespace DataSett.ViewModel.Services
 
         public async Task SaveSourceSystemsAsync(string repositoryPath, IEnumerable<SourceSystem> sourceSystems)
         {
-            await _dataContext.SaveChangesAsync(repositoryPath, sourceSystems);
+            throw new NotImplementedException();
         }
 
         public IEnumerable<BusinessDomain> GetBusinessDomains()
@@ -34,5 +34,14 @@ namespace DataSett.ViewModel.Services
             return _dataContext.GetBusinessDomains();
         }
 
+        public Task SaveBusinessDomainsAsync(string repositoryPath, IEnumerable<BusinessDomain> businessDomains)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task WriteDataAsync(string repositoryPath, IEnumerable<BusinessDomain> businessDomains)
+        {
+            await _dataContext.WriteLBCMAsync(repositoryPath, businessDomains);
+        }
     }
 }

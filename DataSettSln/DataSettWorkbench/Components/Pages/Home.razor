@@ -31,6 +31,13 @@
                            Class="mt-2">
                     Refresh
                 </MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Success"
+                           StartIcon="@Icons.Material.Filled.Save"
+                           OnClick="@(() => ViewModel.SaveChangesAsync())"
+                           Class="mt-2">
+                    Save Changes
+                </MudButton>
             </MudPaper>
         </MudItem>
         
@@ -56,14 +63,15 @@
         <!-- DataGrid nimmt 75% der Breite (9 von 12 Spalten) -->
         <MudItem xs="12" sm="10">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px;">
-                @if (ViewModel.SelectedSourceInterface != null && ViewModel.BusinessConceptMappings != null)
+                @if (ViewModel.SelectedSourceInterface != null)
                 {
                     <MudDataGrid
-                        Items="@ViewModel.BusinessConceptMappings"
+                        Items="@ViewModel.FilteredBusinessConceptMappings"
                         ReadOnly=false
                         EditMode="DataGridEditMode.Cell">
                         <Columns>
                             <PropertyColumn Property="x => x.SourceAttribute != null ? x.SourceAttribute.Name : string.Empty" />
+                            <PropertyColumn Property="x => x.HarmonizedName" />
                             <PropertyColumn Property="x => x.OrderNo" />
                             <PropertyColumn Property="x => x.ParentBusinessConcept != null ? x.ParentBusinessConcept.Name : string.Empty" Title="BusinessConcept">
                                 <EditTemplate>
@@ -75,22 +83,22 @@
                                     </MudSelect>
                                 </EditTemplate>
                             </PropertyColumn>
-                            <PropertyColumn Property="x => x.HistoryType">
-                                <EditTemplate>
-                                    <MudSelect @bind-Value="context.Item.HistoryType" Required RequiredError="Please select an history type." Margin="@Margin.Dense">
-                                        @foreach (var type in Enum.GetValues<HistoryType>())
-                                        {
-                                            <MudSelectItem Value="@(type)">@type</MudSelectItem>
-                                        }
-                                    </MudSelect>
-                                </EditTemplate>
-                            </PropertyColumn>
                             <PropertyColumn Property="x => x.Role">
                                 <EditTemplate>
                                     <MudSelect @bind-Value="context.Item.Role" Required RequiredError="Please select a role." Margin="@Margin.Dense">
                                         @foreach (var role in Enum.GetValues<SourceAttributeRole>())
                                         {
                                             <MudSelectItem Value="@(role)">@role</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </EditTemplate>
+                            </PropertyColumn>
+                            <PropertyColumn Property="x => x.HistoryType">
+                                <EditTemplate>
+                                    <MudSelect @bind-Value="context.Item.HistoryType" Required RequiredError="Please select an history type." Margin="@Margin.Dense">
+                                        @foreach (var type in Enum.GetValues<HistoryType>())
+                                        {
+                                            <MudSelectItem Value="@(type)">@type</MudSelectItem>
                                         }
                                     </MudSelect>
                                 </EditTemplate>
@@ -113,6 +121,7 @@
                 }
             </MudPaper>
         </MudItem>
+
     </MudGrid>
 </MudContainer>
 
@@ -122,7 +131,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadDataFromPath();
+        if (ViewModel.SourceSystems.Count == 0)
+        {
+            await LoadDataFromPath();
+        }
     }
 
     private async Task LoadDataFromPath()

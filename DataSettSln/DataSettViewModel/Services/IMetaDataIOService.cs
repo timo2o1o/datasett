@@ -13,6 +13,7 @@ namespace DataSett.ViewModel.Services
         IEnumerable<SourceSystem> GetSourceSystems();
         Task SaveSourceSystemsAsync(string repositoryPath, IEnumerable<SourceSystem> sourceSystems);
         IEnumerable<BusinessDomain> GetBusinessDomains();
-
+        Task SaveBusinessDomainsAsync(string repositoryPath, IEnumerable<BusinessDomain> businessDomains);
+        Task WriteDataAsync(string repositoryPath, IEnumerable<BusinessDomain> businessDomains);
     }
 }
