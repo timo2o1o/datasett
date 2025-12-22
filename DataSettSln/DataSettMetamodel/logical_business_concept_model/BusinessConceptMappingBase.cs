@@ -3,19 +3,21 @@ using System.Text.Json.Serialization;
 namespace DataSett.Metamodel
 {
     /// <summary>
-    /// Base class for AttributeSetMapping containing scalar and context properties.
+    /// Base class for BusinessConceptMapping containing scalar and context properties.
     /// This class is part of the Base/DTO/Domain separation pattern.
     /// This represents the connection between a physical source attribute and a business object.
     /// </summary>
-    public abstract class AttributeSetMappingBase
+    public abstract class BusinessConceptMappingBase
     {
 
-        public AttributeSetMappingBase()
+        public BusinessConceptMappingBase()
         {
+            AttributeSetName = "Default";
+
             Role = SourceAttributeRole.Unclassified;
             HistoryType = Metamodel.HistoryType.None;
 
-            AttributeProperties = new AttributeProperties();
+            MappingProperties = new AttributeProperties();
         }
 
         /// <summary>
@@ -29,6 +31,8 @@ namespace DataSett.Metamodel
         /// Could maybe be used for translations.
         /// </summary>
         public string? HarmonizedName { get; set; }
+
+        public string AttributeSetName { get; set; }
 
         /// <summary>
         /// History type for this attribute
@@ -44,6 +48,6 @@ namespace DataSett.Metamodel
         /// Attribute properties in the attribute set
         /// This might override the properties of the source attribute.
         /// </summary>
-        public AttributeProperties AttributeProperties { get; set; }
+        public AttributeProperties MappingProperties { get; set; }
     }
 }

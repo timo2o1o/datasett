@@ -10,15 +10,9 @@ namespace DataSett.Metamodel
     {
         public BusinessConcept()
         {
-            AttributeSets = new List<AttributeSet>();
             KeyParts = new List<BusinessConceptKeyPart>();
+            BusinessConceptMappings = new List<BusinessConceptMapping>();
         }
-
-        // Navigation Properties
-        /// <summary>
-        /// Navigation property to attribute sets
-        /// </summary>
-        public IList<AttributeSet> AttributeSets { get; set; }
 
         /// <summary>
         /// Each Business Concept contains of one or more Key Parts
@@ -30,6 +24,8 @@ namespace DataSett.Metamodel
         /// </summary>
         [JsonIgnore]
         public BusinessDomain? ParentBusinessDomain { get; set; }
+
+        public IList<BusinessConceptMapping> BusinessConceptMappings { get; set; }
 
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)

@@ -27,7 +27,7 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Whether the attribute is nullable
         /// </summary>
-        public bool? Nullable { get; set; }
+        public bool? IsNullable { get; set; }
 
         /// <summary>
         /// Data type of the attribute
@@ -51,7 +51,7 @@ namespace DataSett.Metamodel
             {
                 Position = this.Position,
                 Default = this.Default,
-                Nullable = this.Nullable,
+                IsNullable = this.IsNullable,
                 Datatype = this.Datatype,
                 Length = this.Length,
                 Precision = this.Precision

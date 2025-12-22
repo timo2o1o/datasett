@@ -1,13 +1,13 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace DataSett.Metamodel
 {
     /// <summary>
     /// This represents the connection between a physical source attribute and a business object.
     /// </summary>
-    public class AttributeSetMapping : AttributeSetMappingBase
+    public class BusinessConceptMapping : BusinessConceptMappingBase
     {
-        public AttributeSetMapping()
+        public BusinessConceptMapping()
         {
         }
 
@@ -17,18 +17,14 @@ namespace DataSett.Metamodel
         /// </summary>
         public SourceAttribute? SourceAttribute { get; set; }
 
-        /// <summary>
-        /// Navigation property to attribute set
-        /// </summary>
         [JsonIgnore]
-        public AttributeSet? AttributeSet { get; set; }
+        public BusinessConcept? ParentBusinessConcept { get; set; }
 
-        public static AttributeSetMapping FromSourceAttribute(SourceAttribute srcAttribute)
+        public static BusinessConceptMapping FromSourceAttribute(SourceAttribute srcAttribute)
         {
-            return new AttributeSetMapping
+            return new BusinessConceptMapping
             {
-                AttributeSet = null,
-                AttributeProperties = srcAttribute.AttributeProperties.Copy(),
+                MappingProperties = srcAttribute.AttributeProperties.Copy(),
                 HarmonizedName = srcAttribute.Name,
                 HistoryType = Metamodel.HistoryType.None,
                 OrderNo = null,
@@ -40,15 +36,15 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)
         /// </summary>
-        public static AttributeSetMapping FromDTO(AttributeSetMappingDTO dto, AttributeSet attributeSet, SourceAttribute srcAttribute)
+        public static BusinessConceptMapping FromDTO(BusinessConceptMappingDTO dto, BusinessConcept parentBC, SourceAttribute srcAttribute)
         {
-            return new AttributeSetMapping
+            return new BusinessConceptMapping
             {
-                AttributeSet = attributeSet,
+                ParentBusinessConcept = parentBC,
                 OrderNo = dto.OrderNo,
                 HistoryType = dto.HistoryType,
                 Role = dto.Role,
-                AttributeProperties = dto.AttributeProperties,
+                MappingProperties = dto.MappingProperties,
                 SourceAttribute = srcAttribute
             };
         }

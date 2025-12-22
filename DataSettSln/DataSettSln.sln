@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSettMetamodel", "DataSettMetamodel\DataSettMetamodel.csproj", "{A6258F60-69FF-44AC-928F-325BB1E8113D}"
 EndProject
@@ -10,8 +10,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSettMetamodelSerde", "DataSettMetamodelSerde\DataSettMetamodelSerde.csproj", "{8336C8E5-4BFD-4A0D-8EB0-3CBC40E846A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSettWorkbench", "DataSettWorkbench\DataSettWorkbench.csproj", "{9315DAC0-703B-45F7-8260-C2489FEE8D1C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataSettMetamodelSerde.Tests", "DataSettMetamodelSerde.Tests\DataSettMetamodelSerde.Tests.csproj", "{543EBFCB-7E3D-4BC2-AE95-94A74900CC84}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +33,6 @@ Global
 		{9315DAC0-703B-45F7-8260-C2489FEE8D1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9315DAC0-703B-45F7-8260-C2489FEE8D1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9315DAC0-703B-45F7-8260-C2489FEE8D1C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{543EBFCB-7E3D-4BC2-AE95-94A74900CC84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{543EBFCB-7E3D-4BC2-AE95-94A74900CC84}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{543EBFCB-7E3D-4BC2-AE95-94A74900CC84}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{543EBFCB-7E3D-4BC2-AE95-94A74900CC84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

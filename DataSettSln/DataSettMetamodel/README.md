@@ -31,40 +31,109 @@ The metamodel implements a clean separation pattern with three layers for each e
 
 The metamodel follows a layered architecture where business concepts are mapped to physical data sources through attribute set mappings, enabling data integration and transformation scenarios.
 
+## Entity Relationsships
+
+```mermaid
+erDiagram
+    SourceSystem ||--|{ SourceInterface : contains
+    SourceInterface ||--|{ SourceAttribute : contains
+
+    BusinessDomain ||--|{ BusinessConcept : contains
+    BusinessConcept ||--|{ BusinessConceptKeyPart : describes
+    BusinessConcept ||--|{ BusinessConceptMapping : contains
+
+    BusinessConceptKeyPart |o--|{ BusinessConceptMapping : maps
+    
+    BusinessConceptRelation ||--|{ BusinessConceptRelationItem : describes
+    BusinessConceptRelationItem }o--|| BusinessConcept : relates
+
+    SourceAttribute ||--|| BusinessConceptMapping : maps
+
+    SourceSystem {
+        string ConnectionString
+        string Driver
+        string Name
+        string Server
+        string ShortName
+        string Version
+    }
+    SourceInterface {
+        string Catalog
+        string Name
+        string Schema
+    }
+    SourceAttribute {
+        bool IsFk
+        bool IsPk
+        string Name
+        AttributeProperties AttributeProperties
+    }
+
+    BusinessConceptMapping {
+        int OrderNo
+        string AttributeSetName
+        string HarmonizedName
+        HistoryType HistoryType
+        SourceAttributeRole Role
+        AttributeProperties MappingProperties
+    }
+
+    BusinessConcept {
+        string Name
+    }
+
+    BusinessConceptKeyPart {
+        string Name
+        AttributeProperties KeyProperties
+    }
+
+    BusinessConceptRelation {
+        string Name
+    }
+
+    BusinessConceptRelationItem {
+        bool IsLeadingKey
+    }
+
+    BusinessDomain {
+        string Name
+        string Description
+    }
+```
+
 ## Class Structure
 
 ```mermaid
 classDiagram
 namespace LogicalBusinessObjectModel {
 
-    class AttributeSet {
-        +string Name
-    }
-
-    class AttributeSetMapping {
+    class BusinessConceptMapping {
         +int OrderNo
-        +string Relation
-        +int Position
-        +string Default
-        +bool Nullable
-        +string Datatype
-        +int Length
-        +int Precision
+        +string AttributeSetName
+        +string HarmonizedName
+        +HistoryType HistoryType
+        +SourceAttributeRole Role
+        +AttributeProperties MappingProperties
     }
 
     class BusinessDomain {
         +string Name
     }
 
-    class BusinessObject {
+    class BusinessConcept {
         +string Name
     }
 
-    class BusinessObjectRelation {
+    class BusinessConceptKeyPart {
+        +string Name
+        +AttributeProperties KeyProperties
+    }
+
+    class BusinessConceptRelation {
         +string Name
     }
 
-    class BusinessObjectRelationItem {
+    class BusinessConceptRelationItem {
         +bool IsLeadingKey
     }
 
@@ -113,12 +182,7 @@ namespace PhysicalSourceSystemModel {
         +string Name
         +bool IsPk
         +bool IsFk
-        +int Position
-        +string Default
-        +bool Nullable
-        +string Datatype
-        +int Length
-        +int Precision
+        +AttributeProperties AttributeProperties
     }
 
     class SourceAttributeRelation {
@@ -141,18 +205,17 @@ namespace PhysicalSourceSystemModel {
     SourceAttribute "1" <-- "*" SourceAttributeRelation : ParentKey
     SourceAttributeRelationType "1" <-- "*" SourceAttributeRelation
 
-    AttributeSetMapping "*" --> "1" SourceAttribute : "maps from"
-    AttributeSetMapping "*" --> "0..1" HistoryType
-    AttributeSetMapping "*" --> "1" SourceAttributeRole
+    BusinessConceptMapping "*" --> "1" SourceAttribute : "maps from"
+    BusinessConceptMapping "*" --> "0..1" HistoryType
+    BusinessConceptMapping "*" --> "1" SourceAttributeRole
 
-    AttributeSet "1" <-- "*" AttributeSetMapping : "maps to"
-    
-    BusinessObject "1" <-- "*" AttributeSet
-    BusinessObjectRelationItem "*" --> "1" BusinessObject
-    BusinessObjectRelation "1" <-- "*" BusinessObjectRelationItem
+    BusinessConcept "1" <-- "*" BusinessConceptMapping
+    BusinessConcept "1" <-- "*" BusinessConceptKeyPart
+    BusinessConceptRelationItem "*" --> "1" BusinessConcept
+    BusinessConceptRelation "1" <-- "*" BusinessConceptRelationItem
 
     BusinessDomain "1" <-- "0..1" BusinessDomain : hierarchy
-    BusinessDomain "1" <-- "*" BusinessObject
+    BusinessDomain "1" <-- "*" BusinessConcept
     
     Transformation "0..1" --> "1" SourceAttribute
 ```
@@ -166,7 +229,7 @@ This way parser for physical systems can be implemented independently from tools
 - **BusinessDomain**: Represents a business domain that can contain business objects and relations. Supports hierarchical structure.
 - **BusinessObject**: Represents a business entity with a collection of attribute sets.
 - **AttributeSet**: Groups related attributes that belong to a business object.
-- **AttributeSetMapping**: Maps business attributes to physical source attributes, enabling data integration.
+- **BusinessConceptMapping**: Maps business attributes to physical source attributes, enabling data integration.
 - **BusinessObjectRelation**: Defines relationships between business objects.
 - **BusinessObjectRelationItem**: Represents individual items in a business object relationship.
 - **HistoryType**: Defines how historical data should be handled.

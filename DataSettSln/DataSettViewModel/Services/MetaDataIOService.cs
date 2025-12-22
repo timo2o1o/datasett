@@ -3,13 +3,6 @@ using DataSett.Metamodel.Serde;
 
 namespace DataSett.ViewModel.Services
 {
-    public interface IMetaDataIOService
-    {
-        Task LoadDataAsync(string repositoryPath);
-        IEnumerable<SourceSystem> GetSourceSystems();
-        Task SaveSourceSystemsAsync(string repositoryPath, IEnumerable<SourceSystem> sourceSystems);
-        IEnumerable<BusinessDomain> GetBusinessDomains();
-    }
 
     public class MetaDataIOService : IMetaDataIOService
     {
@@ -40,5 +33,6 @@ namespace DataSett.ViewModel.Services
         {
             return _dataContext.GetBusinessDomains();
         }
+
     }
 }

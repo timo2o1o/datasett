@@ -22,7 +22,7 @@ public class JsonContext
     // Logical Business Concept Model DTOs
     private readonly IList<BusinessDomainDTO> _businessDomainDTOs;
     private readonly IList<BusinessConceptDTO> _businessConceptDTOs;
-    private readonly IList<AttributeSetDTO> _attributeSetDTOs;
+    private readonly IList<BusinessConceptMappingCollectionDTO> _conceptMappingDTOs;
 
     // Some private fields to cache deserializing information:
     private readonly IDictionary<string, SourceAttribute> _sourceAttributeCache;
@@ -34,7 +34,7 @@ public class JsonContext
 
         _businessDomainDTOs = new List<BusinessDomainDTO>();
         _businessConceptDTOs = new List<BusinessConceptDTO>();
-        _attributeSetDTOs = new List<AttributeSetDTO>();
+        _conceptMappingDTOs = new List<BusinessConceptMappingCollectionDTO>();
 
         _sourceAttributeCache = new Dictionary<string, SourceAttribute>();
     }
@@ -47,7 +47,7 @@ public class JsonContext
 
     public IEnumerable<BusinessConceptDTO> BusinessConceptDTOs => _businessConceptDTOs;
 
-    public IEnumerable<AttributeSetDTO> AttributeSetDTOs => _attributeSetDTOs;
+    public IEnumerable<BusinessConceptMappingCollectionDTO> BusinessConceptMappingCollectionDTOs => _conceptMappingDTOs;
 
     private IDictionary<string, SourceAttribute> SourceAttributeCache => _sourceAttributeCache;
 
@@ -58,7 +58,7 @@ public class JsonContext
 
         _businessDomainDTOs.Clear();
         _businessConceptDTOs.Clear();
-        _attributeSetDTOs.Clear();
+        _conceptMappingDTOs.Clear();
 
         if (Directory.Exists(repositoryPath))
         {
@@ -90,11 +90,11 @@ public class JsonContext
                 _businessConceptDTOs.Add(currentBC);
             }
 
-            foreach (AttributeSetDTO[] currentAttributeSets in await DeserializeMetadataObjectsAsync<AttributeSetDTO[]>(logicalBOMPath, "AttributeSets_*.json"))
+            foreach (BusinessConceptMappingCollectionDTO[] currentbcMappings in await DeserializeMetadataObjectsAsync<BusinessConceptMappingCollectionDTO[]>(logicalBOMPath, "BusinessConceptMappings_*.json"))
             {
-                foreach (AttributeSetDTO currentAttributeSet in currentAttributeSets)
+                foreach (BusinessConceptMappingCollectionDTO currentMappingCollection in currentbcMappings)
                 {
-                    _attributeSetDTOs.Add(currentAttributeSet);
+                    _conceptMappingDTOs.Add(currentMappingCollection);
                 }
             }
 
@@ -249,14 +249,17 @@ public class JsonContext
 
     }
 
-    private IEnumerable<AttributeSet> GetAttributeSetsOfBusinessConceptFromDTO(string businessConceptID, BusinessConcept businessConcept)
+    private IEnumerable<BusinessConceptMapping> GetMappingsOfBusinessConceptFromDTO(string businessConceptID, BusinessConcept businessConcept)
     {
-        foreach (AttributeSetDTO currentAttributeSetDTO in AttributeSetDTOs)
+        foreach (BusinessConceptMappingCollectionDTO currentMappingCollectionDTO in BusinessConceptMappingCollectionDTOs)
         {
-            if (currentAttributeSetDTO.BusinessConceptId == businessConceptID)
+            if (currentMappingCollectionDTO.BusinessConceptId == businessConceptID)
             {
-                AttributeSet attributeSet = AttributeSet.FromDTO(currentAttributeSetDTO, businessConcept, SourceAttributeCache);
-                yield return attributeSet;
+                foreach (BusinessConceptMappingDTO currentMappingDTO in currentMappingCollectionDTO.BusinessConceptMappings)
+                {
+                    BusinessConceptMapping mapping = BusinessConceptMapping.FromDTO(currentMappingDTO, businessConcept, SourceAttributeCache[$"{currentMappingDTO.SourceInterfaceId}.{currentMappingDTO.SourceAttributeName}"]);
+                    yield return mapping;
+                }
             }
         }
     }
@@ -285,7 +288,7 @@ public class JsonContext
                 {
                     BusinessConcept businessConcept = BusinessConcept.FromDTO(currentBCDTO, currentBusinessDomain);
 
-                    businessConcept.AttributeSets = GetAttributeSetsOfBusinessConceptFromDTO(currentBCDTO.BusinessConceptId, businessConcept).ToList();
+                    businessConcept.BusinessConceptMappings = GetMappingsOfBusinessConceptFromDTO(currentBCDTO.BusinessConceptId, businessConcept).ToList();
 
                     currentBusinessDomain.BusinessConcepts.Add(businessConcept);
 

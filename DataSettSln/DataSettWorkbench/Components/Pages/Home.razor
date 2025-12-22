@@ -56,17 +56,25 @@
         <!-- DataGrid nimmt 75% der Breite (9 von 12 Spalten) -->
         <MudItem xs="12" sm="10">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px;">
-                @if (ViewModel.SelectedSourceInterface != null && ViewModel.AttributeSetMappings != null)
+                @if (ViewModel.SelectedSourceInterface != null && ViewModel.BusinessConceptMappings != null)
                 {
                     <MudDataGrid
-                        Items="@ViewModel.AttributeSetMappings"
+                        Items="@ViewModel.BusinessConceptMappings"
                         ReadOnly=false
                         EditMode="DataGridEditMode.Cell">
                         <Columns>
                             <PropertyColumn Property="x => x.SourceAttribute != null ? x.SourceAttribute.Name : string.Empty" />
                             <PropertyColumn Property="x => x.OrderNo" />
-                            <PropertyColumn Property="x => x.AttributeSet != null ? x.AttributeSet.Name : string.Empty" />
-                            <PropertyColumn Property="x => x.AttributeSet != null ? x.AttributeSet.ParentBusinessConcept != null ? x.AttributeSet.ParentBusinessConcept.Name : string.Empty : string.Empty" Title="BusinessConcept" />
+                            <PropertyColumn Property="x => x.ParentBusinessConcept != null ? x.ParentBusinessConcept.Name : string.Empty" Title="BusinessConcept">
+                                <EditTemplate>
+                                    <MudSelect @bind-Value="context.Item.ParentBusinessConcept" Required RequiredError="Please select a business concept." Margin="@Margin.Dense">
+                                        @foreach (var bc in ViewModel.BusinessConcepts)
+                                        {
+                                            <MudSelectItem Value="@(bc)">@bc.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </EditTemplate>
+                            </PropertyColumn>
                             <PropertyColumn Property="x => x.HistoryType">
                                 <EditTemplate>
                                     <MudSelect @bind-Value="context.Item.HistoryType" Required RequiredError="Please select an history type." Margin="@Margin.Dense">
@@ -87,12 +95,13 @@
                                     </MudSelect>
                                 </EditTemplate>
                             </PropertyColumn>
-                            <PropertyColumn Property="x => x.AttributeProperties.Datatype" />
-                            <PropertyColumn Property="x => x.AttributeProperties.Default" />
-                            <PropertyColumn Property="x => x.AttributeProperties.Length" />
-                            <PropertyColumn Property="x => x.AttributeProperties.Nullable" />
-                            <PropertyColumn Property="x => x.AttributeProperties.Position" />
-                            <PropertyColumn Property="x => x.AttributeProperties.Precision" />
+                            <PropertyColumn Property="x => x.AttributeSetName" Editable="false" />
+                            <PropertyColumn Property="x => x.MappingProperties.Datatype" />
+                            <PropertyColumn Property="x => x.MappingProperties.Default" />
+                            <PropertyColumn Property="x => x.MappingProperties.Length" />
+                            <PropertyColumn Property="x => x.MappingProperties.IsNullable" />
+                            <PropertyColumn Property="x => x.MappingProperties.Position" />
+                            <PropertyColumn Property="x => x.MappingProperties.Precision" />
                         </Columns>
                     </MudDataGrid>
                 }
@@ -140,13 +149,13 @@
 
     private void OnTreeItemSelected(object selectedValue)
     {
-        // Wenn ein SourceSystem ausgewählt wurde, setze es im ViewModel
+        // If a SourceSystem got selected, set it in the ViewModel
         if (selectedValue is SourceSystem sourceSystem)
         {
             ViewModel.SelectedSourceSystem = sourceSystem;
             ViewModel.SelectedSourceInterface = null;
         }
-        // Wenn ein SourceInterface ausgewählt wurde, setze das Parent SourceSystem
+        // If a SourceInterface got selected, set it's parent SourceSystem
         else if (selectedValue is SourceInterface sourceInterface)
         {
             ViewModel.SelectedSourceSystem = sourceInterface.ParentSourceSystem;

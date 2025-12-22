@@ -23,9 +23,10 @@ namespace DataSett.ViewModel
 
             // Set standard values for properties:
             _sourceSystems = new ObservableCollection<SourceSystem>();
+            _businessConcepts = new ObservableCollection<BusinessConcept>();
             _serverPath = appSettings.Value.RepositoryPath ?? string.Empty;
             _businessDomains = new ObservableCollection<BusinessDomain>();
-            _attributeSetMappings = new ObservableCollection<AttributeSetMapping>();
+            _businessConceptMappings = new ObservableCollection<BusinessConceptMapping>();
         }
 
         private IMetaDataIOService MetaDataIOService { get; set; }
@@ -33,6 +34,10 @@ namespace DataSett.ViewModel
         // Properties for binding to the view:
         private ObservableCollection<SourceSystem> _sourceSystems;
         public ObservableCollection<SourceSystem> SourceSystems => _sourceSystems;
+
+
+        private ObservableCollection<BusinessConcept> _businessConcepts;
+        public ObservableCollection<BusinessConcept> BusinessConcepts => _businessConcepts;
 
         private SourceSystem? _selectedSourceSystem;
         public SourceSystem? SelectedSourceSystem
@@ -59,7 +64,7 @@ namespace DataSett.ViewModel
                     _selectedSourceInterface = value;
                     OnPropertyChanged();
 
-                    GetAttributeSetMappings(_selectedSourceInterface);
+                    GetBusinessConceptMappings(_selectedSourceInterface);
                 }
             }
         }
@@ -67,8 +72,8 @@ namespace DataSett.ViewModel
         private ObservableCollection<BusinessDomain> _businessDomains;
         public ObservableCollection<BusinessDomain> BusinessDomains => _businessDomains;
 
-        private ObservableCollection<AttributeSetMapping> _attributeSetMappings;
-        public ObservableCollection<AttributeSetMapping> AttributeSetMappings => _attributeSetMappings;
+        private ObservableCollection<BusinessConceptMapping> _businessConceptMappings;
+        public ObservableCollection<BusinessConceptMapping> BusinessConceptMappings => _businessConceptMappings;
 
         private string _serverPath;
         public string ServerPath
@@ -103,36 +108,41 @@ namespace DataSett.ViewModel
                 }
 
                 _businessDomains.Clear();
+                _businessConcepts.Clear();
                 foreach (BusinessDomain currentBusinessDomain in MetaDataIOService.GetBusinessDomains())
                 {
                     _businessDomains.Add(currentBusinessDomain);
+
+                    foreach (BusinessConcept currentBusinessConcept in currentBusinessDomain.BusinessConcepts)
+                    {
+                        _businessConcepts.Add(currentBusinessConcept);
+                    }
                 }
 
             }
 
         }
 
-        private void GetAttributeSetMappings(SourceInterface selectedSourceInterface)
+        private void GetBusinessConceptMappings(SourceInterface selectedSourceInterface)
         {
-            _attributeSetMappings.Clear();
+            _businessConceptMappings.Clear();
 
             if (selectedSourceInterface != null && selectedSourceInterface.SourceAttributes != null)
             {
                 foreach (SourceAttribute currentSrcAttribute in selectedSourceInterface.SourceAttributes)
                 {
-                    IEnumerable<AttributeSetMapping> matchingMappings = BusinessDomains
+                    IEnumerable<BusinessConceptMapping> matchingMappings = BusinessDomains
                         .SelectMany(bd => bd.BusinessConcepts)
-                        .SelectMany(bc => bc.AttributeSets)
-                        .SelectMany(attributeSet => attributeSet.AttributeSetMappings)
+                        .SelectMany(bc => bc.BusinessConceptMappings)
                         .Where(asm => asm.SourceAttribute == currentSrcAttribute);
 
                     if (matchingMappings.Count() == 1)
                     {
-                        _attributeSetMappings.Add(matchingMappings.First());
+                        _businessConceptMappings.Add(matchingMappings.First());
                     }
                     else
                     {
-                        _attributeSetMappings.Add(AttributeSetMapping.FromSourceAttribute(currentSrcAttribute));
+                        _businessConceptMappings.Add(BusinessConceptMapping.FromSourceAttribute(currentSrcAttribute));
                     }
                 }
             }
