@@ -27,5 +27,12 @@ namespace DataSett.Metamodel
                 SourceAttributes = dto.SourceAttributes
             };
         }
+
+        public override string ToString()
+        {
+            var systemName = ParentSourceSystem?.Name ?? "<no-system>";
+            var interfaceName = Name ?? "<no-name>";
+            return $"{systemName}.{interfaceName}";
+        }
     }
 }

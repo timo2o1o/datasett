@@ -34,6 +34,11 @@ namespace DataSett.Metamodel
         /// </summary>
         public string? Version { get; set; }
 
+        public override string ToString()
+        {
+            return Name ?? "<no-name>";
+        }
+
     }
 
 }

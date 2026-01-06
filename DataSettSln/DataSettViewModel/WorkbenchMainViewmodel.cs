@@ -26,7 +26,7 @@ namespace DataSett.ViewModel
             _businessConcepts = new ObservableCollection<BusinessConcept>();
             _serverPath = appSettings.Value.RepositoryPath ?? string.Empty;
             _businessDomains = new ObservableCollection<BusinessDomain>();
-            _temporaryBusinessConceptMappings = new List<BusinessConceptMapping>();
+            DisplayMappings = new ObservableCollection<MappingDisplayItem>();
         }
 
         private IMetaDataIOService MetaDataIOService { get; set; }
@@ -61,7 +61,6 @@ namespace DataSett.ViewModel
             {
                 if (_selectedSourceInterface != value)
                 {
-                    ApplyNewBCMappingsToDataSett();
                     _selectedSourceInterface = value;
                     FilterBusinessConceptMappings();
                     OnPropertyChanged();
@@ -72,21 +71,11 @@ namespace DataSett.ViewModel
         private ObservableCollection<BusinessDomain> _businessDomains;
         public ObservableCollection<BusinessDomain> BusinessDomains => _businessDomains;
 
-        private List<BusinessConceptMapping> _temporaryBusinessConceptMappings;
-
-        private ObservableCollection<BusinessConceptMapping> _filteredBusinessConceptMappings;
-
-        public ObservableCollection<BusinessConceptMapping> FilteredBusinessConceptMappings
+        private ObservableCollection<MappingDisplayItem> _displayMappings = new();
+        public ObservableCollection<MappingDisplayItem> DisplayMappings
         {
-            get => _filteredBusinessConceptMappings;
-            set
-            {
-                if (_filteredBusinessConceptMappings != value)
-                {
-                    _filteredBusinessConceptMappings = value;
-                    OnPropertyChanged();
-                }
-            }
+            get => _displayMappings;
+            private set { _displayMappings = value; OnPropertyChanged(); }
         }
 
         /// <summary>
@@ -94,62 +83,24 @@ namespace DataSett.ViewModel
         /// </summary>
         public void FilterBusinessConceptMappings()
         {
-            if (SelectedSourceInterface != null)
+            if (SelectedSourceInterface?.SourceAttributes == null)
             {
-                if (SelectedSourceInterface.SourceAttributes != null)
-                {
-                    var sourceAttributes = SelectedSourceInterface.SourceAttributes.ToHashSet();
-
-                    // Collect all mappings from all business concepts
-                    IEnumerable<BusinessConceptMapping> allBusinessConceptMappings = BusinessConcepts.SelectMany(bc => bc.BusinessConceptMappings);
-                        
-                    // Get existing mappings for the selected interface
-                    var existingMappings = allBusinessConceptMappings
-                        .Where(m => m.SourceAttribute != null && sourceAttributes.Contains(m.SourceAttribute))
-                        .ToList();
-
-                    // Find source attributes without mappings and create temporary ones
-                    HashSet<SourceAttribute> mappedAttributes = existingMappings
-                        .Where(m => m.SourceAttribute != null)
-                        .Select(m => m.SourceAttribute!)
-                        .ToHashSet();
-
-                    _temporaryBusinessConceptMappings.Clear();
-                    foreach (SourceAttribute sa in sourceAttributes)
-                    {
-
-                        if (!mappedAttributes.Contains(sa))
-                        {
-                            var tempMapping = BusinessConceptMapping.FromSourceAttribute(sa);
-                            _temporaryBusinessConceptMappings.Add(tempMapping);
-                        }
-
-                    }
-
-                    FilteredBusinessConceptMappings = new ObservableCollection<BusinessConceptMapping>(existingMappings.Concat(_temporaryBusinessConceptMappings));
-                }
-                else
-                {
-                    FilteredBusinessConceptMappings = new ObservableCollection<BusinessConceptMapping>(Enumerable.Empty<BusinessConceptMapping>());
-                }
-            }
-            else
-            {
-                FilteredBusinessConceptMappings = new ObservableCollection<BusinessConceptMapping>(Enumerable.Empty<BusinessConceptMapping>());
-            }
-        }
-
-        private void ApplyNewBCMappingsToDataSett()
-        {
-
-            foreach (BusinessConceptMapping currentMapping in _temporaryBusinessConceptMappings)
-            {
-                if (currentMapping.ParentBusinessConcept != null)
-                {
-                    BusinessConcepts.Where(bc => bc == currentMapping.ParentBusinessConcept).First().BusinessConceptMappings.Add(currentMapping);
-                }
+                DisplayMappings = new ObservableCollection<MappingDisplayItem>();
+                return;
             }
 
+            var sourceAttributes = SelectedSourceInterface.SourceAttributes.ToHashSet();
+            var allMappings = BusinessConcepts.SelectMany(bc => bc.BusinessConceptMappings);
+
+            var items = sourceAttributes.Select(sa =>
+            {
+                var existing = allMappings.FirstOrDefault(m => m.SourceAttribute == sa);
+                return existing != null
+                    ? new MappingDisplayItem(existing)
+                    : new MappingDisplayItem(sa);
+            });
+
+            DisplayMappings = new ObservableCollection<MappingDisplayItem>(items);
         }
 
         private string _serverPath;
@@ -198,6 +149,10 @@ namespace DataSett.ViewModel
 
         public async Task SaveChangesAsync()
         {
+            foreach (var item in DisplayMappings.Where(i => i.IsDirty))
+            {
+                item.ApplyChanges();
+            }
 
             if (!string.IsNullOrWhiteSpace(ServerPath))
             {

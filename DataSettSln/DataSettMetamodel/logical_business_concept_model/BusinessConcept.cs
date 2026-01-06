@@ -38,5 +38,12 @@ namespace DataSett.Metamodel
                 ParentBusinessDomain = parentBusinessDomain
             };
         }
+
+        public override string ToString()
+        {
+            var parentName = ParentBusinessDomain?.Name ?? "<no-domain>";
+            var conceptName = Name ?? "<no-name>";
+            return $"{parentName}.{conceptName}";
+        }
     }
 }
