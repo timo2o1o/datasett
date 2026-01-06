@@ -11,5 +11,24 @@ namespace DataSett.Metamodel
 
         public BusinessConcept? ParentBusinessConcept { get; set; }
 
+        internal static BusinessConceptKeyPart FromDTO(BusinessConceptKeyPartDTO dto, BusinessConcept parentConcept)
+        {
+            return new BusinessConceptKeyPart
+            {
+                Name = dto.Name,
+                KeyProperties = dto.KeyProperties,
+                ParentBusinessConcept = parentConcept
+            };
+        }
+
+        internal static BusinessConceptKeyPartDTO ToDTO(BusinessConceptKeyPart bckp, string businessConceptId)
+        {
+            return new BusinessConceptKeyPartDTO
+            {
+                Name = bckp.Name,
+                KeyProperties = bckp.KeyProperties,
+                BusinessConceptId = businessConceptId
+            };
+        }
     }
 }

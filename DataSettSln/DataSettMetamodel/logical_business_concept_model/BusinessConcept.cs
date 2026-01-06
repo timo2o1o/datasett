@@ -32,11 +32,36 @@ namespace DataSett.Metamodel
         /// </summary>
         public static BusinessConcept FromDTO(BusinessConceptDTO dto, BusinessDomain parentBusinessDomain)
         {
-            return new BusinessConcept
+            BusinessConcept newConcept = new BusinessConcept
             {
                 Name = dto.Name,
                 ParentBusinessDomain = parentBusinessDomain
             };
+
+            foreach (BusinessConceptKeyPartDTO currentKeyPart in dto.KeyParts)
+            {
+                BusinessConceptKeyPart newKeyPart = BusinessConceptKeyPart.FromDTO(currentKeyPart, newConcept);
+                newConcept.KeyParts.Add(newKeyPart);
+            }
+
+            return newConcept;
+        }
+
+        public static BusinessConceptDTO ToDTO(BusinessConcept concept, string businessDomainID)
+        {
+            BusinessConceptDTO newConcept = new BusinessConceptDTO
+            {
+                Name = concept.Name,
+                BusinessDomainId = businessDomainID
+            };
+
+            foreach (BusinessConceptKeyPart currentKeyPart in concept.KeyParts)
+            {
+                BusinessConceptKeyPartDTO newKeyPart = BusinessConceptKeyPart.ToDTO(currentKeyPart, newConcept.BusinessConceptId);
+                newConcept.KeyParts.Add(newKeyPart);
+            }
+
+            return newConcept;
         }
 
         public override string ToString()

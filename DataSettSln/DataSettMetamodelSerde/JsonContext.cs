@@ -303,8 +303,38 @@ public class JsonContext
 
     public async Task WriteLBCMAsync(string repositoryPath, IEnumerable<BusinessDomain> businessDomains)
     {
-        // Implementation for saving domain entities as DTOs to JSON files would go here
-        
+
+        List<BusinessDomainDTO> businessDomainDTOs = new List<BusinessDomainDTO>();
+        List<BusinessConceptDTO> businessConceptDTOs = new List<BusinessConceptDTO>();
+
+        foreach (BusinessDomain currentBD in businessDomains)
+        {
+
+            BusinessDomainDTO dto = BusinessDomain.ToDTO(currentBD);
+            businessDomainDTOs.Add(dto);
+
+            foreach (BusinessConcept currentBC in currentBD.BusinessConcepts)
+            {
+                BusinessConceptDTO bcDto = BusinessConcept.ToDTO(currentBC, dto.BusinessDomainId ?? string.Empty);
+                businessConceptDTOs.Add(bcDto);
+            }
+
+        }
+
+        string lbcmPath = Path.Combine(repositoryPath, "LogicalBusinessConceptModel");
+
+        string filePath = Path.Combine(lbcmPath, "BusinessDomains.json");
+        using (FileStream fs = File.Create(filePath))
+        {
+            await JsonSerializer.SerializeAsync(fs, businessDomainDTOs, JsonDefaults.Web);
+        }
+
+        filePath = Path.Combine(lbcmPath, "BusinessConcepts.json");
+        using (FileStream fs = File.Create(filePath))
+        {
+            await JsonSerializer.SerializeAsync(fs, businessConceptDTOs, JsonDefaults.Web);
+        }
+
     }
 
 }

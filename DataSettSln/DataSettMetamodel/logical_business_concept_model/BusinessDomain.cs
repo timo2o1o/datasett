@@ -37,7 +37,18 @@ namespace DataSett.Metamodel
             return new BusinessDomain
             {
                 Name = dto.Name,
+                Description = dto.Description,
                 ParentBusinessDomain = parentBusinessDomain
+            };
+        }
+
+        public static BusinessDomainDTO ToDTO(BusinessDomain domain)
+        {
+            return new BusinessDomainDTO
+            {
+                Name = domain.Name,
+                Description = domain.Description,
+                ParentBusinessDomainId = domain.ParentBusinessDomain != null ? domain.ParentBusinessDomain.Name : null
             };
         }
     }

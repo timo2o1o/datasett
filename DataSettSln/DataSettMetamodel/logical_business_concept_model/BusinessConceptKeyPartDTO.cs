@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace DataSett.Metamodel.logical_business_object_model
+namespace DataSett.Metamodel
 {
     public class BusinessConceptKeyPartDTO : BusinessConceptKeyPartBase
     {

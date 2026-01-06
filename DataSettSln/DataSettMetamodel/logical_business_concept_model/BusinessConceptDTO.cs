@@ -1,4 +1,3 @@
-using DataSett.Metamodel.logical_business_object_model;
 using System.Text.Json.Serialization;
 
 namespace DataSett.Metamodel
