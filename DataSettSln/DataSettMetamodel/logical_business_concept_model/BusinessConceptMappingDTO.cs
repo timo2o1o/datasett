@@ -23,9 +23,10 @@ namespace DataSett.Metamodel
         /// <summary>
         /// Foreign key reference to parent business concept
         /// </summary>
+        [JsonIgnore]
         public string? BusinessConceptId { get; set; }
 
-        public string? BusinessConceptKeyPartId { get; set; }
+        public string? BusinessConceptKeyPartName { get; set; }
 
     }
 }

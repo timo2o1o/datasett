@@ -33,6 +33,8 @@ namespace DataSett.Metamodel
             };
         }
 
+        public BusinessConceptKeyPart? AssignedKeyPart { get; set; }
+
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)
         /// </summary>
@@ -41,11 +43,31 @@ namespace DataSett.Metamodel
             return new BusinessConceptMapping
             {
                 ParentBusinessConcept = parentBC,
+                AssignedKeyPart = parentBC.KeyParts.Where(kp => kp.Name == dto.BusinessConceptKeyPartName).FirstOrDefault(),
                 OrderNo = dto.OrderNo,
                 HistoryType = dto.HistoryType,
                 Role = dto.Role,
                 MappingProperties = dto.MappingProperties,
-                SourceAttribute = srcAttribute
+                SourceAttribute = srcAttribute,
+                HarmonizedName = dto.HarmonizedName,
+                AttributeSetName = dto.AttributeSetName
+            };
+        }
+
+        public static BusinessConceptMappingDTO ToDTO(BusinessConceptMapping bcm, string businessConceptId)
+        {
+            return new BusinessConceptMappingDTO
+            {
+                BusinessConceptId = businessConceptId,
+                BusinessConceptKeyPartName = bcm.AssignedKeyPart?.Name,
+                OrderNo = bcm.OrderNo,
+                HistoryType = bcm.HistoryType,
+                Role = bcm.Role,
+                MappingProperties = bcm.MappingProperties,
+                AttributeSetName = bcm.AttributeSetName,
+                HarmonizedName = bcm.HarmonizedName,
+                SourceAttributeName = bcm.SourceAttribute?.Name,
+                SourceInterfaceId = bcm.SourceAttribute?.ParentSourceInterface?.ToString()
             };
         }
     }

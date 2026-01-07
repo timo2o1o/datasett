@@ -1,4 +1,6 @@
-﻿namespace DataSett.Metamodel
+﻿using System.Text.Json.Serialization;
+
+namespace DataSett.Metamodel
 {
 
     /// <summary>
@@ -23,6 +25,9 @@
         public bool? IsFk { get; set; }
 
         public AttributeProperties AttributeProperties { get; set; }
+
+        [JsonIgnore]
+        public SourceInterface? ParentSourceInterface { get; set; }
 
     }
 }

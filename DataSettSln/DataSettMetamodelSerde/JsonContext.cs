@@ -90,12 +90,9 @@ public class JsonContext
                 _businessConceptDTOs.Add(currentBC);
             }
 
-            foreach (BusinessConceptMappingCollectionDTO[] currentbcMappings in await DeserializeMetadataObjectsAsync<BusinessConceptMappingCollectionDTO[]>(logicalBOMPath, "BusinessConceptMappings_*.json"))
+            foreach (BusinessConceptMappingCollectionDTO currentMappingCollection in await DeserializeMetadataObjectsAsync<BusinessConceptMappingCollectionDTO>(logicalBOMPath, "BusinessConceptMappings_*.json"))
             {
-                foreach (BusinessConceptMappingCollectionDTO currentMappingCollection in currentbcMappings)
-                {
-                    _conceptMappingDTOs.Add(currentMappingCollection);
-                }
+                _conceptMappingDTOs.Add(currentMappingCollection);
             }
 
         }
@@ -143,6 +140,14 @@ public class JsonContext
         }
 
         return result;
+    }
+
+    private async Task SerializeMetadataObjectsAsync(string filePath, object data)
+    {
+        using (FileStream fs = File.Create(filePath))
+        {
+            await JsonSerializer.SerializeAsync(fs, data, JsonDefaults.Web);
+        }
     }
 
     public IEnumerable<SourceSystem> GetSourceSystems()
@@ -304,6 +309,8 @@ public class JsonContext
     public async Task WriteLBCMAsync(string repositoryPath, IEnumerable<BusinessDomain> businessDomains)
     {
 
+        string lbcmPath = Path.Combine(repositoryPath, "LogicalBusinessConceptModel");
+
         List<BusinessDomainDTO> businessDomainDTOs = new List<BusinessDomainDTO>();
         List<BusinessConceptDTO> businessConceptDTOs = new List<BusinessConceptDTO>();
 
@@ -317,23 +324,23 @@ public class JsonContext
             {
                 BusinessConceptDTO bcDto = BusinessConcept.ToDTO(currentBC, dto.BusinessDomainId ?? string.Empty);
                 businessConceptDTOs.Add(bcDto);
+
+                // The attributemappings will be written to one file for each business concept:
+                BusinessConceptMappingCollectionDTO bcmCollection = new BusinessConceptMappingCollectionDTO(bcDto.BusinessConceptId);
+
+                foreach (BusinessConceptMapping currentMapping in currentBC.BusinessConceptMappings)
+                {
+                    BusinessConceptMappingDTO mappingDto = BusinessConceptMapping.ToDTO(currentMapping, bcDto.BusinessConceptId);
+                    bcmCollection.BusinessConceptMappings.Add(mappingDto);
+                }
+
+                await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, $"BusinessConceptMappings_{currentBD.Name}_{currentBC.Name}.json"), bcmCollection);
             }
 
         }
 
-        string lbcmPath = Path.Combine(repositoryPath, "LogicalBusinessConceptModel");
-
-        string filePath = Path.Combine(lbcmPath, "BusinessDomains.json");
-        using (FileStream fs = File.Create(filePath))
-        {
-            await JsonSerializer.SerializeAsync(fs, businessDomainDTOs, JsonDefaults.Web);
-        }
-
-        filePath = Path.Combine(lbcmPath, "BusinessConcepts.json");
-        using (FileStream fs = File.Create(filePath))
-        {
-            await JsonSerializer.SerializeAsync(fs, businessConceptDTOs, JsonDefaults.Web);
-        }
+        await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, "BusinessDomains.json"), businessDomainDTOs);
+        await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, "BusinessConcepts.json"), businessConceptDTOs);
 
     }
 

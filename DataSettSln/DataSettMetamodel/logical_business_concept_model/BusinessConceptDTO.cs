@@ -5,10 +5,6 @@ namespace DataSett.Metamodel
     
     public class BusinessConceptDTO : BusinessConceptBase
     {
-        public BusinessConceptDTO()
-        {
-            KeyParts = new List<BusinessConceptKeyPartDTO>();
-        }
 
         [JsonIgnore]
         public string BusinessConceptId
@@ -18,8 +14,6 @@ namespace DataSett.Metamodel
                 return string.Format("{0}.{1}", BusinessDomainId, Name);
             }
         }
-
-        public IList<BusinessConceptKeyPartDTO> KeyParts { get; set; }
 
         /// <summary>
         /// Reference to parent business domain

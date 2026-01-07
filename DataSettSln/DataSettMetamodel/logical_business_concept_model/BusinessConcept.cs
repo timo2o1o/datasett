@@ -10,14 +10,8 @@ namespace DataSett.Metamodel
     {
         public BusinessConcept()
         {
-            KeyParts = new List<BusinessConceptKeyPart>();
             BusinessConceptMappings = new List<BusinessConceptMapping>();
         }
-
-        /// <summary>
-        /// Each Business Concept contains of one or more Key Parts
-        /// </summary>
-        public IList<BusinessConceptKeyPart> KeyParts { get; set; }
                 
         /// <summary>
         /// Navigation property to parent business domain
@@ -35,13 +29,13 @@ namespace DataSett.Metamodel
             BusinessConcept newConcept = new BusinessConcept
             {
                 Name = dto.Name,
+                KeyParts = dto.KeyParts,
                 ParentBusinessDomain = parentBusinessDomain
             };
 
-            foreach (BusinessConceptKeyPartDTO currentKeyPart in dto.KeyParts)
+            foreach (BusinessConceptKeyPart currentKP in newConcept.KeyParts)
             {
-                BusinessConceptKeyPart newKeyPart = BusinessConceptKeyPart.FromDTO(currentKeyPart, newConcept);
-                newConcept.KeyParts.Add(newKeyPart);
+                currentKP.ParentBusinessConcept = newConcept;
             }
 
             return newConcept;
@@ -52,14 +46,9 @@ namespace DataSett.Metamodel
             BusinessConceptDTO newConcept = new BusinessConceptDTO
             {
                 Name = concept.Name,
+                KeyParts = concept.KeyParts,
                 BusinessDomainId = businessDomainID
             };
-
-            foreach (BusinessConceptKeyPart currentKeyPart in concept.KeyParts)
-            {
-                BusinessConceptKeyPartDTO newKeyPart = BusinessConceptKeyPart.ToDTO(currentKeyPart, newConcept.BusinessConceptId);
-                newConcept.KeyParts.Add(newKeyPart);
-            }
 
             return newConcept;
         }

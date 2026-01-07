@@ -18,7 +18,7 @@ namespace DataSett.Metamodel
 
         public static SourceInterface FromDTO(SourceInterfaceDTO dto, SourceSystem parentSourceSystem)
         {
-            return new SourceInterface()
+            SourceInterface newSI = new SourceInterface()
             {
                 Catalog = dto.Catalog,
                 Name = dto.Name,
@@ -26,6 +26,15 @@ namespace DataSett.Metamodel
                 Schema = dto.Schema,
                 SourceAttributes = dto.SourceAttributes
             };
+
+            if (newSI.SourceAttributes != null) { 
+                foreach (SourceAttribute sa in newSI.SourceAttributes)
+                {
+                    sa.ParentSourceInterface = newSI;
+                }
+            }
+
+            return newSI;
         }
 
         public override string ToString()
