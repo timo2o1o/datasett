@@ -1,0 +1,38 @@
+@using DataSett.Metamodel
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-2" />
+            Add New Business Domain
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="Name" 
+                      Label="Name" 
+                      Variant="Variant.Outlined" 
+                      Required="true"
+                      RequiredError="Name is required" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    public string Name { get; set; } = string.Empty;
+
+    private void Submit()
+    {
+        if (!string.IsNullOrWhiteSpace(Name))
+        {
+            MudDialog.Close(DialogResult.Ok(Name));
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

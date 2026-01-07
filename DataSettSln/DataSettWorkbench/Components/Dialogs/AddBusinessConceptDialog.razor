@@ -1,0 +1,75 @@
+@using DataSett.Metamodel
+@using DataSett.ViewModel
+@inject IDialogService DialogService
+@inject WorkbenchMainViewmodel ViewModel
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-2" />
+            Add New Business Concept
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="Name" 
+                      Label="Name" 
+                      Variant="Variant.Outlined" 
+                      Required="true"
+                      RequiredError="Name is required"
+                      Class="mb-4" />
+        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+            <MudSelect T="BusinessDomain"
+                       @bind-Value="SelectedBusinessDomain"
+                       Label="Business Domain"
+                       Variant="Variant.Outlined"
+                       Required="true"
+                       RequiredError="Business Domain is required"
+                       Style="flex-grow: 1;">
+                @foreach (var domain in ViewModel.BusinessDomains)
+                {
+                    <MudSelectItem Value="@domain">@domain.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudIconButton Icon="@Icons.Material.Filled.Add"
+                           Size="Size.Small"
+                           Color="Color.Primary"
+                           OnClick="OpenAddBusinessDomainDialog" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    public string Name { get; set; } = string.Empty;
+    public BusinessDomain? SelectedBusinessDomain { get; set; }
+
+    private void Submit()
+    {
+        if (!string.IsNullOrWhiteSpace(Name) && SelectedBusinessDomain != null)
+        {
+            MudDialog.Close(DialogResult.Ok(new AddBusinessConceptResult(Name, SelectedBusinessDomain)));
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task OpenAddBusinessDomainDialog()
+    {
+        var dialog = await DialogService.ShowAsync<AddBusinessDomainDialog>("Add Business Domain");
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false, Data: string name })
+        {
+            var newDomain = ViewModel.AddBusinessDomain(name);
+            SelectedBusinessDomain = newDomain;
+        }
+    }
+
+    public record AddBusinessConceptResult(string Name, BusinessDomain BusinessDomain);
+}

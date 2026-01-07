@@ -124,22 +124,22 @@ namespace DataSett.ViewModel
             {
                 await MetaDataIOService.LoadDataAsync(path);
 
-                _sourceSystems.Clear();
+                SourceSystems.Clear();
                 foreach (SourceSystem currentSourceSystem in MetaDataIOService.GetSourceSystems())
                 {
-                    _sourceSystems.Add(currentSourceSystem);
+                    SourceSystems.Add(currentSourceSystem);
                 }
 
-                _businessDomains.Clear();
-                _businessConcepts.Clear();
+                BusinessDomains.Clear();
+                BusinessConcepts.Clear();
 
                 foreach (BusinessDomain currentBusinessDomain in MetaDataIOService.GetBusinessDomains())
                 {
-                    _businessDomains.Add(currentBusinessDomain);
+                    BusinessDomains.Add(currentBusinessDomain);
 
                     foreach (BusinessConcept currentBusinessConcept in currentBusinessDomain.BusinessConcepts)
                     {
-                        _businessConcepts.Add(currentBusinessConcept);
+                        BusinessConcepts.Add(currentBusinessConcept);
                     }
                 }
 
@@ -159,6 +159,23 @@ namespace DataSett.ViewModel
                 await MetaDataIOService.WriteDataAsync(ServerPath, BusinessDomains);
             }
 
+        }
+
+        public async Task<BusinessConcept?> AddBusinessConceptAsync(string name, BusinessDomain domain)
+        {
+            var newConcept = new BusinessConcept { Name = name, ParentBusinessDomain = domain };
+            BusinessConcepts.Add(newConcept);
+            
+            BusinessDomains.Where(d => d == domain).First().BusinessConcepts.Add(newConcept);
+
+            return newConcept;
+        }
+
+        public BusinessDomain AddBusinessDomain(string name)
+        {
+            var newDomain = new BusinessDomain { Name = name };
+            _businessDomains.Add(newDomain);
+            return newDomain;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

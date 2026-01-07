@@ -1,8 +1,10 @@
 ﻿@page "/"
 @using DataSett.Metamodel
 @using DataSett.ViewModel
+@using DataSettWorkbench.Components.Dialogs
 
 @inject WorkbenchMainViewmodel ViewModel
+@inject IDialogService DialogService
 
 <PageTitle>DataSett Workbench</PageTitle>
 
@@ -75,12 +77,22 @@
                             <PropertyColumn Property="x => x.OrderNo" />
                             <PropertyColumn Property="x => x.ParentBusinessConcept != null ? x.ParentBusinessConcept.Name : string.Empty" Title="BusinessConcept">
                                 <EditTemplate>
-                                    <MudSelect @bind-Value="context.Item.ParentBusinessConcept" Required RequiredError="Please select a business concept." Margin="@Margin.Dense">
-                                        @foreach (var bc in ViewModel.BusinessConcepts)
-                                        {
-                                            <MudSelectItem Value="@(bc)">@bc.Name</MudSelectItem>
-                                        }
-                                    </MudSelect>
+                                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                                        <MudSelect @bind-Value="context.Item.ParentBusinessConcept" 
+                                                   Required 
+                                                   RequiredError="Please select a business concept." 
+                                                   Margin="@Margin.Dense"
+                                                   Style="flex-grow: 1;">
+                                            @foreach (var bc in ViewModel.BusinessConcepts)
+                                            {
+                                                <MudSelectItem Value="@(bc)">@bc.Name</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                        <MudIconButton Icon="@Icons.Material.Filled.Add" 
+                                                       Size="Size.Small" 
+                                                       Color="Color.Primary"
+                                                       OnClick="@(() => OpenAddBusinessConceptDialog(context.Item))" />
+                                    </MudStack>
                                 </EditTemplate>
                             </PropertyColumn>
                             <PropertyColumn Property="x => x.Role">
@@ -172,6 +184,23 @@
         {
             ViewModel.SelectedSourceSystem = sourceInterface.ParentSourceSystem;
             ViewModel.SelectedSourceInterface = sourceInterface;
+        }
+    }
+
+    private async Task OpenAddBusinessConceptDialog(MappingDisplayItem mapping)
+    {
+
+        var dialog = await DialogService.ShowAsync<AddBusinessConceptDialog>("Add Business Concept");
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false, Data: AddBusinessConceptDialog.AddBusinessConceptResult data })
+        {
+            var newBusinessConcept = await ViewModel.AddBusinessConceptAsync(data.Name, data.BusinessDomain);
+            if (newBusinessConcept != null)
+            {
+                mapping.ParentBusinessConcept = newBusinessConcept;
+                StateHasChanged();
+            }
         }
     }
 
