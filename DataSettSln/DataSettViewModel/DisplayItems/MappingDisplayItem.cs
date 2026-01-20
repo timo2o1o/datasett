@@ -80,6 +80,16 @@ public class MappingDisplayItem : INotifyPropertyChanged
         set => SetField(ref _orderNo, value);
     }
 
+    public bool IsHistoryTypeEnabled()
+    {
+        return (Role != SourceAttributeRole.BusinessKey && Role != SourceAttributeRole.SelfReferencedBusinessKey);
+    }
+
+    public bool IsAttributeSetNameEnabled()
+    {
+        return (Role == SourceAttributeRole.Descriptive);
+    }
+
     public SourceAttributeRole Role
     {
         get => _role;

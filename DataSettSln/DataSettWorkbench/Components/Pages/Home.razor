@@ -105,9 +105,13 @@
                                     </MudSelect>
                                 </EditTemplate>
                             </PropertyColumn>
-                            <PropertyColumn Property="x => x.HistoryType">
+                            <PropertyColumn Property="x => x.HistoryType")">
                                 <EditTemplate>
-                                    <MudSelect @bind-Value="context.Item.HistoryType" Required RequiredError="Please select an history type." Margin="@Margin.Dense">
+                                    <MudSelect  @bind-Value="context.Item.HistoryType"
+                                                Required
+                                                RequiredError="Please select an history type."
+                                                Margin="@Margin.Dense"
+                                                Disabled="@( !context.Item.IsHistoryTypeEnabled() )">
                                         @foreach (var type in Enum.GetValues<HistoryType>())
                                         {
                                             <MudSelectItem Value="@(type)">@type</MudSelectItem>
@@ -115,7 +119,13 @@
                                     </MudSelect>
                                 </EditTemplate>
                             </PropertyColumn>
-                            <PropertyColumn Property="x => x.AttributeSetName" Editable="false" />
+                            <PropertyColumn Property="x => x.AttributeSetName">
+                                <EditTemplate>
+                                    <MudTextField @bind-Value="context.Item.AttributeSetName"
+                                                  Margin="@Margin.Dense"
+                                                  Disabled="@( !context.Item.IsAttributeSetNameEnabled() )" />
+                                </EditTemplate>
+                            </PropertyColumn>
                             <PropertyColumn Property="x => x.MappingProperties.Datatype" />
                             <PropertyColumn Property="x => x.MappingProperties.Default" />
                             <PropertyColumn Property="x => x.MappingProperties.Length" />
