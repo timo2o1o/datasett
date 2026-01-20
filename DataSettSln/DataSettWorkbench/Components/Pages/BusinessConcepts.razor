@@ -17,7 +17,7 @@
         <!-- List showing business concepts-->
         <MudItem xs="12" md="4">
             <MudPaper>
-                <MudList T="string" Clickable="true">
+                <MudList T="string">
                     @foreach (var businessConcept in ViewModel.BusinessConcepts)
                     {
                         <MudListItem T="string" Text="@businessConcept.Name" @onclick="() => ViewModel.SelectedBusinessConcept = businessConcept">

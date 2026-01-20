@@ -95,6 +95,19 @@
                                     </MudStack>
                                 </EditTemplate>
                             </PropertyColumn>
+                            <PropertyColumn Property="x => x.AssignedKeyPart != null ? x.AssignedKeyPart.Name : string.Empty" Title="KeyPart">
+                                <EditTemplate>
+                                    <MudSelect @bind-Value="context.Item.AssignedKeyPart"
+                                               Margin="@Margin.Dense"
+                                               Clearable="true"
+                                               Disabled="@(context.Item.ParentBusinessConcept == null)">
+                                        @foreach (var keyPart in context.Item.AvailableKeyParts)
+                                        {
+                                            <MudSelectItem Value="@(keyPart)">@keyPart.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </EditTemplate>
+                            </PropertyColumn>
                             <PropertyColumn Property="x => x.Role">
                                 <EditTemplate>
                                     <MudSelect @bind-Value="context.Item.Role" Required RequiredError="Please select a role." Margin="@Margin.Dense">
@@ -105,7 +118,7 @@
                                     </MudSelect>
                                 </EditTemplate>
                             </PropertyColumn>
-                            <PropertyColumn Property="x => x.HistoryType")">
+                            <PropertyColumn Property="x => x.HistoryType">
                                 <EditTemplate>
                                     <MudSelect  @bind-Value="context.Item.HistoryType"
                                                 Required

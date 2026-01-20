@@ -14,6 +14,7 @@ public class MappingDisplayItem : INotifyPropertyChanged
 
     // Editable backing fields for new/unmapped items
     private BusinessConcept? _parentBusinessConcept;
+    private BusinessConceptKeyPart? _assignedKeyPart;
     private string? _harmonizedName;
     private int? _orderNo;
     private SourceAttributeRole _role;
@@ -28,6 +29,7 @@ public class MappingDisplayItem : INotifyPropertyChanged
         
         // Initialize from existing mapping
         _parentBusinessConcept = existingMapping.ParentBusinessConcept;
+        _assignedKeyPart = existingMapping.AssignedKeyPart;
         _harmonizedName = existingMapping.HarmonizedName;
         _orderNo = existingMapping.OrderNo;
         _role = existingMapping.Role;
@@ -43,6 +45,7 @@ public class MappingDisplayItem : INotifyPropertyChanged
         
         // Initialize defaults for new mapping
         _parentBusinessConcept = null;
+        _assignedKeyPart = null;
         _harmonizedName = unmappedAttribute.Name;
         _orderNo = null;
         _role = SourceAttributeRole.Unclassified;
@@ -56,6 +59,7 @@ public class MappingDisplayItem : INotifyPropertyChanged
     public bool IsPersisted => _existingMapping != null;
     
     public bool IsDirty => _parentBusinessConcept != _existingMapping?.ParentBusinessConcept
+                        || _assignedKeyPart != _existingMapping?.AssignedKeyPart
                         || _harmonizedName != _existingMapping?.HarmonizedName
                         || _orderNo != _existingMapping?.OrderNo
                         || _role != _existingMapping?.Role
@@ -65,8 +69,30 @@ public class MappingDisplayItem : INotifyPropertyChanged
     public BusinessConcept? ParentBusinessConcept
     {
         get => _parentBusinessConcept;
-        set => SetField(ref _parentBusinessConcept, value);
+        set
+        {
+            if (SetField(ref _parentBusinessConcept, value))
+            {
+                // Auto-assign the key part if there's exactly one available and the role is BUsinessKey,
+                // otherwise clear it since key parts are specific to a business concept
+                var keyParts = value?.KeyParts;
+                AssignedKeyPart = keyParts?.Count == 1 && Role == SourceAttributeRole.BusinessKey ? keyParts[0] : null;
+                OnPropertyChanged(nameof(AvailableKeyParts));
+            }
+        }
     }
+
+    public BusinessConceptKeyPart? AssignedKeyPart
+    {
+        get => _assignedKeyPart;
+        set => SetField(ref _assignedKeyPart, value);
+    }
+
+    /// <summary>
+    /// Returns the list of key parts available for selection based on the current ParentBusinessConcept.
+    /// </summary>
+    public IEnumerable<BusinessConceptKeyPart> AvailableKeyParts =>
+        _parentBusinessConcept?.KeyParts ?? Enumerable.Empty<BusinessConceptKeyPart>();
 
     public string? HarmonizedName
     {
@@ -135,6 +161,7 @@ public class MappingDisplayItem : INotifyPropertyChanged
             
             // Update all properties
             mapping.ParentBusinessConcept = _parentBusinessConcept;
+            mapping.AssignedKeyPart = _assignedKeyPart;
             mapping.HarmonizedName = _harmonizedName;
             mapping.OrderNo = _orderNo;
             mapping.Role = _role;
