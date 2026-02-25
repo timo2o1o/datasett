@@ -78,6 +78,8 @@ namespace DataSett.ViewModel
             private set { _displayMappings = value; OnPropertyChanged(); }
         }
 
+        public bool HasPendingChanges => DisplayMappings.Any(m => m.IsDirty);
+
         /// <summary>
         /// Filtered view of BusinessConceptMappings based on selected SourceInterface
         /// </summary>

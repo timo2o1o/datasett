@@ -194,8 +194,27 @@
         StateHasChanged();
     }
 
-    private void OnTreeItemSelected(object selectedValue)
+    private async Task OnTreeItemSelected(object selectedValue)
     {
+        if (ViewModel.HasPendingChanges)
+        {
+            var dialog = await DialogService.ShowAsync<UnsavedChangesDialog>("Unsaved Changes");
+            var result = await dialog.Result;
+
+            if (result is { Canceled: false, Data: UnsavedChangesDialog.UnsavedChangesResult dialogResult })
+            {
+                if (dialogResult == UnsavedChangesDialog.UnsavedChangesResult.Cancel)
+                    return;
+
+                if (dialogResult == UnsavedChangesDialog.UnsavedChangesResult.SaveAndSwitch)
+                    await ViewModel.SaveChangesAsync();
+            }
+            else
+            {
+                return;
+            }
+        }
+
         // If a SourceSystem got selected, set it in the ViewModel
         if (selectedValue is SourceSystem sourceSystem)
         {

@@ -58,12 +58,23 @@ public class MappingDisplayItem : INotifyPropertyChanged
     
     public bool IsPersisted => _existingMapping != null;
     
-    public bool IsDirty => _parentBusinessConcept != _existingMapping?.ParentBusinessConcept
-                        || _assignedKeyPart != _existingMapping?.AssignedKeyPart
-                        || _harmonizedName != _existingMapping?.HarmonizedName
-                        || _orderNo != _existingMapping?.OrderNo
-                        || _role != _existingMapping?.Role
-                        || _historyType != _existingMapping?.HistoryType;
+    public bool IsDirty
+    {
+        get
+        {
+            if (_existingMapping == null)
+            {
+                // Unmapped attributes are only dirty when the user has assigned a business concept
+                return _parentBusinessConcept != null;
+            }
+            return _parentBusinessConcept != _existingMapping.ParentBusinessConcept
+                || _assignedKeyPart != _existingMapping.AssignedKeyPart
+                || _harmonizedName != _existingMapping.HarmonizedName
+                || _orderNo != _existingMapping.OrderNo
+                || _role != _existingMapping.Role
+                || _historyType != _existingMapping.HistoryType;
+        }
+    }
 
     // Editable properties for UI binding
     public BusinessConcept? ParentBusinessConcept
