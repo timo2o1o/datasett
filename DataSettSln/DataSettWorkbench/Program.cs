@@ -19,6 +19,7 @@ builder.Services.AddSingleton<IMetaDataIOService, MetaDataIOService>();
 builder.Services.AddScoped<WorkbenchMainViewmodel>();
 builder.Services.AddScoped<BusinessDomainViewModel>();
 builder.Services.AddScoped<BusinessConceptViewModel>();
+builder.Services.AddScoped<BusinessConceptRelationViewModel>();
 
 var app = builder.Build();
 
