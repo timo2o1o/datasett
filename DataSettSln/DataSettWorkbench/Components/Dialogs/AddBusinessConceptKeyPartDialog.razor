@@ -1,0 +1,67 @@
+@using DataSett.Metamodel
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Add" Class="mr-2" />
+            Add New Key Part
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="Name"
+                      Label="Name"
+                      Variant="Variant.Outlined"
+                      Required="true"
+                      RequiredError="Name is required"
+                      Class="mb-4" />
+        <MudTextField @bind-Value="Datatype"
+                      Label="Datatype"
+                      Variant="Variant.Outlined"
+                      Class="mb-4" />
+        <MudNumericField T="int?" @bind-Value="Length"
+                         Label="Length"
+                         Variant="Variant.Outlined"
+                         Class="mb-4" />
+        <MudNumericField T="int?" @bind-Value="Precision"
+                         Label="Precision"
+                         Variant="Variant.Outlined"
+                         Class="mb-4" />
+        <MudCheckBox T="bool?" @bind-Value="IsNullable"
+                     Label="Is Nullable"
+                     Class="mb-4" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit">Add</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    public string Name { get; set; } = string.Empty;
+    public string? Datatype { get; set; }
+    public int? Length { get; set; }
+    public int? Precision { get; set; }
+    public bool? IsNullable { get; set; }
+
+    private void Submit()
+    {
+        if (!string.IsNullOrWhiteSpace(Name))
+        {
+            var properties = new AttributeProperties
+            {
+                Datatype = Datatype,
+                Length = Length,
+                Precision = Precision,
+                IsNullable = IsNullable
+            };
+            MudDialog.Close(DialogResult.Ok(new AddKeyPartResult(Name, properties)));
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    public record AddKeyPartResult(string Name, AttributeProperties KeyProperties);
+}

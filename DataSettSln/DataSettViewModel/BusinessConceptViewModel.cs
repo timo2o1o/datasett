@@ -54,6 +54,29 @@ namespace DataSett.ViewModel
 
         }
 
+        public void AddKeyPartToSelectedConcept(string name, AttributeProperties keyProperties)
+        {
+            if (SelectedBusinessConcept == null) return;
+
+            var keyPart = new BusinessConceptKeyPart
+            {
+                Name = name,
+                KeyProperties = keyProperties,
+                ParentBusinessConcept = SelectedBusinessConcept
+            };
+
+            SelectedBusinessConcept.KeyParts.Add(keyPart);
+            OnPropertyChanged(nameof(SelectedBusinessConcept));
+        }
+
+        public void RemoveKeyPartFromSelectedConcept(BusinessConceptKeyPart keyPart)
+        {
+            if (SelectedBusinessConcept == null) return;
+
+            SelectedBusinessConcept.KeyParts.Remove(keyPart);
+            OnPropertyChanged(nameof(SelectedBusinessConcept));
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
