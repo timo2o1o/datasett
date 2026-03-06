@@ -1,8 +1,10 @@
 @page "/businessconcepts"
 @using DataSett.Metamodel
 @using DataSett.ViewModel
+@using DataSettWorkbench.Components.Dialogs
 
 @inject BusinessConceptViewModel ViewModel
+@inject IDialogService DialogService
 
 <PageTitle>Business Concept Management</PageTitle>
 
@@ -14,22 +16,83 @@
 <MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
     <MudGrid>
 
-        <!-- List showing business concepts-->
+        <!-- DataGrid showing business concepts -->
         <MudItem xs="12" md="4">
-            <MudPaper>
-                <MudList T="string">
-                    @foreach (var businessConcept in ViewModel.BusinessConcepts)
-                    {
-                        <MudListItem T="string" Text="@businessConcept.Name" @onclick="() => ViewModel.SelectedBusinessConcept = businessConcept">
-                        </MudListItem>
-                    }
-                </MudList>
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 600px; overflow-y: auto;">
+                <MudText Typo="Typo.h6" GutterBottom="true">Business Concepts</MudText>
+                @if (ViewModel.BusinessConcepts != null && ViewModel.BusinessConcepts.Any())
+                {
+                    <MudDataGrid T="BusinessConcept"
+                                 Items="@ViewModel.BusinessConcepts"
+                                 SelectedItemChanged="@OnBusinessConceptSelected"
+                                 Hover="true"
+                                 Dense="true">
+                        <Columns>
+                            <PropertyColumn Property="x => x.Name" Title="Name" />
+                            <PropertyColumn Property="x => x.ParentBusinessDomain != null ? x.ParentBusinessDomain.Name : string.Empty"
+                                          Title="Domain" />
+                            <PropertyColumn Property="x => x.KeyParts.Count" Title="Key Parts" />
+                        </Columns>
+                    </MudDataGrid>
+                }
+                else
+                {
+                    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+                        No business concepts found. Please load data from a repository path.
+                    </MudText>
+                }
             </MudPaper>
         </MudItem>
 
         <!-- Detail view of selected business concept -->
         <MudItem xs="12" md="8">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 600px; overflow-y: auto;">
+                @if (ViewModel.SelectedBusinessConcept != null)
+                {
+                    <MudText Typo="Typo.h6" GutterBottom="true">
+                        Key Parts of: @ViewModel.SelectedBusinessConcept.Name
+                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mb-4">
+                        Domain: @(ViewModel.SelectedBusinessConcept.ParentBusinessDomain?.Name ?? "N/A")
+                    </MudText>
 
+                    <MudDataGrid T="BusinessConceptKeyPart"
+                                 Items="@ViewModel.SelectedBusinessConcept.KeyParts"
+                                 Hover="true"
+                                 Dense="true">
+                        <Columns>
+                            <PropertyColumn Property="x => x.Name" Title="Name" />
+                            <PropertyColumn Property="x => x.KeyProperties.Datatype" Title="Datatype" />
+                            <PropertyColumn Property="x => x.KeyProperties.Length" Title="Length" />
+                            <PropertyColumn Property="x => x.KeyProperties.Precision" Title="Precision" />
+                            <PropertyColumn Property="x => x.KeyProperties.IsNullable" Title="Nullable" />
+                            <TemplateColumn>
+                                <CellTemplate>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                   Size="Size.Small"
+                                                   Color="Color.Error"
+                                                   OnClick="() => RemoveKeyPart(context.Item)" />
+                                </CellTemplate>
+                            </TemplateColumn>
+                        </Columns>
+                    </MudDataGrid>
+
+                    <MudButton Color="Color.Primary"
+                               Variant="Variant.Filled"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Class="mt-4"
+                               OnClick="OpenAddKeyPartDialog">
+                        Add Key Part
+                    </MudButton>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h6" GutterBottom="true">Key Parts</MudText>
+                    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
+                        Select a business concept to view and manage its key parts.
+                    </MudText>
+                }
+            </MudPaper>
         </MudItem>
 
     </MudGrid>
@@ -45,6 +108,30 @@
     private void GetData()
     {
         ViewModel.GetBusinessConceptData();
+        StateHasChanged();
+    }
+
+    private void OnBusinessConceptSelected(BusinessConcept? selectedConcept)
+    {
+        ViewModel.SelectedBusinessConcept = selectedConcept;
+        StateHasChanged();
+    }
+
+    private async Task OpenAddKeyPartDialog()
+    {
+        var dialog = await DialogService.ShowAsync<AddBusinessConceptKeyPartDialog>("Add Key Part");
+        var result = await dialog.Result;
+
+        if (result is { Canceled: false, Data: AddBusinessConceptKeyPartDialog.AddKeyPartResult keyPartResult })
+        {
+            ViewModel.AddKeyPartToSelectedConcept(keyPartResult.Name, keyPartResult.KeyProperties);
+            StateHasChanged();
+        }
+    }
+
+    private void RemoveKeyPart(BusinessConceptKeyPart keyPart)
+    {
+        ViewModel.RemoveKeyPartFromSelectedConcept(keyPart);
         StateHasChanged();
     }
 
