@@ -1,5 +1,6 @@
 ﻿using DataSett.Metamodel;
 using DataSett.ViewModel.Services;
+using DataSett.ViewModel.DisplayItems;
 
 using Microsoft.Extensions.Options;
 
@@ -26,7 +27,7 @@ namespace DataSett.ViewModel
             _businessConcepts = new ObservableCollection<BusinessConcept>();
             _serverPath = appSettings.Value.RepositoryPath ?? string.Empty;
             _businessDomains = new ObservableCollection<BusinessDomain>();
-            DisplayMappings = new ObservableCollection<MappingDisplayItem>();
+            DisplayMappings = new ObservableCollection<BusinessConceptMappingDisplayitem>();
         }
 
         private IMetaDataIOService MetaDataIOService { get; set; }
@@ -71,8 +72,8 @@ namespace DataSett.ViewModel
         private ObservableCollection<BusinessDomain> _businessDomains;
         public ObservableCollection<BusinessDomain> BusinessDomains => _businessDomains;
 
-        private ObservableCollection<MappingDisplayItem> _displayMappings = new();
-        public ObservableCollection<MappingDisplayItem> DisplayMappings
+        private ObservableCollection<BusinessConceptMappingDisplayitem> _displayMappings = new();
+        public ObservableCollection<BusinessConceptMappingDisplayitem> DisplayMappings
         {
             get => _displayMappings;
             private set { _displayMappings = value; OnPropertyChanged(); }
@@ -87,7 +88,7 @@ namespace DataSett.ViewModel
         {
             if (SelectedSourceInterface?.SourceAttributes == null)
             {
-                DisplayMappings = new ObservableCollection<MappingDisplayItem>();
+                DisplayMappings = new ObservableCollection<BusinessConceptMappingDisplayitem>();
                 return;
             }
 
@@ -98,11 +99,11 @@ namespace DataSett.ViewModel
             {
                 var existing = allMappings.FirstOrDefault(m => m.SourceAttribute == sa);
                 return existing != null
-                    ? new MappingDisplayItem(existing)
-                    : new MappingDisplayItem(sa);
+                    ? new BusinessConceptMappingDisplayitem(existing)
+                    : new BusinessConceptMappingDisplayitem(sa);
             });
 
-            DisplayMappings = new ObservableCollection<MappingDisplayItem>(items);
+            DisplayMappings = new ObservableCollection<BusinessConceptMappingDisplayitem>(items);
         }
 
         private string _serverPath;

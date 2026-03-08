@@ -2,30 +2,46 @@ using System.ComponentModel;
 using DataSett.Metamodel;
 using System.Runtime.CompilerServices;
 
-namespace DataSett.ViewModel;
+namespace DataSett.ViewModel.DisplayItems;
 
-public class BusinessConceptRelationDisplayItem : INotifyPropertyChanged
+public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConceptRelation>
 {
-    private readonly BusinessConceptRelation _businessConceptRelation;
 
-    public BusinessConceptRelationDisplayItem(BusinessConceptRelation businessConceptRelation)
+    private IList<BusinessConceptRelationItem> _businessConceptRelationItems;
+
+    public BusinessConceptRelationDisplayitem(BusinessConceptRelation businessConceptRelation) : base(businessConceptRelation)
     {
-        _businessConceptRelation = businessConceptRelation;
+        if (businessConceptRelation.RelatedConcepts != null && businessConceptRelation.RelatedConcepts.Count > 0)
+        {
+            _businessConceptRelationItems = businessConceptRelation.RelatedConcepts;
+        }
+        else
+        {
+            throw new ArgumentException("It makes no sense to create a BusinessConceptRelationDisplayitem without any related concepts. Please provide at least one related concept.", nameof(businessConceptRelation.RelatedConcepts));
+        }
     }
 
-    public BusinessConceptRelation BusinessConceptRelation => _businessConceptRelation;
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-    
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-    private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    public BusinessConceptRelationDisplayitem(IList<BusinessConceptRelationItem> businessConceptRelationItems) : base(null)
     {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        OnPropertyChanged(nameof(IsDirty));
-        return true;
+        _businessConceptRelationItems = businessConceptRelationItems;
+    }
+
+    public IList<BusinessConceptRelationItem> BusinessConceptRelationItems
+    {
+        get => _businessConceptRelationItems;
+        set => SetField(ref _businessConceptRelationItems, value);
+    }
+
+    public override bool IsDirty
+    {
+        get
+        {
+            return true;
+        }
+    }
+
+    public override void ApplyChanges()
+    {
+        throw new NotImplementedException();
     }
 }

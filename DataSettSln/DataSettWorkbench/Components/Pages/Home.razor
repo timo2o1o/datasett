@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using DataSett.Metamodel
 @using DataSett.ViewModel
+@using DataSett.ViewModel.DisplayItems
 @using DataSettWorkbench.Components.Dialogs
 
 @inject WorkbenchMainViewmodel ViewModel
@@ -229,7 +230,7 @@
         }
     }
 
-    private async Task OpenAddBusinessConceptDialog(MappingDisplayItem mapping)
+    private async Task OpenAddBusinessConceptDialog(BusinessConceptMappingDisplayitem mapping)
     {
 
         var dialog = await DialogService.ShowAsync<AddBusinessConceptDialog>("Add Business Concept");
