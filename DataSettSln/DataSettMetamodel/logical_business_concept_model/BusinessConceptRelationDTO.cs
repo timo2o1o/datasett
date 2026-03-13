@@ -26,5 +26,10 @@ namespace DataSett.Metamodel
 
         public IList<BusinessConceptRelationItemDTO> RelatedConcepts { get; set; }
 
+        /// <summary>
+        /// Reference to parent business domain
+        /// </summary>
+        public string? BusinessDomainId { get; set; }
+
     }
 }
