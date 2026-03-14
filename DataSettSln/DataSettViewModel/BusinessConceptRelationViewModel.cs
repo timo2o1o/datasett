@@ -1,4 +1,5 @@
 using DataSett.Metamodel;
+using DataSett.ViewModel.DisplayItems;
 using DataSett.ViewModel.Services;
 using Microsoft.Extensions.Options;
 using System;
@@ -18,12 +19,16 @@ namespace DataSett.ViewModel
         {
             MetaDataIOService = metaDataIOService;
             _businessConcepts = new ObservableCollection<BusinessConcept>();
+            _businessConceptRelations = new ObservableCollection<BusinessConceptRelationDisplayitem>();
         }
 
         private IMetaDataIOService MetaDataIOService { get; set; }
 
         private ObservableCollection<BusinessConcept> _businessConcepts;
         public ObservableCollection<BusinessConcept> BusinessConcepts => _businessConcepts;
+
+        private ObservableCollection<BusinessConceptRelationDisplayitem> _businessConceptRelations;
+        public ObservableCollection<BusinessConceptRelationDisplayitem> BusinessConceptRelations => _businessConceptRelations;
 
         private BusinessConcept? _selectedBusinessConcept;
         public BusinessConcept? SelectedBusinessConcept
@@ -51,6 +56,18 @@ namespace DataSett.ViewModel
                     _businessConcepts.Add(currentBusinessConcept);
                 }
             }
+
+        }
+
+        public void GetBusinessConceptRelationData()
+        {
+
+            _businessConceptRelations.Clear();
+            
+            // This is a two-step process. The easy part is to retrieve the relations stored in the datamodel.
+            // The more complex part is to derive the relations from the BusinessConceptMappings.
+
+            //MetaDataIOService.GetBusinessDomains().
 
         }
 
