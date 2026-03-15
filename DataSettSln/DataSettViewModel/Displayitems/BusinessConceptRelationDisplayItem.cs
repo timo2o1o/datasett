@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using DataSett.Metamodel;
 using System.Runtime.CompilerServices;
+using System.Net.Http.Headers;
 
 namespace DataSett.ViewModel.DisplayItems;
 
@@ -11,20 +12,20 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
 
     public BusinessConceptRelationDisplayitem(BusinessConceptRelation businessConceptRelation) : base(businessConceptRelation)
     {
-        if (businessConceptRelation.RelatedConcepts != null && businessConceptRelation.RelatedConcepts.Count > 0)
-        {
-            _businessConceptRelationItems = businessConceptRelation.RelatedConcepts;
-        }
-        else
-        {
-            throw new ArgumentException("It makes no sense to create a BusinessConceptRelationDisplayitem without any related concepts. Please provide at least one related concept.", nameof(businessConceptRelation.RelatedConcepts));
-        }
+    
+        _businessConceptRelationItems = businessConceptRelation.RelatedConcepts ?? new List<BusinessConceptRelationItem>();
+        
     }
 
     public BusinessConceptRelationDisplayitem(IList<BusinessConceptRelationItem> businessConceptRelationItems) : base(null)
     {
         _businessConceptRelationItems = businessConceptRelationItems;
     }
+
+    public BusinessConceptRelationDisplayitem(IEnumerable<BusinessConcept> businessConcepts) :
+    this([.. businessConcepts.Select(bc => new BusinessConceptRelationItem {IsLeadingKey = false, RelatedBusinessConcept = bc})])
+        {
+        }
 
     public IList<BusinessConceptRelationItem> BusinessConceptRelationItems
     {

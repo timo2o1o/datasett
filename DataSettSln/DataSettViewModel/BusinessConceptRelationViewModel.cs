@@ -63,11 +63,46 @@ namespace DataSett.ViewModel
         {
 
             _businessConceptRelations.Clear();
-            
-            // This is a two-step process. The easy part is to retrieve the relations stored in the datamodel.
-            // The more complex part is to derive the relations from the BusinessConceptMappings.
 
-            //MetaDataIOService.GetBusinessDomains().
+            var businessDomains = MetaDataIOService.GetBusinessDomains();
+
+            // This is a two-step process. The easy part is to retrieve the relations stored in the datamodel.
+            businessDomains
+                .SelectMany(d => d.BusinessConceptRelations)
+                .Select(r => new BusinessConceptRelationDisplayitem(r))
+                .ToList()
+                .ForEach(item => _businessConceptRelations.Add(item));
+
+            // The more complex part is to derive the relations from the BusinessConceptMappings.
+            var businessConceptMappings = businessDomains
+                .SelectMany(d => d.BusinessConcepts)
+                .SelectMany(bc => bc.BusinessConceptMappings);
+
+            foreach (BusinessConceptRelationDisplayitem currentRDI in DeriveRelationsFromMappings(businessConceptMappings))
+            {
+                _businessConceptRelations.Add(currentRDI);
+            }
+
+        }
+
+        private IEnumerable<BusinessConceptRelationDisplayitem> DeriveRelationsFromMappings(IEnumerable<BusinessConceptMapping> businessConceptMappings)
+        {
+
+            // This method derives BusinessConceptRelations from the BusinessConceptMappings. The logic is as follows:
+            // 1.   For each SourceInterface, we check the BusinessConceptMappings for role "BusinessKey".
+            // 2.   If a SourceInterface got more than two BusinessConceptMappings poiting to different
+            //      BusinessConcepts this defines a new possible BusinessConceptRelation.
+            var derivedRelations = businessConceptMappings
+                .Where(m => m.Role == SourceAttributeRole.BusinessKey && m.SourceAttribute != null)
+                .GroupBy(m => m.SourceAttribute!.ParentSourceInterface)
+                .Where(g => g.Select(m => m.ParentBusinessConcept).Distinct().Count() > 1)
+                .Select(g => new BusinessConceptRelationDisplayitem(
+                    g.Select(m => m.ParentBusinessConcept)
+                     .Where(bc => bc is not null)
+                     .Select(bc => bc!)
+                     .Distinct()));
+
+            return derivedRelations;
 
         }
 

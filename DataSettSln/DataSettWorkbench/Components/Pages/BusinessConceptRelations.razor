@@ -2,6 +2,7 @@
 
 @using DataSett.Metamodel
 @using DataSett.ViewModel
+@using DataSett.ViewModel.DisplayItems
 
 @using Blazor.Diagrams;
 @using Blazor.Diagrams.Core.Anchors
@@ -65,36 +66,45 @@
 
         Diagram = InitializeDiagram();
 
+        // Build a lookup from BusinessConcept name to its diagram node
+        var bcNodeMap = new Dictionary<string, NodeModel>();
+
         foreach (BusinessConcept currentBC in ViewModel.BusinessConcepts)
         {
-            _ = Diagram.Nodes.Add(new NodeModel()
+            var node = Diagram.Nodes.Add(new NodeModel()
             {
                 Title = currentBC.Name
-            }).AddPort(PortAlignment.Right);
+            });
+            node.AddPort(PortAlignment.Right);
+
+            if (currentBC.Name is not null)
+            {
+                bcNodeMap[currentBC.Name] = node;
+            }
         }
 
+        ViewModel.GetBusinessConceptRelationData();
 
-        /*
-        var firstNode = Diagram.Nodes.Add(new NodeModel(position: new Point(50, 50))
+        foreach (BusinessConceptRelationDisplayitem businessConceptRelationDisplayItem in ViewModel.BusinessConceptRelations)
         {
-            Title = "Node 1"
-        });
+            // Add a diamond-shaped node for each relation
+            var diamondNode = Diagram.Nodes.Add(new NodeModel()
+            {
+                Title = "◆"
+            });
 
-        var secondNode = Diagram.Nodes.Add(new NodeModel(position: new Point(200, 100))
-        {
-            Title = "Node 2"
-        });
+            // Link the diamond to each related BusinessConcept node
+            foreach (BusinessConceptRelationItem relationItem in businessConceptRelationDisplayItem.BusinessConceptRelationItems)
+            {
+                var bcName = relationItem.RelatedBusinessConcept?.Name;
+                if (bcName is null || !bcNodeMap.TryGetValue(bcName, out var targetNode))
+                    continue;
 
-        var leftPort = secondNode.AddPort(PortAlignment.Left);
-        var rightPort = secondNode.AddPort(PortAlignment.Right);
-
-        // The connection point will be the intersection of
-        // a line going from the target to the center of the source
-        var sourceAnchor = new ShapeIntersectionAnchor(firstNode);
-        // The connection point will be the port's position
-        var targetAnchor = new SinglePortAnchor(leftPort);
-        var link = Diagram.Links.Add(new LinkModel(sourceAnchor, targetAnchor));
-        */
+                var sourceAnchor = new ShapeIntersectionAnchor(diamondNode);
+                var targetAnchor = new ShapeIntersectionAnchor(targetNode);
+                Diagram.Links.Add(new LinkModel(sourceAnchor, targetAnchor));
+            }
+        }
     }
 
 }
