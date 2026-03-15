@@ -14,7 +14,8 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
     {
     
         _businessConceptRelationItems = businessConceptRelation.RelatedConcepts ?? new List<BusinessConceptRelationItem>();
-        
+        Names = businessConceptRelation.Name;
+
     }
 
     public BusinessConceptRelationDisplayitem(IList<BusinessConceptRelationItem> businessConceptRelationItems) : base(null)
@@ -26,6 +27,8 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
     this([.. businessConcepts.Select(bc => new BusinessConceptRelationItem {IsLeadingKey = false, RelatedBusinessConcept = bc})])
         {
         }
+
+    public string? Names { get; init; }
 
     public IList<BusinessConceptRelationItem> BusinessConceptRelationItems
     {

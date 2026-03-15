@@ -1,0 +1,11 @@
+@using Blazor.Diagrams.Core.Models
+@using DataSettWorkbench.Components.DiagramNodes
+
+<div class="diamond-node">
+    <div class="diamond-label">@Node.Names</div>
+</div>
+
+@code {
+    [Parameter]
+    public DiamondNodeModel Node { get; set; } = null!;
+}
