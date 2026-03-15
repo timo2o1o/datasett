@@ -9,5 +9,5 @@ public class DiamondNodeModel : NodeModel
     {
     }
 
-    public string? Names { get; set; }
+    public string? RelationName { get; set; }
 }

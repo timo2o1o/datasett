@@ -14,7 +14,7 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
     {
     
         _businessConceptRelationItems = businessConceptRelation.RelatedConcepts ?? new List<BusinessConceptRelationItem>();
-        Names = businessConceptRelation.Name;
+        RelationName = businessConceptRelation.Name;
 
     }
 
@@ -28,7 +28,7 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
         {
         }
 
-    public string? Names { get; init; }
+    public string? RelationName { get; init; }
 
     public IList<BusinessConceptRelationItem> BusinessConceptRelationItems
     {
