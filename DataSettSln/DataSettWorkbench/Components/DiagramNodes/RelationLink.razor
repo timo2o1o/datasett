@@ -1,35 +1,21 @@
-@using Blazor.Diagrams
-@using Blazor.Diagrams.Extensions
 @using DataSettWorkbench.Components.DiagramNodes
 
-<g class="diagram-link" style="display: @(Link.Visible ? "unset" : "none")">
-    @if (Link.PathGeneratorResult != null)
+@if (Link.PathGeneratorResult != null)
+{
+    @for (var i = 0; i < Link.PathGeneratorResult.Paths.Length; i++)
     {
-        @for (var i = 0; i < Link.PathGeneratorResult.Paths.Length; i++)
-        {
-            var idx = i;
-            var d = Link.PathGeneratorResult.Paths[idx].ToString();
-            var strokeStyle = $"stroke: {(Link.Selected ? Link.SelectedColor : Link.Color)}; stroke-width: {Link.Width}px;{(Link.IsPersisted ? "" : " stroke-dasharray: 8 4;")}";
-            <path d="@d" style="@strokeStyle" />
-            <path d="@d"
-                  class="invisible"
-                  style="stroke-width: @(Link.Width + 10)px"
-                  @onpointerdown="OnPointerDown"
-                  @onpointerup="OnPointerUp" />
-        }
+        var d = Link.PathGeneratorResult.Paths[i].ToString();
+        var stroke = Link.Selected ? Link.SelectedColor : Link.Color;
+        var dashArray = Link.IsPersisted ? null : "8 4";
+        <path d="@d"
+              fill="none"
+              stroke="@stroke"
+              stroke-width="@(Link.Width)"
+              stroke-dasharray="@dashArray" />
     }
-</g>
+}
 
 @code {
-    [CascadingParameter]
-    public BlazorDiagram BlazorDiagram { get; set; } = null!;
-
     [Parameter]
     public RelationLinkModel Link { get; set; } = null!;
-
-    private void OnPointerDown(Microsoft.AspNetCore.Components.Web.PointerEventArgs e) =>
-        BlazorDiagram.TriggerPointerDown(Link, e.ToCore());
-
-    private void OnPointerUp(Microsoft.AspNetCore.Components.Web.PointerEventArgs e) =>
-        BlazorDiagram.TriggerPointerUp(Link, e.ToCore());
 }
