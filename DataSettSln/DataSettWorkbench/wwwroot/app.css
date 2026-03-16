@@ -27,7 +27,3 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
-
-.diagram-container .diagram-link path {
-    stroke-dasharray: 8 4;
-}

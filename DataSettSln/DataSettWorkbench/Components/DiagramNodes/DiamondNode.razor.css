@@ -4,11 +4,15 @@
     height: var(--diamond-size);
     transform: rotate(45deg);
     background-color: #ffffff;
-    border: 2px dashed #666666;
+    border: 2px solid #666666;
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
+}
+
+.diamond-node--unpersisted {
+    border-style: dashed;
 }
 
 .diamond-label {

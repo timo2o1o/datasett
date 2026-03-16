@@ -1,7 +1,7 @@
 @using Blazor.Diagrams.Core.Models
 @using DataSettWorkbench.Components.DiagramNodes
 
-<div class="diamond-node">
+<div class="diamond-node @(Node.IsPersisted ? "" : "diamond-node--unpersisted")">
     <input class="diamond-label"
            value="@Node.RelationName"
            @onchange="OnRelationNameChanged"

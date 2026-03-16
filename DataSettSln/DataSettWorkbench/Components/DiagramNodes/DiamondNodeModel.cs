@@ -10,4 +10,5 @@ public class DiamondNodeModel : NodeModel
     }
 
     public string? RelationName { get; set; }
+    public bool IsPersisted { get; set; }
 }
