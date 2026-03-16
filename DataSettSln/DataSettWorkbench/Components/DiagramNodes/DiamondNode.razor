@@ -2,10 +2,19 @@
 @using DataSettWorkbench.Components.DiagramNodes
 
 <div class="diamond-node">
-    <div class="diamond-label">@Node.RelationName</div>
+    <input class="diamond-label"
+           value="@Node.RelationName"
+           @onchange="OnRelationNameChanged"
+           @onpointerdown:stopPropagation="true" />
 </div>
 
 @code {
     [Parameter]
     public DiamondNodeModel Node { get; set; } = null!;
+
+    private void OnRelationNameChanged(ChangeEventArgs e)
+    {
+        Node.RelationName = e.Value?.ToString() ?? string.Empty;
+        Node.Refresh();
+    }
 }
