@@ -13,6 +13,7 @@
 @using Blazor.Diagrams.Options;
 
 @using Blazor.Diagrams.Components
+@using DataSettWorkbench.Components.DiagramNodes
 
 @inject BusinessConceptRelationViewModel ViewModel
 
@@ -56,7 +57,9 @@
                 DefaultPathGenerator = new SmoothPathGenerator()
             },
         };
-        return new BlazorDiagram(options);
+        var diagram = new BlazorDiagram(options);
+        diagram.RegisterComponent<DiamondNodeModel, DiamondNode>();
+        return diagram;
     }
 
     protected override void OnInitialized()
@@ -88,9 +91,9 @@
         foreach (BusinessConceptRelationDisplayitem businessConceptRelationDisplayItem in ViewModel.BusinessConceptRelations)
         {
             // Add a diamond-shaped node for each relation
-            var diamondNode = Diagram.Nodes.Add(new NodeModel()
+            var diamondNode = Diagram.Nodes.Add(new DiamondNodeModel()
             {
-                Title = "◆"
+                RelationName = businessConceptRelationDisplayItem.RelationName
             });
 
             // Link the diamond to each related BusinessConcept node

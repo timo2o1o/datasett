@@ -1,0 +1,22 @@
+.diamond-node {
+    --diamond-size: 80px;
+    width: var(--diamond-size);
+    height: var(--diamond-size);
+    transform: rotate(45deg);
+    background-color: #ffffff;
+    border: 2px solid #666666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.diamond-label {
+    transform: rotate(-45deg);
+    text-align: center;
+    font-size: 11px;
+    max-width: calc(var(--diamond-size) * 0.875);
+    overflow-wrap: break-word;
+    word-break: break-word;
+    padding: 2px;
+}
