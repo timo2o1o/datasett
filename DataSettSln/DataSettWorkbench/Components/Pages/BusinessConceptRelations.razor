@@ -8,6 +8,7 @@
 @using Blazor.Diagrams.Core.Anchors
 @using Blazor.Diagrams.Core.Geometry
 @using Blazor.Diagrams.Core.Models
+@using Blazor.Diagrams.Core.Models.Base
 @using Blazor.Diagrams.Core.PathGenerators;
 @using Blazor.Diagrams.Core.Routers;
 @using Blazor.Diagrams.Options;
@@ -37,6 +38,8 @@
         </MudItem>
     </MudGrid>
 </MudContainer>
+
+@implements IDisposable
 
 @code {
 
@@ -69,6 +72,10 @@
         ViewModel.GetBusinessConceptData();
 
         Diagram = InitializeDiagram();
+
+        // When a link is removed from the diagram, also remove the
+        // corresponding BusinessConceptRelationItem from its display item.
+        Diagram.Links.Removed += OnLinkRemoved;
 
         // Build a lookup from BusinessConcept name to its diagram node
         var bcNodeMap = new Dictionary<string, NodeModel>();
@@ -107,9 +114,26 @@
 
                 var sourceAnchor = new ShapeIntersectionAnchor(diamondNode);
                 var targetAnchor = new ShapeIntersectionAnchor(targetNode);
-                Diagram.Links.Add(new RelationLinkModel(sourceAnchor, targetAnchor, businessConceptRelationDisplayItem.IsPersisted));
+                Diagram.Links.Add(new RelationLinkModel(
+                    sourceAnchor, targetAnchor,
+                    businessConceptRelationDisplayItem.IsPersisted,
+                    businessConceptRelationDisplayItem,
+                    relationItem));
             }
         }
+    }
+
+    private void OnLinkRemoved(BaseLinkModel link)
+    {
+        if (link is RelationLinkModel relationLink)
+        {
+            relationLink.ParentDisplayItem.BusinessConceptRelationItems.Remove(relationLink.RelationItem);
+        }
+    }
+
+    public void Dispose()
+    {
+        Diagram.Links.Removed -= OnLinkRemoved;
     }
 
 }
