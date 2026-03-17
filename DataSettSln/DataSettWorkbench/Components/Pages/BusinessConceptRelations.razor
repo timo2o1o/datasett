@@ -39,6 +39,8 @@
     </MudGrid>
 </MudContainer>
 
+@implements IDisposable
+
 @code {
 
     private BlazorDiagram Diagram { get; set; } = null!;
@@ -127,6 +129,11 @@
         {
             relationLink.ParentDisplayItem.BusinessConceptRelationItems.Remove(relationLink.RelationItem);
         }
+    }
+
+    public void Dispose()
+    {
+        Diagram.Links.Removed -= OnLinkRemoved;
     }
 
 }
