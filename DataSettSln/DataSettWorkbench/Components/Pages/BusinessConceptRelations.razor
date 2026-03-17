@@ -28,8 +28,22 @@
 <MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
     <MudGrid>
         <MudItem xs="12">
+            <MudToolBar Dense="true" Class="mb-2">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Disabled="@(!CanPersistSelection)"
+                           OnClick="PersistSelectedRelation"
+                           StartIcon="@Icons.Material.Filled.Save">
+                    Persist Relation
+                </MudButton>
+                <MudText Typo="Typo.caption" Class="ml-4">
+                    Select a derived (dashed) relation and click Persist or press Space to persist it.
+                </MudText>
+            </MudToolBar>
+        </MudItem>
+        <MudItem xs="12">
             <MudPaper>
-                <div class="diagram-container">
+                <div class="diagram-container" tabindex="0" @onkeydown="OnKeyDown">
                     <CascadingValue Value="Diagram" IsFixed="true">
                         <DiagramCanvas></DiagramCanvas>
                     </CascadingValue>
@@ -44,6 +58,10 @@
 @code {
 
     private BlazorDiagram Diagram { get; set; } = null!;
+
+    private bool CanPersistSelection => Diagram?.GetSelectedModels()
+        .OfType<DiamondNodeModel>()
+        .Any(n => !n.IsPersisted) == true;
 
     private BlazorDiagram InitializeDiagram()
     {
@@ -77,6 +95,9 @@
         // corresponding BusinessConceptRelationItem from its display item.
         Diagram.Links.Removed += OnLinkRemoved;
 
+        // Track selection changes so the Persist button state updates
+        Diagram.SelectionChanged += OnSelectionChanged;
+
         // Build a lookup from BusinessConcept name to its diagram node
         var bcNodeMap = new Dictionary<string, NodeModel>();
 
@@ -102,7 +123,8 @@
             var diamondNode = Diagram.Nodes.Add(new DiamondNodeModel()
             {
                 RelationName = businessConceptRelationDisplayItem.RelationName,
-                IsPersisted = businessConceptRelationDisplayItem.IsPersisted
+                IsPersisted = businessConceptRelationDisplayItem.IsPersisted,
+                DisplayItem = businessConceptRelationDisplayItem
             });
 
             // Link the diamond to each related BusinessConcept node
@@ -123,6 +145,51 @@
         }
     }
 
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Code == "Space")
+        {
+            PersistSelectedRelation();
+        }
+    }
+
+    private void PersistSelectedRelation()
+    {
+        var selectedDiamonds = Diagram.GetSelectedModels()
+            .OfType<DiamondNodeModel>()
+            .Where(n => !n.IsPersisted)
+            .ToList();
+
+        foreach (var diamondNode in selectedDiamonds)
+        {
+            if (diamondNode.DisplayItem is null) continue;
+
+            // Persist the display item, creating the domain object
+            diamondNode.DisplayItem.Persist(diamondNode.RelationName);
+
+            // Switch the diamond node to solid border
+            diamondNode.IsPersisted = true;
+            diamondNode.Refresh();
+
+            // Switch all connected links to solid lines
+            foreach (var link in Diagram.Links.OfType<RelationLinkModel>())
+            {
+                if (link.ParentDisplayItem == diamondNode.DisplayItem)
+                {
+                    link.IsPersisted = true;
+                    link.Refresh();
+                }
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private void OnSelectionChanged(SelectableModel model)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     private void OnLinkRemoved(BaseLinkModel link)
     {
         if (link is RelationLinkModel relationLink)
@@ -134,6 +201,7 @@
     public void Dispose()
     {
         Diagram.Links.Removed -= OnLinkRemoved;
+        Diagram.SelectionChanged -= OnSelectionChanged;
     }
 
 }
