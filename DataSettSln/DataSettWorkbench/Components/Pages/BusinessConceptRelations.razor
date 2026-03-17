@@ -172,13 +172,10 @@
             diamondNode.Refresh();
 
             // Switch all connected links to solid lines
-            foreach (var link in Diagram.Links.OfType<RelationLinkModel>())
+            foreach (var link in diamondNode.Links.OfType<RelationLinkModel>())
             {
-                if (link.ParentDisplayItem == diamondNode.DisplayItem)
-                {
-                    link.IsPersisted = true;
-                    link.Refresh();
-                }
+                link.IsPersisted = true;
+                link.Refresh();
             }
         }
 
