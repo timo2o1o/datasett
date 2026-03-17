@@ -59,6 +59,7 @@
         };
         var diagram = new BlazorDiagram(options);
         diagram.RegisterComponent<DiamondNodeModel, DiamondNode>();
+        diagram.RegisterComponent<RelationLinkModel, RelationLink>();
         return diagram;
     }
 
@@ -93,7 +94,8 @@
             // Add a diamond-shaped node for each relation
             var diamondNode = Diagram.Nodes.Add(new DiamondNodeModel()
             {
-                RelationName = businessConceptRelationDisplayItem.RelationName
+                RelationName = businessConceptRelationDisplayItem.RelationName,
+                IsPersisted = businessConceptRelationDisplayItem.IsPersisted
             });
 
             // Link the diamond to each related BusinessConcept node
@@ -105,7 +107,7 @@
 
                 var sourceAnchor = new ShapeIntersectionAnchor(diamondNode);
                 var targetAnchor = new ShapeIntersectionAnchor(targetNode);
-                Diagram.Links.Add(new LinkModel(sourceAnchor, targetAnchor));
+                Diagram.Links.Add(new RelationLinkModel(sourceAnchor, targetAnchor, businessConceptRelationDisplayItem.IsPersisted));
             }
         }
     }

@@ -1,0 +1,18 @@
+@using DataSettWorkbench.Components.DiagramNodes
+
+@if (Link.PathGeneratorResult != null)
+{
+    var d = Link.PathGeneratorResult.FullPath.ToString();
+    var stroke = Link.Selected ? (Link.SelectedColor ?? "black") : (Link.Color ?? "black");
+    var dashArray = Link.IsPersisted ? null : "8 4";
+    <path d="@d"
+          fill="none"
+          stroke="@stroke"
+          stroke-width="@(Link.Width)"
+          stroke-dasharray="@dashArray" />
+}
+
+@code {
+    [Parameter]
+    public RelationLinkModel Link { get; set; } = null!;
+}

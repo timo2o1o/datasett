@@ -11,12 +11,21 @@
     box-sizing: border-box;
 }
 
+.diamond-node--unpersisted {
+    border-style: dashed;
+}
+
 .diamond-label {
     transform: rotate(-45deg);
     text-align: center;
     font-size: 11px;
-    max-width: calc(var(--diamond-size) * 0.875);
+    width: calc(var(--diamond-size) * 0.875);
     overflow-wrap: break-word;
     word-break: break-word;
     padding: 2px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: inherit;
+    cursor: text;
 }

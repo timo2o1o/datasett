@@ -1,11 +1,20 @@
 @using Blazor.Diagrams.Core.Models
 @using DataSettWorkbench.Components.DiagramNodes
 
-<div class="diamond-node">
-    <div class="diamond-label">@Node.RelationName</div>
+<div class="diamond-node @(Node.IsPersisted ? "" : "diamond-node--unpersisted")">
+    <input class="diamond-label"
+           value="@Node.RelationName"
+           @onchange="OnRelationNameChanged"
+           @onpointerdown:stopPropagation="true" />
 </div>
 
 @code {
     [Parameter]
     public DiamondNodeModel Node { get; set; } = null!;
+
+    private void OnRelationNameChanged(ChangeEventArgs e)
+    {
+        Node.RelationName = e.Value?.ToString() ?? string.Empty;
+        Node.Refresh();
+    }
 }
