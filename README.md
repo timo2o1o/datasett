@@ -55,6 +55,10 @@ dotnet run --project DataSettWorkbench/DataSettWorkbench
 
 4. Open your browser and navigate to the displayed local URL (typically `https://localhost:5001`)
 
+### Example data
+You can find some example metadata in the follwing repository:
+https://github.com/timo2o1o/willibald-metadata
+
 ## Contributing
 
 We welcome contributions to DataSett! Whether you're fixing bugs, adding new features, or improving documentation, your help is appreciated.
