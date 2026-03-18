@@ -9,12 +9,13 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
 {
 
     private IList<BusinessConceptRelationItem> _businessConceptRelationItems;
+    private string? _relationName;
 
     public BusinessConceptRelationDisplayitem(BusinessConceptRelation businessConceptRelation) : base(businessConceptRelation)
     {
     
         _businessConceptRelationItems = businessConceptRelation.RelatedConcepts ?? new List<BusinessConceptRelationItem>();
-        RelationName = businessConceptRelation.Name;
+        _relationName = businessConceptRelation.Name;
 
     }
 
@@ -28,12 +29,40 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
         {
         }
 
-    public string? RelationName { get; init; }
+    public string? RelationName
+    {
+        get => _relationName;
+        set => SetField(ref _relationName, value);
+    }
 
     public IList<BusinessConceptRelationItem> BusinessConceptRelationItems
     {
         get => _businessConceptRelationItems;
         set => SetField(ref _businessConceptRelationItems, value);
+    }
+
+    /// <summary>
+    /// Promotes this derived (unpersisted) display item to a persisted state
+    /// by creating a <see cref="BusinessConceptRelation"/> domain object.
+    /// </summary>
+    public void Persist(string? relationName)
+    {
+        if (IsPersisted) return;
+
+        var relation = new BusinessConceptRelation
+        {
+            Name = relationName
+        };
+
+        foreach (var item in _businessConceptRelationItems)
+        {
+            relation.RelatedConcepts.Add(item);
+        }
+
+        _existingItem = relation;
+        _relationName = relationName;
+        OnPropertyChanged(nameof(IsPersisted));
+        OnPropertyChanged(nameof(RelationName));
     }
 
     public override bool IsDirty

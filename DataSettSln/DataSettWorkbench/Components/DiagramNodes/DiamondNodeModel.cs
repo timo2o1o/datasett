@@ -1,5 +1,6 @@
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
+using DataSett.ViewModel.DisplayItems;
 
 namespace DataSettWorkbench.Components.DiagramNodes;
 
@@ -11,4 +12,5 @@ public class DiamondNodeModel : NodeModel
 
     public string? RelationName { get; set; }
     public bool IsPersisted { get; set; }
+    public BusinessConceptRelationDisplayitem? DisplayItem { get; set; }
 }
