@@ -44,6 +44,32 @@ namespace DataSett.ViewModel
             }
         }
 
+        private readonly List<BusinessConceptRelationDisplayitem> _selectedRelations = new();
+
+        /// <summary>
+        /// The currently selected relation display items as reported by the view.
+        /// </summary>
+        public IReadOnlyList<BusinessConceptRelationDisplayitem> SelectedRelations => _selectedRelations;
+
+        /// <summary>
+        /// Returns <c>true</c> when the current selection contains at least one
+        /// unpersisted relation that can be promoted to a domain object.
+        /// </summary>
+        public bool CanPersistSelection => _selectedRelations.Any(r => !r.IsPersisted);
+
+        /// <summary>
+        /// Replaces the current selection with the given display items.
+        /// Raises <see cref="PropertyChanged"/> for <see cref="SelectedRelations"/>
+        /// and <see cref="CanPersistSelection"/>.
+        /// </summary>
+        public void UpdateSelection(IEnumerable<BusinessConceptRelationDisplayitem> selectedItems)
+        {
+            _selectedRelations.Clear();
+            _selectedRelations.AddRange(selectedItems);
+            OnPropertyChanged(nameof(SelectedRelations));
+            OnPropertyChanged(nameof(CanPersistSelection));
+        }
+
         public void GetBusinessConceptData()
         {
 
@@ -104,6 +130,34 @@ namespace DataSett.ViewModel
 
             return derivedRelations;
 
+        }
+
+        /// <summary>
+        /// Persists all currently selected unpersisted relations, promoting them
+        /// to domain objects. Returns the display items that were persisted so
+        /// the view can update the corresponding diagram visuals.
+        /// </summary>
+        public IReadOnlyList<BusinessConceptRelationDisplayitem> PersistSelectedRelations()
+        {
+            var toPersist = _selectedRelations
+                .Where(r => !r.IsPersisted)
+                .ToList();
+
+            foreach (var item in toPersist)
+            {
+                item.Persist(item.RelationName);
+            }
+
+            OnPropertyChanged(nameof(CanPersistSelection));
+            return toPersist;
+        }
+
+        /// <summary>
+        /// Removes a <see cref="BusinessConceptRelationItem"/> from its parent display item.
+        /// </summary>
+        public void RemoveRelationItem(BusinessConceptRelationDisplayitem displayItem, BusinessConceptRelationItem item)
+        {
+            displayItem.BusinessConceptRelationItems.Remove(item);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

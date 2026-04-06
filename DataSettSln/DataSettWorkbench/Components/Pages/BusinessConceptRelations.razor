@@ -59,9 +59,7 @@
 
     private BlazorDiagram Diagram { get; set; } = null!;
 
-    private bool CanPersistSelection => Diagram?.GetSelectedModels()
-        .OfType<DiamondNodeModel>()
-        .Any(n => !n.IsPersisted) == true;
+    private bool CanPersistSelection => ViewModel.CanPersistSelection;
 
     private BlazorDiagram InitializeDiagram()
     {
@@ -155,23 +153,21 @@
 
     private void PersistSelectedRelation()
     {
-        var selectedDiamonds = Diagram.GetSelectedModels()
-            .OfType<DiamondNodeModel>()
-            .Where(n => !n.IsPersisted)
-            .ToList();
+        // Delegate domain mutation to the ViewModel
+        var persisted = ViewModel.PersistSelectedRelations();
 
-        foreach (var diamondNode in selectedDiamonds)
+        // Update diagram visuals for each newly persisted relation
+        foreach (var displayItem in persisted)
         {
-            if (diamondNode.DisplayItem is null) continue;
+            var diamondNode = Diagram.Nodes
+                .OfType<DiamondNodeModel>()
+                .FirstOrDefault(n => n.DisplayItem == displayItem);
 
-            // Persist the display item, creating the domain object
-            diamondNode.DisplayItem.Persist(diamondNode.RelationName);
+            if (diamondNode is null) continue;
 
-            // Switch the diamond node to solid border
             diamondNode.IsPersisted = true;
             diamondNode.Refresh();
 
-            // Switch all connected links to solid lines
             foreach (var link in diamondNode.Links.OfType<RelationLinkModel>())
             {
                 link.IsPersisted = true;
@@ -184,6 +180,13 @@
 
     private void OnSelectionChanged(SelectableModel model)
     {
+        // Sync the diagram selection into the ViewModel
+        var selectedDisplayItems = Diagram.GetSelectedModels()
+            .OfType<DiamondNodeModel>()
+            .Where(n => n.DisplayItem is not null)
+            .Select(n => n.DisplayItem!);
+
+        ViewModel.UpdateSelection(selectedDisplayItems);
         InvokeAsync(StateHasChanged);
     }
 
@@ -191,7 +194,7 @@
     {
         if (link is RelationLinkModel relationLink)
         {
-            relationLink.ParentDisplayItem.BusinessConceptRelationItems.Remove(relationLink.RelationItem);
+            ViewModel.RemoveRelationItem(relationLink.ParentDisplayItem, relationLink.RelationItem);
         }
     }
 
