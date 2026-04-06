@@ -31,5 +31,21 @@ namespace DataSett.Metamodel
             return newRelation;
         }
 
+        public static BusinessConceptRelationDTO ToDTO(BusinessConceptRelation relation, string businessDomainId)
+        {
+            BusinessConceptRelationDTO dto = new BusinessConceptRelationDTO
+            {
+                Name = relation.Name,
+                BusinessDomainId = businessDomainId
+            };
+
+            foreach (BusinessConceptRelationItem currentItem in relation.RelatedConcepts)
+            {
+                dto.RelatedConcepts.Add(BusinessConceptRelationItem.ToDTO(currentItem));
+            }
+
+            return dto;
+        }
+
     }
 }

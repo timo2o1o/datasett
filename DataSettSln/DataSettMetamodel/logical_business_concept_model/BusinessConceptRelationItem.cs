@@ -34,5 +34,20 @@ namespace DataSett.Metamodel
             return newItem;
         }
 
+        public static BusinessConceptRelationItemDTO ToDTO(BusinessConceptRelationItem item)
+        {
+            string? relatedBusinessConceptId = null;
+            if (item.RelatedBusinessConcept != null)
+            {
+                relatedBusinessConceptId = $"{item.RelatedBusinessConcept.ParentBusinessDomain?.Name}.{item.RelatedBusinessConcept.Name}";
+            }
+
+            return new BusinessConceptRelationItemDTO
+            {
+                IsLeadingKey = item.IsLeadingKey,
+                RelatedBusinessConceptId = relatedBusinessConceptId
+            };
+        }
+
     }
 }
