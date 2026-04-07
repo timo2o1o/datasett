@@ -54,7 +54,9 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
         // Determine the parent domain from the first related concept.
         var parentDomain = _businessConceptRelationItems
             .Select(item => item.RelatedBusinessConcept?.ParentBusinessDomain)
-            .FirstOrDefault(d => d != null);
+            .FirstOrDefault(d => d != null)
+            ?? throw new InvalidOperationException(
+                "Cannot persist a relation when none of the related concepts belong to a business domain.");
 
         var relation = new BusinessConceptRelation
         {
@@ -68,7 +70,7 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
         }
 
         // Add to the domain so WriteLBCMAsync picks it up.
-        parentDomain?.BusinessConceptRelations.Add(relation);
+        parentDomain.BusinessConceptRelations.Add(relation);
 
         _existingItem = relation;
         _relationName = relationName;
