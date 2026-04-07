@@ -17,6 +17,7 @@
 @using DataSettWorkbench.Components.DiagramNodes
 
 @inject BusinessConceptRelationViewModel ViewModel
+@inject WorkbenchMainViewmodel MainViewModel
 
 <PageTitle>Business Concept Relations</PageTitle>
 
@@ -84,6 +85,7 @@
 
     protected override void OnInitialized()
     {
+        MainViewModel.DataReloaded += OnDataReloaded;
 
         ViewModel.GetBusinessConceptData();
 
@@ -190,6 +192,11 @@
         InvokeAsync(StateHasChanged);
     }
 
+    private void OnDataReloaded()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
     private void OnLinkRemoved(BaseLinkModel link)
     {
         if (link is RelationLinkModel relationLink)
@@ -200,6 +207,7 @@
 
     public void Dispose()
     {
+        MainViewModel.DataReloaded -= OnDataReloaded;
         Diagram.Links.Removed -= OnLinkRemoved;
         Diagram.SelectionChanged -= OnSelectionChanged;
     }

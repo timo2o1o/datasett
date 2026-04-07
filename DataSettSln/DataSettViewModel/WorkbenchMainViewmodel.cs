@@ -146,6 +146,7 @@ namespace DataSett.ViewModel
                     }
                 }
 
+                DataReloaded?.Invoke();
             }
 
         }
@@ -180,6 +181,12 @@ namespace DataSett.ViewModel
             _businessDomains.Add(newDomain);
             return newDomain;
         }
+
+        /// <summary>
+        /// Raised after data has been successfully reloaded from the repository path.
+        /// Pages should subscribe to this event to refresh their local state.
+        /// </summary>
+        public event Action? DataReloaded;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

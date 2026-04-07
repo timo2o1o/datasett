@@ -7,6 +7,8 @@
 @inject WorkbenchMainViewmodel ViewModel
 @inject IDialogService DialogService
 
+@implements IDisposable
+
 <PageTitle>DataSett Workbench</PageTitle>
 
 <MudText Typo="Typo.h1" Align="Align.Center" GutterBottom="true">
@@ -16,34 +18,6 @@
 
 <MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
     <MudGrid>
-        <!-- TextField nimmt die gesamte Breite ein und ist oben -->
-        <MudItem xs="12">
-            <MudPaper Elevation="2" Class="pa-4">
-                <MudTextField @bind-Value="ViewModel.ServerPath" 
-                              Label="Server Path" 
-                              Variant="Variant.Outlined" 
-                              Adornment="Adornment.End" 
-                              AdornmentIcon="@Icons.Material.Filled.Folder"
-                              AdornmentColor="Color.Primary"
-                              HelperText="Choose your repository path"
-                              Immediate="false"/>
-                <MudButton Variant="Variant.Filled" 
-                           Color="Color.Primary" 
-                           StartIcon="@Icons.Material.Filled.Upload"
-                           OnClick="LoadDataFromPath"
-                           Class="mt-2">
-                    Refresh
-                </MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Success"
-                           StartIcon="@Icons.Material.Filled.Save"
-                           OnClick="@(() => ViewModel.SaveChangesAsync())"
-                           Class="mt-2">
-                    Save Changes
-                </MudButton>
-            </MudPaper>
-        </MudItem>
-        
         <!-- TreeView nimmt 25% der Breite (2 von 12 Spalten) -->
         <MudItem xs="12" sm="2">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px; overflow-y: auto;">
@@ -167,15 +141,29 @@
 
     protected override async Task OnInitializedAsync()
     {
+        ViewModel.DataReloaded += OnDataReloaded;
+
         if (ViewModel.SourceSystems.Count == 0)
         {
             await LoadDataFromPath();
         }
+        else
+        {
+            RebuildTreeItems();
+        }
     }
 
-    private async Task LoadDataFromPath()
+    private void OnDataReloaded()
     {
-        await ViewModel.LoadDataFromPathAsync(ViewModel.ServerPath);
+        InvokeAsync(() =>
+        {
+            RebuildTreeItems();
+            StateHasChanged();
+        });
+    }
+
+    private void RebuildTreeItems()
+    {
         TreeItems = ViewModel.SourceSystems
             .Select(ss => new TreeItemData<object>
             {
@@ -192,6 +180,12 @@
                     .ToList()
             })
             .ToHashSet();
+    }
+
+    private async Task LoadDataFromPath()
+    {
+        await ViewModel.LoadDataFromPathAsync(ViewModel.ServerPath);
+        RebuildTreeItems();
         StateHasChanged();
     }
 
@@ -245,6 +239,11 @@
                 StateHasChanged();
             }
         }
+    }
+
+    public void Dispose()
+    {
+        ViewModel.DataReloaded -= OnDataReloaded;
     }
 
 }
