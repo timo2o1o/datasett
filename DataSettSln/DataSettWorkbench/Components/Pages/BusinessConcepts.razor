@@ -4,7 +4,7 @@
 @using DataSettWorkbench.Components.Dialogs
 
 @inject BusinessConceptViewModel ViewModel
-@inject WorkbenchMainViewmodel MainViewModel
+@inject MainLayoutViewModel MainLayoutViewModel
 @inject IDialogService DialogService
 
 @implements IDisposable
@@ -105,7 +105,7 @@
 
     protected override void OnInitialized()
     {
-        MainViewModel.DataReloaded += OnDataReloaded;
+        MainLayoutViewModel.DataReloaded += OnDataReloaded;
         GetData();
     }
 
@@ -149,7 +149,7 @@
 
     public void Dispose()
     {
-        MainViewModel.DataReloaded -= OnDataReloaded;
+        MainLayoutViewModel.DataReloaded -= OnDataReloaded;
     }
 
 }

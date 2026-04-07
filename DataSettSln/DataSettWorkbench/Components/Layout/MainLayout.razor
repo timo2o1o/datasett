@@ -2,7 +2,7 @@
 
 @using DataSett.ViewModel
 
-@inject WorkbenchMainViewmodel ViewModel
+@inject MainLayoutViewModel ViewModel
 
 @* Required *@
 <MudThemeProvider />
@@ -48,6 +48,14 @@
 @code {
     bool _drawerOpen = false;
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(ViewModel.ServerPath))
+        {
+            await LoadDataFromPath();
+        }
+    }
+
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
@@ -55,6 +63,6 @@
 
     private async Task LoadDataFromPath()
     {
-        await ViewModel.LoadDataFromPathAsync(ViewModel.ServerPath);
+        await ViewModel.LoadDataFromPathAsync();
     }
 }

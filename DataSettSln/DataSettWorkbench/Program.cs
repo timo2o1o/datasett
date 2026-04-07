@@ -16,6 +16,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddMudServices();
 builder.Services.AddSingleton<IMetaDataIOService, MetaDataIOService>();
 
+builder.Services.AddScoped<MainLayoutViewModel>();
 builder.Services.AddScoped<WorkbenchMainViewmodel>();
 builder.Services.AddScoped<BusinessDomainViewModel>();
 builder.Services.AddScoped<BusinessConceptViewModel>();

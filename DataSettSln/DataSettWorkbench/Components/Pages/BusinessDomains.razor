@@ -3,7 +3,7 @@
 @using DataSett.ViewModel
 
 @inject BusinessDomainViewModel ViewModel
-@inject WorkbenchMainViewmodel MainViewModel
+@inject MainLayoutViewModel MainLayoutViewModel
 @inject IJSRuntime JSRuntime
 
 @implements IDisposable
@@ -92,7 +92,7 @@
 @code {
     protected override void OnInitialized()
     {
-        MainViewModel.DataReloaded += OnDataReloaded;
+        MainLayoutViewModel.DataReloaded += OnDataReloaded;
         GetData();
     }
 
@@ -158,6 +158,6 @@
 
     public void Dispose()
     {
-        MainViewModel.DataReloaded -= OnDataReloaded;
+        MainLayoutViewModel.DataReloaded -= OnDataReloaded;
     }
 }

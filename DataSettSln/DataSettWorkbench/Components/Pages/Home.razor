@@ -5,6 +5,7 @@
 @using DataSettWorkbench.Components.Dialogs
 
 @inject WorkbenchMainViewmodel ViewModel
+@inject MainLayoutViewModel MainLayoutViewModel
 @inject IDialogService DialogService
 
 @implements IDisposable
@@ -139,18 +140,10 @@
 
     public HashSet<TreeItemData<object>> TreeItems { get; set; } = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        ViewModel.DataReloaded += OnDataReloaded;
-
-        if (ViewModel.SourceSystems.Count == 0)
-        {
-            await LoadDataFromPath();
-        }
-        else
-        {
-            RebuildTreeItems();
-        }
+        MainLayoutViewModel.DataReloaded += OnDataReloaded;
+        RebuildTreeItems();
     }
 
     private async void OnDataReloaded()
@@ -180,13 +173,6 @@
                     .ToList()
             })
             .ToHashSet();
-    }
-
-    private async Task LoadDataFromPath()
-    {
-        await ViewModel.LoadDataFromPathAsync(ViewModel.ServerPath);
-        RebuildTreeItems();
-        StateHasChanged();
     }
 
     private async Task OnTreeItemSelected(object selectedValue)
@@ -243,7 +229,7 @@
 
     public void Dispose()
     {
-        ViewModel.DataReloaded -= OnDataReloaded;
+        MainLayoutViewModel.DataReloaded -= OnDataReloaded;
     }
 
 }
