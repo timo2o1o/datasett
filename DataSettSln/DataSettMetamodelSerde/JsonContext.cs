@@ -342,6 +342,7 @@ public class JsonContext
 
         List<BusinessDomainDTO> businessDomainDTOs = new List<BusinessDomainDTO>();
         List<BusinessConceptDTO> businessConceptDTOs = new List<BusinessConceptDTO>();
+        List<BusinessConceptRelationDTO> businessConceptRelationDTOs = new List<BusinessConceptRelationDTO>();
 
         foreach (BusinessDomain currentBD in businessDomains)
         {
@@ -366,11 +367,17 @@ public class JsonContext
                 await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, $"BusinessConceptMappings_{currentBD.Name}_{currentBC.Name}.json"), bcmCollection);
             }
 
+            foreach (BusinessConceptRelation currentBCR in currentBD.BusinessConceptRelations)
+            {
+                BusinessConceptRelationDTO bcrDto = BusinessConceptRelation.ToDTO(currentBCR, dto.BusinessDomainId ?? string.Empty);
+                businessConceptRelationDTOs.Add(bcrDto);
+            }
+
         }
 
         await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, "BusinessDomains.json"), businessDomainDTOs);
         await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, "BusinessConcepts.json"), businessConceptDTOs);
-        //TODO: Write BusinessConceptRelations as well once we have them in our domain model
+        await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, "BusinessConceptRelations.json"), businessConceptRelationDTOs);
 
     }
 
