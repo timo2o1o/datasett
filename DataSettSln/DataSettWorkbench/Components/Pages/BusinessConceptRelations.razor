@@ -192,9 +192,9 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private void OnDataReloaded()
+    private async void OnDataReloaded()
     {
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
     private void OnLinkRemoved(BaseLinkModel link)

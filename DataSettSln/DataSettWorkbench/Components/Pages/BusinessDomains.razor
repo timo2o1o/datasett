@@ -96,9 +96,9 @@
         GetData();
     }
 
-    private void OnDataReloaded()
+    private async void OnDataReloaded()
     {
-        InvokeAsync(() =>
+        await InvokeAsync(() =>
         {
             GetData();
         });
