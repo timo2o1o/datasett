@@ -51,10 +51,15 @@ namespace DataSett.ViewModel
 
         /// <summary>
         /// Registers a callback that performs the actual save operation.
+        /// Only one handler can be registered at a time.
         /// Called by WorkbenchMainViewmodel to provide its save logic.
         /// </summary>
         public void RegisterSaveHandler(Func<Task> handler)
         {
+            if (_saveHandler != null)
+            {
+                throw new InvalidOperationException("A save handler has already been registered.");
+            }
             _saveHandler = handler;
         }
 

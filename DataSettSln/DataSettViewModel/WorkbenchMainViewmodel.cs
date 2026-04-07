@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DataSett.ViewModel
 {
-    public class WorkbenchMainViewmodel : INotifyPropertyChanged
+    public class WorkbenchMainViewmodel : INotifyPropertyChanged, IDisposable
     {
         private readonly MainLayoutViewModel _mainLayoutViewModel;
 
@@ -170,6 +170,11 @@ namespace DataSett.ViewModel
             var newDomain = new BusinessDomain { Name = name };
             _businessDomains.Add(newDomain);
             return newDomain;
+        }
+
+        public void Dispose()
+        {
+            _mainLayoutViewModel.DataReloaded -= RefreshData;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
