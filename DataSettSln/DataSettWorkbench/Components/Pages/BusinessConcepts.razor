@@ -4,7 +4,10 @@
 @using DataSettWorkbench.Components.Dialogs
 
 @inject BusinessConceptViewModel ViewModel
+@inject MainLayoutViewModel MainLayoutViewModel
 @inject IDialogService DialogService
+
+@implements IDisposable
 
 <PageTitle>Business Concept Management</PageTitle>
 
@@ -102,7 +105,16 @@
 
     protected override void OnInitialized()
     {
+        MainLayoutViewModel.DataReloaded += OnDataReloaded;
         GetData();
+    }
+
+    private async void OnDataReloaded()
+    {
+        await InvokeAsync(() =>
+        {
+            GetData();
+        });
     }
 
     private void GetData()
@@ -133,6 +145,11 @@
     {
         ViewModel.RemoveKeyPartFromSelectedConcept(keyPart);
         StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        MainLayoutViewModel.DataReloaded -= OnDataReloaded;
     }
 
 }

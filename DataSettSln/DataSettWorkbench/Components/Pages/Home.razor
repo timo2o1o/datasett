@@ -5,7 +5,10 @@
 @using DataSettWorkbench.Components.Dialogs
 
 @inject WorkbenchMainViewmodel ViewModel
+@inject MainLayoutViewModel MainLayoutViewModel
 @inject IDialogService DialogService
+
+@implements IDisposable
 
 <PageTitle>DataSett Workbench</PageTitle>
 
@@ -16,34 +19,6 @@
 
 <MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
     <MudGrid>
-        <!-- TextField nimmt die gesamte Breite ein und ist oben -->
-        <MudItem xs="12">
-            <MudPaper Elevation="2" Class="pa-4">
-                <MudTextField @bind-Value="ViewModel.ServerPath" 
-                              Label="Server Path" 
-                              Variant="Variant.Outlined" 
-                              Adornment="Adornment.End" 
-                              AdornmentIcon="@Icons.Material.Filled.Folder"
-                              AdornmentColor="Color.Primary"
-                              HelperText="Choose your repository path"
-                              Immediate="false"/>
-                <MudButton Variant="Variant.Filled" 
-                           Color="Color.Primary" 
-                           StartIcon="@Icons.Material.Filled.Upload"
-                           OnClick="LoadDataFromPath"
-                           Class="mt-2">
-                    Refresh
-                </MudButton>
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Success"
-                           StartIcon="@Icons.Material.Filled.Save"
-                           OnClick="@(() => ViewModel.SaveChangesAsync())"
-                           Class="mt-2">
-                    Save Changes
-                </MudButton>
-            </MudPaper>
-        </MudItem>
-        
         <!-- TreeView nimmt 25% der Breite (2 von 12 Spalten) -->
         <MudItem xs="12" sm="2">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px; overflow-y: auto;">
@@ -165,17 +140,23 @@
 
     public HashSet<TreeItemData<object>> TreeItems { get; set; } = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        if (ViewModel.SourceSystems.Count == 0)
-        {
-            await LoadDataFromPath();
-        }
+        MainLayoutViewModel.DataReloaded += OnDataReloaded;
+        RebuildTreeItems();
     }
 
-    private async Task LoadDataFromPath()
+    private async void OnDataReloaded()
     {
-        await ViewModel.LoadDataFromPathAsync(ViewModel.ServerPath);
+        await InvokeAsync(() =>
+        {
+            RebuildTreeItems();
+            StateHasChanged();
+        });
+    }
+
+    private void RebuildTreeItems()
+    {
         TreeItems = ViewModel.SourceSystems
             .Select(ss => new TreeItemData<object>
             {
@@ -192,7 +173,6 @@
                     .ToList()
             })
             .ToHashSet();
-        StateHasChanged();
     }
 
     private async Task OnTreeItemSelected(object selectedValue)
@@ -245,6 +225,11 @@
                 StateHasChanged();
             }
         }
+    }
+
+    public void Dispose()
+    {
+        MainLayoutViewModel.DataReloaded -= OnDataReloaded;
     }
 
 }

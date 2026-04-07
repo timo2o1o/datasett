@@ -3,7 +3,10 @@
 @using DataSett.ViewModel
 
 @inject BusinessDomainViewModel ViewModel
+@inject MainLayoutViewModel MainLayoutViewModel
 @inject IJSRuntime JSRuntime
+
+@implements IDisposable
 
 <PageTitle>Business Domain Management</PageTitle>
 
@@ -89,7 +92,16 @@
 @code {
     protected override void OnInitialized()
     {
+        MainLayoutViewModel.DataReloaded += OnDataReloaded;
         GetData();
+    }
+
+    private async void OnDataReloaded()
+    {
+        await InvokeAsync(() =>
+        {
+            GetData();
+        });
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -142,5 +154,10 @@
         }
 
         await JSRuntime.InvokeVoidAsync("updateCytoscapeGraph", nodes, edges);
+    }
+
+    public void Dispose()
+    {
+        MainLayoutViewModel.DataReloaded -= OnDataReloaded;
     }
 }
