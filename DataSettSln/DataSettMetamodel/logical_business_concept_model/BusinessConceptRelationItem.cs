@@ -39,7 +39,13 @@ namespace DataSett.Metamodel
             string? relatedBusinessConceptId = null;
             if (item.RelatedBusinessConcept != null)
             {
-                relatedBusinessConceptId = $"{item.RelatedBusinessConcept.ParentBusinessDomain?.Name}.{item.RelatedBusinessConcept.Name}";
+                string? parentBusinessDomainName = item.RelatedBusinessConcept.ParentBusinessDomain?.Name;
+                string? businessConceptName = item.RelatedBusinessConcept.Name;
+
+                if (!string.IsNullOrWhiteSpace(parentBusinessDomainName) && !string.IsNullOrWhiteSpace(businessConceptName))
+                {
+                    relatedBusinessConceptId = $"{parentBusinessDomainName}.{businessConceptName}";
+                }
             }
 
             return new BusinessConceptRelationItemDTO
