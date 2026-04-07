@@ -43,21 +43,32 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
 
     /// <summary>
     /// Promotes this derived (unpersisted) display item to a persisted state
-    /// by creating a <see cref="BusinessConceptRelation"/> domain object.
+    /// by creating a <see cref="BusinessConceptRelation"/> domain object and
+    /// adding it to the parent <see cref="BusinessDomain"/>'s collection so
+    /// it is included during serialization.
     /// </summary>
     public void Persist(string? relationName)
     {
         if (IsPersisted) return;
 
+        // Determine the parent domain from the first related concept.
+        var parentDomain = _businessConceptRelationItems
+            .Select(item => item.RelatedBusinessConcept?.ParentBusinessDomain)
+            .FirstOrDefault(d => d != null);
+
         var relation = new BusinessConceptRelation
         {
-            Name = relationName
+            Name = relationName,
+            ParentBusinessDomain = parentDomain
         };
 
         foreach (var item in _businessConceptRelationItems)
         {
             relation.RelatedConcepts.Add(item);
         }
+
+        // Add to the domain so WriteLBCMAsync picks it up.
+        parentDomain?.BusinessConceptRelations.Add(relation);
 
         _existingItem = relation;
         _relationName = relationName;
@@ -75,6 +86,14 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
 
     public override void ApplyChanges()
     {
-        throw new NotImplementedException();
+        if (_existingItem == null) return;
+
+        _existingItem.Name = _relationName;
+
+        _existingItem.RelatedConcepts.Clear();
+        foreach (var item in _businessConceptRelationItems)
+        {
+            _existingItem.RelatedConcepts.Add(item);
+        }
     }
 }
