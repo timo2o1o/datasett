@@ -35,8 +35,6 @@ namespace DataSett.ViewModel
             // Register save handler so MainLayout's save button delegates to us
             _mainLayoutViewModel.RegisterSaveHandler(SaveChangesAsync);
 
-            // Populate collections from IO service if data was already loaded
-            RefreshData();
         }
 
         private IMetaDataIOService MetaDataIOService { get; set; }
@@ -121,6 +119,7 @@ namespace DataSett.ViewModel
         /// </summary>
         private void RefreshData()
         {
+
             SourceSystems.Clear();
             foreach (SourceSystem currentSourceSystem in MetaDataIOService.GetSourceSystems())
             {

@@ -120,12 +120,7 @@
         foreach (BusinessConceptRelationDisplayitem businessConceptRelationDisplayItem in ViewModel.BusinessConceptRelations)
         {
             // Add a diamond-shaped node for each relation
-            var diamondNode = Diagram.Nodes.Add(new DiamondNodeModel()
-            {
-                RelationName = businessConceptRelationDisplayItem.RelationName,
-                IsPersisted = businessConceptRelationDisplayItem.IsPersisted,
-                DisplayItem = businessConceptRelationDisplayItem
-            });
+            var diamondNode = Diagram.Nodes.Add(new DiamondNodeModel(businessConceptRelationDisplayItem));
 
             // Link the diamond to each related BusinessConcept node
             foreach (BusinessConceptRelationItem relationItem in businessConceptRelationDisplayItem.BusinessConceptRelationItems)
@@ -138,7 +133,6 @@
                 var targetAnchor = new ShapeIntersectionAnchor(targetNode);
                 Diagram.Links.Add(new RelationLinkModel(
                     sourceAnchor, targetAnchor,
-                    businessConceptRelationDisplayItem.IsPersisted,
                     businessConceptRelationDisplayItem,
                     relationItem));
             }
@@ -156,24 +150,23 @@
     private void PersistSelectedRelation()
     {
         // Delegate domain mutation to the ViewModel
-        var persisted = ViewModel.PersistSelectedRelations();
+        IEnumerable<BusinessConceptRelationDisplayitem> persisted = ViewModel.PersistSelectedRelations();
 
         // Update diagram visuals for each newly persisted relation
-        foreach (var displayItem in persisted)
+        foreach (BusinessConceptRelationDisplayitem currentDI in persisted)
         {
             var diamondNode = Diagram.Nodes
                 .OfType<DiamondNodeModel>()
-                .FirstOrDefault(n => n.DisplayItem == displayItem);
+                .FirstOrDefault(n => n.ParentDisplayItem == currentDI);
 
-            if (diamondNode is null) continue;
-
-            diamondNode.IsPersisted = true;
-            diamondNode.Refresh();
-
-            foreach (var link in diamondNode.Links.OfType<RelationLinkModel>())
+            if (diamondNode is not null)
             {
-                link.IsPersisted = true;
-                link.Refresh();
+                diamondNode.Refresh();
+
+                foreach (var link in diamondNode.Links.OfType<RelationLinkModel>())
+                {
+                    link.Refresh();
+                }
             }
         }
 
@@ -182,14 +175,19 @@
 
     private void OnSelectionChanged(SelectableModel model)
     {
-        // Sync the diagram selection into the ViewModel
-        var selectedDisplayItems = Diagram.GetSelectedModels()
-            .OfType<DiamondNodeModel>()
-            .Where(n => n.DisplayItem is not null)
-            .Select(n => n.DisplayItem!);
 
-        ViewModel.UpdateSelection(selectedDisplayItems);
-        InvokeAsync(StateHasChanged);
+        if (model is IBusinessConceptRelationDisplayitemNode displayitemNode)
+        {
+            BusinessConceptRelationDisplayitem? selectedDI = displayitemNode.ParentDisplayItem;
+
+            if (selectedDI is not null)
+            {
+                ViewModel.UpdateSelection([selectedDI]);
+                InvokeAsync(StateHasChanged);
+            }
+            
+        }
+
     }
 
     private async void OnDataReloaded()
@@ -199,9 +197,11 @@
 
     private void OnLinkRemoved(BaseLinkModel link)
     {
-        if (link is RelationLinkModel relationLink)
+        if (link is RelationLinkModel relationLink && 
+            relationLink.ParentDisplayItem != null &&
+            relationLink.ParentRelationItem != null)
         {
-            ViewModel.RemoveRelationItem(relationLink.ParentDisplayItem, relationLink.RelationItem);
+            ViewModel.RemoveRelationItem(relationLink.ParentDisplayItem, relationLink.ParentRelationItem);
         }
     }
 

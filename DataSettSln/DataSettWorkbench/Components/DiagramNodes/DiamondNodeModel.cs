@@ -4,13 +4,31 @@ using DataSett.ViewModel.DisplayItems;
 
 namespace DataSettWorkbench.Components.DiagramNodes;
 
-public class DiamondNodeModel : NodeModel
+public class DiamondNodeModel : NodeModel, IBusinessConceptRelationDisplayitemNode
 {
-    public DiamondNodeModel(Point? position = null) : base(position)
+    public DiamondNodeModel(BusinessConceptRelationDisplayitem displayItem, Point? position = null) : base(position)
     {
+        ParentDisplayItem = displayItem;
     }
 
-    public string? RelationName { get; set; }
-    public bool IsPersisted { get; set; }
-    public BusinessConceptRelationDisplayitem? DisplayItem { get; set; }
+    public string? RelationName {
+        get
+        {
+            return ParentDisplayItem.RelationName;
+        }
+        set
+        {
+            ParentDisplayItem.RelationName = value;
+        }
+     }
+
+    public bool IsPersisted
+    {
+        get
+        {
+            return ParentDisplayItem.IsPersisted;
+        }
+    }
+
+    public BusinessConceptRelationDisplayitem ParentDisplayItem { get; set; }
 }

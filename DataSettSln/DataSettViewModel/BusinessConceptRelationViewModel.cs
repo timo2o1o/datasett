@@ -137,18 +137,17 @@ namespace DataSett.ViewModel
         /// to domain objects. Returns the display items that were persisted so
         /// the view can update the corresponding diagram visuals.
         /// </summary>
-        public IReadOnlyList<BusinessConceptRelationDisplayitem> PersistSelectedRelations()
+        public IEnumerable<BusinessConceptRelationDisplayitem> PersistSelectedRelations()
         {
-            var toPersist = _selectedRelations
-                .Where(r => !r.IsPersisted)
-                .ToList();
+            IList<BusinessConceptRelationDisplayitem> toPersist = _selectedRelations.Where(r => !r.IsPersisted).ToList();
 
-            foreach (var item in toPersist)
+            foreach (BusinessConceptRelationDisplayitem item in toPersist)
             {
-                item.Persist(item.RelationName);
+                item.Persist();
             }
 
             OnPropertyChanged(nameof(CanPersistSelection));
+
             return toPersist;
         }
 

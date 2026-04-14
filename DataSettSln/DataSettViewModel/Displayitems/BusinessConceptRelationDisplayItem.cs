@@ -43,26 +43,43 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
 
     /// <summary>
     /// Promotes this derived (unpersisted) display item to a persisted state
-    /// by creating a <see cref="BusinessConceptRelation"/> domain object.
+    /// by creating a <see cref="BusinessConceptRelation"/> domain object and
+    /// adding it to the parent <see cref="BusinessDomain"/>'s collection so
+    /// it is included during serialization.
     /// </summary>
-    public void Persist(string? relationName)
+    public void Persist()
     {
-        if (IsPersisted) return;
 
-        var relation = new BusinessConceptRelation
+        if (!IsPersisted)
         {
-            Name = relationName
-        };
+            
+            // Determine the parent domain from the first related concept.
+            var parentDomain = _businessConceptRelationItems
+                .Select(item => item.RelatedBusinessConcept?.ParentBusinessDomain)
+                .FirstOrDefault(d => d != null)
+                ?? throw new InvalidOperationException(
+                    "Cannot persist a relation when none of the related concepts belong to a business domain.");
 
-        foreach (var item in _businessConceptRelationItems)
-        {
-            relation.RelatedConcepts.Add(item);
+            var relation = new BusinessConceptRelation
+            {
+                Name = _relationName,
+                ParentBusinessDomain = parentDomain
+            };
+
+            foreach (var item in _businessConceptRelationItems)
+            {
+                relation.RelatedConcepts.Add(item);
+            }
+
+            // Add to the domain so WriteLBCMAsync picks it up.
+            parentDomain.BusinessConceptRelations.Add(relation);
+
+            _existingItem = relation;
+            OnPropertyChanged(nameof(IsPersisted));
+            OnPropertyChanged(nameof(RelationName));
+
         }
 
-        _existingItem = relation;
-        _relationName = relationName;
-        OnPropertyChanged(nameof(IsPersisted));
-        OnPropertyChanged(nameof(RelationName));
     }
 
     public override bool IsDirty
@@ -75,6 +92,14 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
 
     public override void ApplyChanges()
     {
-        throw new NotImplementedException();
+        if (_existingItem == null) return;
+
+        _existingItem.Name = _relationName;
+
+        _existingItem.RelatedConcepts.Clear();
+        foreach (var item in _businessConceptRelationItems)
+        {
+            _existingItem.RelatedConcepts.Add(item);
+        }
     }
 }

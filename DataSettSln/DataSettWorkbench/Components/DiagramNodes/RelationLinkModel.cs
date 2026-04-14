@@ -5,19 +5,17 @@ using DataSett.ViewModel.DisplayItems;
 
 namespace DataSettWorkbench.Components.DiagramNodes;
 
-public class RelationLinkModel : LinkModel
+public class RelationLinkModel : LinkModel, IBusinessConceptRelationDisplayitemNode
 {
-    public RelationLinkModel(Anchor source, Anchor target, bool isPersisted,
-        BusinessConceptRelationDisplayitem parentDisplayItem,
+    public RelationLinkModel(Anchor source, Anchor target, BusinessConceptRelationDisplayitem parentDisplayItem,
         BusinessConceptRelationItem relationItem)
         : base(source, target)
     {
-        IsPersisted = isPersisted;
         ParentDisplayItem = parentDisplayItem;
-        RelationItem = relationItem;
+        ParentRelationItem = relationItem;
     }
 
-    public bool IsPersisted { get; set; }
+    public bool IsPersisted => ParentDisplayItem.IsPersisted;
     public BusinessConceptRelationDisplayitem ParentDisplayItem { get; }
-    public BusinessConceptRelationItem RelationItem { get; }
+    public BusinessConceptRelationItem ParentRelationItem { get; }
 }
