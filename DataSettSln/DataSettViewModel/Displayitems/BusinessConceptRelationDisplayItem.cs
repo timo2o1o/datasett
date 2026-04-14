@@ -47,35 +47,39 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
     /// adding it to the parent <see cref="BusinessDomain"/>'s collection so
     /// it is included during serialization.
     /// </summary>
-    public void Persist(string? relationName)
+    public void Persist()
     {
-        if (IsPersisted) return;
 
-        // Determine the parent domain from the first related concept.
-        var parentDomain = _businessConceptRelationItems
-            .Select(item => item.RelatedBusinessConcept?.ParentBusinessDomain)
-            .FirstOrDefault(d => d != null)
-            ?? throw new InvalidOperationException(
-                "Cannot persist a relation when none of the related concepts belong to a business domain.");
-
-        var relation = new BusinessConceptRelation
+        if (!IsPersisted)
         {
-            Name = relationName,
-            ParentBusinessDomain = parentDomain
-        };
+            
+            // Determine the parent domain from the first related concept.
+            var parentDomain = _businessConceptRelationItems
+                .Select(item => item.RelatedBusinessConcept?.ParentBusinessDomain)
+                .FirstOrDefault(d => d != null)
+                ?? throw new InvalidOperationException(
+                    "Cannot persist a relation when none of the related concepts belong to a business domain.");
 
-        foreach (var item in _businessConceptRelationItems)
-        {
-            relation.RelatedConcepts.Add(item);
+            var relation = new BusinessConceptRelation
+            {
+                Name = _relationName,
+                ParentBusinessDomain = parentDomain
+            };
+
+            foreach (var item in _businessConceptRelationItems)
+            {
+                relation.RelatedConcepts.Add(item);
+            }
+
+            // Add to the domain so WriteLBCMAsync picks it up.
+            parentDomain.BusinessConceptRelations.Add(relation);
+
+            _existingItem = relation;
+            OnPropertyChanged(nameof(IsPersisted));
+            OnPropertyChanged(nameof(RelationName));
+
         }
 
-        // Add to the domain so WriteLBCMAsync picks it up.
-        parentDomain.BusinessConceptRelations.Add(relation);
-
-        _existingItem = relation;
-        _relationName = relationName;
-        OnPropertyChanged(nameof(IsPersisted));
-        OnPropertyChanged(nameof(RelationName));
     }
 
     public override bool IsDirty

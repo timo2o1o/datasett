@@ -39,6 +39,7 @@ public class JsonContext
 
     // Some private fields to cache deserializing information:
     private readonly IDictionary<string, SourceAttribute> _sourceAttributeCache;
+    private IList<BusinessDomain>? _cachedBusinessDomains;
 
     private IDictionary<string, SourceAttribute> SourceAttributeCache => _sourceAttributeCache;
 
@@ -65,6 +66,8 @@ public class JsonContext
         _businessConceptDTOs.Clear();
         _businessConceptRelationDTOs.Clear();
         _conceptMappingDTOs.Clear();
+
+        _cachedBusinessDomains = null;
 
         if (Directory.Exists(repositoryPath))
         {
@@ -284,55 +287,63 @@ public class JsonContext
 
     public IEnumerable<BusinessDomain> GetBusinessDomains()
     {
-        
-        IList<BusinessDomain> businessDomains = new List<BusinessDomain>();
-        IDictionary<string, BusinessConcept> businessConceptCache = new Dictionary<string, BusinessConcept>();
-
-        foreach (BusinessDomainDTO dto in BusinessDomainDTOs)
+        if (_cachedBusinessDomains != null)
         {
-            if (!string.IsNullOrEmpty(dto.Name))
-            {
-                // Watch out: List of business domains gets updated within the method!
-                _ = CreateBusinessDomainFromDTO(dto, businessDomains);
-            }
+            return _cachedBusinessDomains;
         }
-
-        foreach (BusinessDomain currentBusinessDomain in businessDomains)
-        {
-
-            foreach (BusinessConceptDTO currentBCDTO in BusinessConceptDTOs)
-            {
-
-                if (currentBCDTO.BusinessDomainId == currentBusinessDomain.Name)
-                {
-                    BusinessConcept businessConcept = BusinessConcept.FromDTO(currentBCDTO, currentBusinessDomain);
-
-                    businessConcept.BusinessConceptMappings = GetMappingsOfBusinessConceptFromDTO(currentBCDTO.BusinessConceptId, businessConcept).ToList();
-
-                    currentBusinessDomain.BusinessConcepts.Add(businessConcept);
-
-                    businessConceptCache.Add(currentBCDTO.BusinessConceptId, businessConcept);
-                }
-
-            }
-
-        }
-
-        // We need a complete list of all business concepts in order to create the BCRelations afterwards.
-        // That's why we iterate over the business domains twice:
-        foreach (BusinessDomain currentBusinessDomain in businessDomains)
+        else
         { 
-            foreach (BusinessConceptRelationDTO currentBCRDTO in BusinessConceptRelationDTOs)
+
+            IList<BusinessDomain> businessDomains = new List<BusinessDomain>();
+            IDictionary<string, BusinessConcept> businessConceptCache = new Dictionary<string, BusinessConcept>();
+
+            foreach (BusinessDomainDTO dto in BusinessDomainDTOs)
             {
-                if (currentBCRDTO.BusinessDomainId == currentBusinessDomain.Name)
+                if (!string.IsNullOrEmpty(dto.Name))
                 {
-                    BusinessConceptRelation businessConceptRelation = BusinessConceptRelation.FromDTO(currentBCRDTO, currentBusinessDomain, businessConceptCache);
-                    currentBusinessDomain.BusinessConceptRelations.Add(businessConceptRelation);
+                    // Watch out: List of business domains gets updated within the method!
+                    _ = CreateBusinessDomainFromDTO(dto, businessDomains);
                 }
             }
-        }
 
-        return businessDomains;
+            foreach (BusinessDomain currentBusinessDomain in businessDomains)
+            {
+
+                foreach (BusinessConceptDTO currentBCDTO in BusinessConceptDTOs)
+                {
+
+                    if (currentBCDTO.BusinessDomainId == currentBusinessDomain.Name)
+                    {
+                        BusinessConcept businessConcept = BusinessConcept.FromDTO(currentBCDTO, currentBusinessDomain);
+
+                        businessConcept.BusinessConceptMappings = GetMappingsOfBusinessConceptFromDTO(currentBCDTO.BusinessConceptId, businessConcept).ToList();
+
+                        currentBusinessDomain.BusinessConcepts.Add(businessConcept);
+
+                        businessConceptCache.Add(currentBCDTO.BusinessConceptId, businessConcept);
+                    }
+
+                }
+
+            }
+
+            // We need a complete list of all business concepts in order to create the BCRelations afterwards.
+            // That's why we iterate over the business domains twice:
+            foreach (BusinessDomain currentBusinessDomain in businessDomains)
+            { 
+                foreach (BusinessConceptRelationDTO currentBCRDTO in BusinessConceptRelationDTOs)
+                {
+                    if (currentBCRDTO.BusinessDomainId == currentBusinessDomain.Name)
+                    {
+                        BusinessConceptRelation businessConceptRelation = BusinessConceptRelation.FromDTO(currentBCRDTO, currentBusinessDomain, businessConceptCache);
+                        currentBusinessDomain.BusinessConceptRelations.Add(businessConceptRelation);
+                    }
+                }
+            }
+
+            _cachedBusinessDomains = businessDomains;
+            return businessDomains;
+        }
     }
 
     public async Task WriteLBCMAsync(string repositoryPath, IEnumerable<BusinessDomain> businessDomains)
