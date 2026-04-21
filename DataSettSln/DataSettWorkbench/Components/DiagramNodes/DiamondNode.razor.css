@@ -1,5 +1,5 @@
 .diamond-node {
-    --diamond-size: 80px; /* fallback; overridden by inline style */
+    --diamond-size: 80px;
     width: var(--diamond-size);
     height: var(--diamond-size);
     transform: rotate(45deg);

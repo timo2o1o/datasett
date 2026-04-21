@@ -110,12 +110,9 @@
 
         foreach (BusinessConcept currentBC in ViewModel.BusinessConcepts)
         {
-            var titleLen = currentBC.Name?.Length ?? 0;
-            var nodeWidth = Math.Max(80, titleLen * 9 + 24);
             var node = Diagram.Nodes.Add(new NodeModel()
             {
-                Title = currentBC.Name,
-                Size = new Blazor.Diagrams.Core.Geometry.Size(nodeWidth, 40)
+                Title = currentBC.Name
             });
             node.AddPort(PortAlignment.Right);
 
