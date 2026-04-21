@@ -225,6 +225,12 @@
             }
         }
 
+        // Refresh all links so they recalculate their paths after nodes moved
+        foreach (var link in Diagram.Links)
+        {
+            link.Refresh();
+        }
+
         StateHasChanged();
     }
 
