@@ -1,7 +1,8 @@
 @using Blazor.Diagrams.Core.Models
 @using DataSettWorkbench.Components.DiagramNodes
 
-<div class="diamond-node @(Node.IsPersisted ? "" : "diamond-node--unpersisted")">
+<div class="diamond-node @(Node.IsPersisted ? "" : "diamond-node--unpersisted")"
+     style="--diamond-size: @(Node.DiamondSize.ToString("F0", System.Globalization.CultureInfo.InvariantCulture))px">
     <input class="diamond-label"
            value="@Node.RelationName"
            @onchange="OnRelationNameChanged"
