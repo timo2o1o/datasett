@@ -37,6 +37,13 @@
                            StartIcon="@Icons.Material.Filled.Save">
                     Persist Relation
                 </MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Secondary"
+                           OnClick="AutoLayout"
+                           StartIcon="@Icons.Material.Filled.AutoAwesomeMosaic"
+                           Class="ml-2">
+                    Auto Layout
+                </MudButton>
                 <MudText Typo="Typo.caption" Class="ml-4">
                     Select a derived (dashed) relation and click Persist or press Space to persist it.
                 </MudText>
@@ -137,6 +144,88 @@
                     relationItem));
             }
         }
+    }
+
+    private void AutoLayout()
+    {
+        const double clusterPaddingX = 400;
+        const double clusterPaddingY = 320;
+        const double nodeRadius = 140;
+        const int clustersPerRow = 3;
+        const double startX = 80;
+        const double startY = 80;
+        const double diamondOffsetX = 30;
+        const double diamondOffsetY = 30;
+        const double bcNodeOffsetX = 60;
+        const double bcNodeOffsetY = 20;
+        const double unconnectedNodeSpacing = 180;
+
+        var diamondNodes = Diagram.Nodes.OfType<DiamondNodeModel>().ToList();
+        var positionedBcNodes = new HashSet<NodeModel>();
+
+        for (int clusterIndex = 0; clusterIndex < diamondNodes.Count; clusterIndex++)
+        {
+            var diamond = diamondNodes[clusterIndex];
+
+            // Find BC nodes connected to this diamond via relation links
+            var connectedBcNodes = Diagram.Links
+                .OfType<RelationLinkModel>()
+                .Where(l => l.ParentDisplayItem == diamond.ParentDisplayItem)
+                .Select(l =>
+                {
+                    var bcName = l.ParentRelationItem.RelatedBusinessConcept?.Name;
+                    return Diagram.Nodes.FirstOrDefault(n => n.Title == bcName && n is not DiamondNodeModel);
+                })
+                .Where(n => n is not null)
+                .Select(n => n!)
+                .Distinct()
+                .ToList();
+
+            int col = clusterIndex % clustersPerRow;
+            int row = clusterIndex / clustersPerRow;
+
+            double centerX = startX + col * clusterPaddingX + clusterPaddingX / 2;
+            double centerY = startY + row * clusterPaddingY + clusterPaddingY / 2;
+
+            // Place diamond node at the cluster center
+            diamond.Position = new Point(centerX - diamondOffsetX, centerY - diamondOffsetY);
+            diamond.Refresh();
+
+            // Arrange linked BC nodes in a circle around the diamond
+            int bcCount = connectedBcNodes.Count;
+            for (int i = 0; i < bcCount; i++)
+            {
+                var bcNode = connectedBcNodes[i];
+                if (positionedBcNodes.Contains(bcNode))
+                    continue;
+
+                double angle = (2 * Math.PI * i / Math.Max(bcCount, 1)) - Math.PI / 2;
+                double bcX = centerX + nodeRadius * Math.Cos(angle) - bcNodeOffsetX;
+                double bcY = centerY + nodeRadius * Math.Sin(angle) - bcNodeOffsetY;
+
+                bcNode.Position = new Point(bcX, bcY);
+                bcNode.Refresh();
+                positionedBcNodes.Add(bcNode);
+            }
+        }
+
+        // Place BC nodes not connected to any relation in a row below the clusters
+        var unconnectedNodes = Diagram.Nodes
+            .Where(n => n is not DiamondNodeModel && !positionedBcNodes.Contains(n))
+            .ToList();
+
+        if (unconnectedNodes.Any())
+        {
+            int totalRows = diamondNodes.Count == 0 ? 0 : (diamondNodes.Count + clustersPerRow - 1) / clustersPerRow;
+            double orphanY = startY + totalRows * clusterPaddingY + 50;
+            for (int i = 0; i < unconnectedNodes.Count; i++)
+            {
+                unconnectedNodes[i].Position = new Point(startX + i * unconnectedNodeSpacing, orphanY);
+                unconnectedNodes[i].Refresh();
+            }
+        }
+
+        StateHasChanged();
     }
 
     private void OnKeyDown(KeyboardEventArgs e)
