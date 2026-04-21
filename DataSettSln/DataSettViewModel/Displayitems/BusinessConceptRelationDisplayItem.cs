@@ -102,4 +102,10 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
             _existingItem.RelatedConcepts.Add(item);
         }
     }
+
+    public bool HasSameConcepts(IEnumerable<BusinessConcept?> concepts) =>
+        _businessConceptRelationItems
+            .Select(i => i.RelatedBusinessConcept)
+            .ToHashSet()
+            .SetEquals(concepts.Where(c => c is not null));
 }

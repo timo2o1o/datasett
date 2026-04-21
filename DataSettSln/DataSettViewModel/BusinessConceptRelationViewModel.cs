@@ -104,14 +104,16 @@ namespace DataSett.ViewModel
                 .SelectMany(d => d.BusinessConcepts)
                 .SelectMany(bc => bc.BusinessConceptMappings);
 
-            foreach (BusinessConceptRelationDisplayitem currentRDI in DeriveRelationsFromMappings(businessConceptMappings))
+            foreach (BusinessConceptRelationDisplayitem currentRDI in DeriveRelationsFromMappings(businessConceptMappings, _businessConceptRelations))
             {
                 _businessConceptRelations.Add(currentRDI);
             }
 
         }
 
-        private IEnumerable<BusinessConceptRelationDisplayitem> DeriveRelationsFromMappings(IEnumerable<BusinessConceptMapping> businessConceptMappings)
+        private IEnumerable<BusinessConceptRelationDisplayitem> DeriveRelationsFromMappings(
+            IEnumerable<BusinessConceptMapping> businessConceptMappings,
+            IEnumerable<BusinessConceptRelationDisplayitem> existingRelations)
         {
 
             // This method derives BusinessConceptRelations from the BusinessConceptMappings. The logic is as follows:
@@ -126,7 +128,8 @@ namespace DataSett.ViewModel
                     g.Select(m => m.ParentBusinessConcept)
                      .Where(bc => bc is not null)
                      .Select(bc => bc!)
-                     .Distinct()));
+                     .Distinct()))
+                .Where(derived => !existingRelations.Any(e => e.HasSameConcepts(derived.BusinessConceptRelationItems.Select(i => i.RelatedBusinessConcept))));
 
             return derivedRelations;
 
