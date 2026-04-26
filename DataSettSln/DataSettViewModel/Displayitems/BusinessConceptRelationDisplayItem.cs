@@ -75,8 +75,9 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
             parentDomain.BusinessConceptRelations.Add(relation);
 
             _existingItem = relation;
+            BusinessConceptRelationItems = relation.RelatedConcepts;
+            RelationName = _existingItem.Name;
             OnPropertyChanged(nameof(IsPersisted));
-            OnPropertyChanged(nameof(RelationName));
 
         }
 
