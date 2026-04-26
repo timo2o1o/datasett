@@ -83,11 +83,27 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
 
     }
 
+    private bool HasChangedRelationItems()
+    {
+        if (_existingItem == null)
+        {
+            return _businessConceptRelationItems.Count > 0;
+        }
+
+        return !_businessConceptRelationItems.SequenceEqual(_existingItem.RelatedConcepts);
+    }
+
     public override bool IsDirty
     {
         get
         {
-            return true;
+            if (_existingItem == null)
+            {
+                return !string.IsNullOrWhiteSpace(_relationName) || _businessConceptRelationItems.Count > 0;
+            }
+
+            return !string.Equals(_relationName, _existingItem.Name, StringComparison.Ordinal)
+                || HasChangedRelationItems();
         }
     }
 
