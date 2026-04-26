@@ -270,19 +270,16 @@
 
     private void OnSelectionChanged(SelectableModel model)
     {
+        var selectedDisplayItems = Diagram.GetSelectedModels()
+            .OfType<IBusinessConceptRelationDisplayitemNode>()
+            .Select(node => node.ParentDisplayItem)
+            .Where(displayItem => displayItem is not null)
+            .Cast<BusinessConceptRelationDisplayitem>()
+            .Distinct()
+            .ToList();
 
-        if (model is IBusinessConceptRelationDisplayitemNode displayitemNode)
-        {
-            BusinessConceptRelationDisplayitem? selectedDI = displayitemNode.ParentDisplayItem;
-
-            if (selectedDI is not null)
-            {
-                ViewModel.UpdateSelection([selectedDI]);
-                InvokeAsync(StateHasChanged);
-            }
-            
-        }
-
+        ViewModel.UpdateSelection(selectedDisplayItems);
+        InvokeAsync(StateHasChanged);
     }
 
     private async void OnDataReloaded()
