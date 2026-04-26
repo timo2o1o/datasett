@@ -48,9 +48,9 @@
 @code {
     bool _drawerOpen = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!string.IsNullOrWhiteSpace(ViewModel.ServerPath))
+        if (firstRender && !string.IsNullOrWhiteSpace(ViewModel.ServerPath))
         {
             await LoadDataFromPath();
         }
