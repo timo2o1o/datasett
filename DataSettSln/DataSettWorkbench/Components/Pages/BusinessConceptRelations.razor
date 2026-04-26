@@ -105,7 +105,7 @@
         // Track selection changes so the Persist button state updates
         Diagram.SelectionChanged += OnSelectionChanged;
 
-        // Build a lookup from BusinessConcept name to its diagram node
+        // Build a lookup from BusinessConcept composite key ("{domain}.{name}") to its diagram node
         var bcNodeMap = new Dictionary<string, NodeModel>();
 
         foreach (BusinessConcept currentBC in ViewModel.BusinessConcepts)
@@ -116,10 +116,7 @@
             });
             node.AddPort(PortAlignment.Right);
 
-            if (currentBC.Name is not null)
-            {
-                bcNodeMap[currentBC.Name] = node;
-            }
+            bcNodeMap[currentBC.ToString()] = node;
         }
 
         ViewModel.GetBusinessConceptRelationData();
@@ -132,8 +129,8 @@
             // Link the diamond to each related BusinessConcept node
             foreach (BusinessConceptRelationItem relationItem in businessConceptRelationDisplayItem.BusinessConceptRelationItems)
             {
-                var bcName = relationItem.RelatedBusinessConcept?.Name;
-                if (bcName is null || !bcNodeMap.TryGetValue(bcName, out var targetNode))
+                var bcKey = relationItem.RelatedBusinessConcept?.ToString();
+                if (bcKey is null || !bcNodeMap.TryGetValue(bcKey, out var targetNode))
                     continue;
 
                 var sourceAnchor = new ShapeIntersectionAnchor(diamondNode);
