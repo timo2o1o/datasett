@@ -1,0 +1,12 @@
+@using Blazor.Diagrams.Core.Models
+@using DataSettWorkbench.Components.DiagramNodes
+
+<div class="domain-node">
+    <div class="domain-node__name">@Node.Domain.Name</div>
+    <div class="domain-node__count">@(Node.Domain.BusinessConcepts.Count == 1 ? "1 concept" : $"{Node.Domain.BusinessConcepts.Count} concepts")</div>
+</div>
+
+@code {
+    [Parameter]
+    public DomainNodeModel Node { get; set; } = null!;
+}

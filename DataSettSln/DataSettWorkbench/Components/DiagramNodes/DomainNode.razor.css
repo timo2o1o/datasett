@@ -1,0 +1,20 @@
+.domain-node {
+    background-color: #0288d1;
+    color: white;
+    border-radius: 6px;
+    padding: 8px 12px;
+    min-width: 120px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.domain-node__name {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.domain-node__count {
+    font-size: 10px;
+    opacity: 0.85;
+    margin-top: 3px;
+}
