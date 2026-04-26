@@ -104,10 +104,22 @@ public class BusinessConceptMappingDisplayitem : DisplayitemBase<BusinessConcept
         return (Role == SourceAttributeRole.Descriptive);
     }
 
+    public bool IsKeyPartEnabled()
+    {
+        return ParentBusinessConcept != null && Role != SourceAttributeRole.Descriptive;
+    }
+
     public SourceAttributeRole Role
     {
         get => _role;
-        set => SetField(ref _role, value);
+        set
+        {
+            if (SetField(ref _role, value))
+            {
+                if (value == SourceAttributeRole.Descriptive)
+                    AssignedKeyPart = null;
+            }
+        }
     }
 
     public HistoryType HistoryType

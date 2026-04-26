@@ -76,7 +76,7 @@
                                     <MudSelect @bind-Value="context.Item.AssignedKeyPart"
                                                Margin="@Margin.Dense"
                                                Clearable="true"
-                                               Disabled="@(context.Item.ParentBusinessConcept == null)">
+                                               Disabled="@(!context.Item.IsKeyPartEnabled())">
                                         @foreach (var keyPart in context.Item.AvailableKeyParts)
                                         {
                                             <MudSelectItem Value="@(keyPart)">@keyPart.Name</MudSelectItem>
