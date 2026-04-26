@@ -47,27 +47,25 @@ namespace DataSett.ViewModel
             }
         }
 
-        private Func<Task>? _saveHandler;
+        private readonly List<Func<Task>> _saveHandlers = new();
 
         /// <summary>
-        /// Registers a callback that performs the actual save operation.
-        /// Only one handler can be registered at a time.
-        /// Called by WorkbenchMainViewmodel to provide its save logic.
+        /// Registers a callback that performs part of the save operation.
+        /// Multiple handlers can be registered so all active viewmodels can
+        /// contribute their pending changes before data is persisted.
         /// </summary>
         public void RegisterSaveHandler(Func<Task> handler)
         {
-            if (_saveHandler != null)
-            {
-                throw new InvalidOperationException("A save handler has already been registered.");
-            }
-            _saveHandler = handler;
+            ArgumentNullException.ThrowIfNull(handler);
+            _saveHandlers.Add(handler);
         }
 
         public async Task SaveChangesAsync()
         {
-            if (_saveHandler != null)
+            var handlers = _saveHandlers.ToArray();
+            foreach (var saveHandler in handlers)
             {
-                await _saveHandler();
+                await saveHandler();
             }
         }
 
