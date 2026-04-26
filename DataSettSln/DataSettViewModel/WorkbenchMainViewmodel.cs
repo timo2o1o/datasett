@@ -1,7 +1,6 @@
 ﻿using DataSett.Metamodel;
 using DataSett.ViewModel.Services;
-
-using Microsoft.Extensions.Options;
+using DataSett.ViewModel.DisplayItems;
 
 using System;
 using System.Collections.Generic;
@@ -15,18 +14,27 @@ using System.Threading.Tasks;
 
 namespace DataSett.ViewModel
 {
-    public class WorkbenchMainViewmodel : INotifyPropertyChanged
+    public class WorkbenchMainViewmodel : INotifyPropertyChanged, IDisposable
     {
-        public WorkbenchMainViewmodel(IMetaDataIOService metaDataIOService, IOptions<AppSettings> appSettings)
+        private readonly MainLayoutViewModel _mainLayoutViewModel;
+
+        public WorkbenchMainViewmodel(IMetaDataIOService metaDataIOService, MainLayoutViewModel mainLayoutViewModel)
         {
             MetaDataIOService = metaDataIOService;
+            _mainLayoutViewModel = mainLayoutViewModel;
 
             // Set standard values for properties:
             _sourceSystems = new ObservableCollection<SourceSystem>();
             _businessConcepts = new ObservableCollection<BusinessConcept>();
-            _serverPath = appSettings.Value.RepositoryPath ?? string.Empty;
             _businessDomains = new ObservableCollection<BusinessDomain>();
-            DisplayMappings = new ObservableCollection<MappingDisplayItem>();
+            DisplayMappings = new ObservableCollection<BusinessConceptMappingDisplayitem>();
+
+            // Subscribe to data reload events from the layout
+            _mainLayoutViewModel.DataReloaded += RefreshData;
+
+            // Register save handler so MainLayout's save button delegates to us
+            _mainLayoutViewModel.RegisterSaveHandler(SaveChangesAsync);
+
         }
 
         private IMetaDataIOService MetaDataIOService { get; set; }
@@ -71,8 +79,8 @@ namespace DataSett.ViewModel
         private ObservableCollection<BusinessDomain> _businessDomains;
         public ObservableCollection<BusinessDomain> BusinessDomains => _businessDomains;
 
-        private ObservableCollection<MappingDisplayItem> _displayMappings = new();
-        public ObservableCollection<MappingDisplayItem> DisplayMappings
+        private ObservableCollection<BusinessConceptMappingDisplayitem> _displayMappings = new();
+        public ObservableCollection<BusinessConceptMappingDisplayitem> DisplayMappings
         {
             get => _displayMappings;
             private set { _displayMappings = value; OnPropertyChanged(); }
@@ -87,7 +95,7 @@ namespace DataSett.ViewModel
         {
             if (SelectedSourceInterface?.SourceAttributes == null)
             {
-                DisplayMappings = new ObservableCollection<MappingDisplayItem>();
+                DisplayMappings = new ObservableCollection<BusinessConceptMappingDisplayitem>();
                 return;
             }
 
@@ -98,55 +106,38 @@ namespace DataSett.ViewModel
             {
                 var existing = allMappings.FirstOrDefault(m => m.SourceAttribute == sa);
                 return existing != null
-                    ? new MappingDisplayItem(existing)
-                    : new MappingDisplayItem(sa);
+                    ? new BusinessConceptMappingDisplayitem(existing)
+                    : new BusinessConceptMappingDisplayitem(sa);
             });
 
-            DisplayMappings = new ObservableCollection<MappingDisplayItem>(items);
+            DisplayMappings = new ObservableCollection<BusinessConceptMappingDisplayitem>(items);
         }
 
-        private string _serverPath;
-        public string ServerPath
-        {
-            get => _serverPath;
-            set
-            {
-                if (_serverPath != value)
-                {
-                    _serverPath = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public async Task LoadDataFromPathAsync(string path)
+        /// <summary>
+        /// Repopulates all collections from the IO service.
+        /// Called on construction and whenever the MainLayoutViewModel fires DataReloaded.
+        /// </summary>
+        private void RefreshData()
         {
 
-            if (!string.IsNullOrWhiteSpace(path))
+            SourceSystems.Clear();
+            foreach (SourceSystem currentSourceSystem in MetaDataIOService.GetSourceSystems())
             {
-                await MetaDataIOService.LoadDataAsync(path);
-
-                SourceSystems.Clear();
-                foreach (SourceSystem currentSourceSystem in MetaDataIOService.GetSourceSystems())
-                {
-                    SourceSystems.Add(currentSourceSystem);
-                }
-
-                BusinessDomains.Clear();
-                BusinessConcepts.Clear();
-
-                foreach (BusinessDomain currentBusinessDomain in MetaDataIOService.GetBusinessDomains())
-                {
-                    BusinessDomains.Add(currentBusinessDomain);
-
-                    foreach (BusinessConcept currentBusinessConcept in currentBusinessDomain.BusinessConcepts)
-                    {
-                        BusinessConcepts.Add(currentBusinessConcept);
-                    }
-                }
-
+                SourceSystems.Add(currentSourceSystem);
             }
 
+            BusinessDomains.Clear();
+            BusinessConcepts.Clear();
+
+            foreach (BusinessDomain currentBusinessDomain in MetaDataIOService.GetBusinessDomains())
+            {
+                BusinessDomains.Add(currentBusinessDomain);
+
+                foreach (BusinessConcept currentBusinessConcept in currentBusinessDomain.BusinessConcepts)
+                {
+                    BusinessConcepts.Add(currentBusinessConcept);
+                }
+            }
         }
 
         public async Task SaveChangesAsync()
@@ -156,9 +147,9 @@ namespace DataSett.ViewModel
                 item.ApplyChanges();
             }
 
-            if (!string.IsNullOrWhiteSpace(ServerPath))
+            if (!string.IsNullOrWhiteSpace(_mainLayoutViewModel.ServerPath))
             {
-                await MetaDataIOService.WriteDataAsync(ServerPath, BusinessDomains);
+                await MetaDataIOService.WriteDataAsync(_mainLayoutViewModel.ServerPath, BusinessDomains);
             }
 
         }
@@ -178,6 +169,11 @@ namespace DataSett.ViewModel
             var newDomain = new BusinessDomain { Name = name };
             _businessDomains.Add(newDomain);
             return newDomain;
+        }
+
+        public void Dispose()
+        {
+            _mainLayoutViewModel.DataReloaded -= RefreshData;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

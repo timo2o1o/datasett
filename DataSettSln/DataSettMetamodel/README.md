@@ -44,6 +44,7 @@ erDiagram
 
     BusinessConceptKeyPart |o--|{ BusinessConceptMapping : maps
     
+    BusinessDomain ||--|{ BusinessConceptRelation : contains
     BusinessConceptRelation ||--|{ BusinessConceptRelationItem : describes
     BusinessConceptRelationItem }o--|| BusinessConcept : relates
 

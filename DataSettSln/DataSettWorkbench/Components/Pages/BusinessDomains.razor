@@ -2,13 +2,25 @@
 @using DataSett.Metamodel
 @using DataSett.ViewModel
 
+@using Blazor.Diagrams
+@using Blazor.Diagrams.Core.Anchors
+@using Blazor.Diagrams.Core.Geometry
+@using Blazor.Diagrams.Core.Models
+@using Blazor.Diagrams.Core.PathGenerators
+@using Blazor.Diagrams.Core.Routers
+@using Blazor.Diagrams.Options
+@using Blazor.Diagrams.Components
+@using DataSettWorkbench.Components.DiagramNodes
+
 @inject BusinessDomainViewModel ViewModel
-@inject IJSRuntime JSRuntime
+@inject MainLayoutViewModel MainLayoutViewModel
+
+@implements IDisposable
 
 <PageTitle>Business Domain Management</PageTitle>
 
 <MudText Typo="Typo.h1" Align="Align.Center" GutterBottom="true">
-    <MudIcon Icon="@Icons.Material.Filled.Domain" Class="mr-2" Size="Size.Large" Style="font-size: 4rem;" />
+    <MudIcon Icon="@Icons.Material.Filled.Domain" Class="mr-2" Size="MudBlazor.Size.Large" Style="font-size: 4rem;" />
     Business Domain Management
 </MudText>
 
@@ -48,67 +60,136 @@
         <MudItem xs="12" md="6">
             <MudPaper Elevation="2" Class="pa-4" Style="height: 600px;">
                 <MudText Typo="Typo.h6" GutterBottom="true">Domain Hierarchy</MudText>
-                @if (ViewModel.SelectedBusinessDomain != null)
-                {
-                    <MudText Typo="Typo.subtitle2" Class="mb-4">
-                        Selected: <strong>@ViewModel.SelectedBusinessDomain.Name</strong>
-                    </MudText>
-                    @if (ViewModel.SelectedBusinessDomain.ParentBusinessDomain != null)
-                    {
-                        <MudText Typo="Typo.body2">
-                            Parent: @ViewModel.SelectedBusinessDomain.ParentBusinessDomain.Name
-                        </MudText>
-                    }
-                    @if (ViewModel.SelectedBusinessDomain.ChildBusinessDomains.Any())
-                    {
-                        <MudText Typo="Typo.body2" Class="mt-2">
-                            Children:
-                        </MudText>
-                        <MudList T="string" Dense="true">
-                            @foreach (var child in ViewModel.SelectedBusinessDomain.ChildBusinessDomains)
-                            {
-                                <MudListItem T="string">@child.Name</MudListItem>
-                            }
-                        </MudList>
-                    }
-                }
-                else
-                {
-                    <MudText Typo="Typo.subtitle1" Color="Color.Secondary">
-                        Select a business domain to view its details and hierarchy.
-                    </MudText>
-                }
-                
-                <!-- Graph visualization container -->
-                <div id="cy" style="width: 100%; height: 450px; border: 1px solid #ddd; margin-top: 16px;"></div>
+                <div class="diagram-container">
+                    <CascadingValue Value="Diagram" IsFixed="true">
+                        <DiagramCanvas></DiagramCanvas>
+                    </CascadingValue>
+                </div>
             </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
 
 @code {
+    private BlazorDiagram Diagram { get; set; } = null!;
+
     protected override void OnInitialized()
     {
-        GetData();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await InitializeCytoscape();
-        }
-        
-        if (ViewModel.BusinessDomains != null && ViewModel.BusinessDomains.Any())
-        {
-            await UpdateGraph();
-        }
-    }
-
-    private void GetData()
-    {
+        MainLayoutViewModel.DataReloaded += OnDataReloaded;
         ViewModel.GetBusinessDomainData();
-        StateHasChanged();
+        BuildDiagram();
+    }
+
+    private BlazorDiagram CreateDiagram()
+    {
+        var options = new BlazorDiagramOptions
+        {
+            Zoom = { Enabled = true },
+            Links =
+            {
+                DefaultRouter = new NormalRouter(),
+                DefaultPathGenerator = new StraightPathGenerator()
+            },
+        };
+        var diagram = new BlazorDiagram(options);
+        diagram.RegisterComponent<DomainNodeModel, DomainNode>();
+        return diagram;
+    }
+
+    private void BuildDiagram()
+    {
+        Diagram = CreateDiagram();
+
+        if (ViewModel.BusinessDomains == null || !ViewModel.BusinessDomains.Any())
+            return;
+
+        var nodeMap = new Dictionary<string, DomainNodeModel>();
+
+        foreach (var domain in ViewModel.BusinessDomains)
+        {
+            var node = Diagram.Nodes.Add(new DomainNodeModel(domain));
+            if (domain.Name is not null)
+                nodeMap[domain.Name] = node;
+        }
+
+        foreach (var domain in ViewModel.BusinessDomains)
+        {
+            if (domain.ParentBusinessDomain?.Name is string parentName &&
+                nodeMap.TryGetValue(parentName, out var parentNode) &&
+                domain.Name is not null &&
+                nodeMap.TryGetValue(domain.Name, out var childNode))
+            {
+                var sourceAnchor = new ShapeIntersectionAnchor(parentNode);
+                var targetAnchor = new ShapeIntersectionAnchor(childNode);
+                Diagram.Links.Add(new LinkModel(sourceAnchor, targetAnchor));
+            }
+        }
+
+        ApplyTreeLayout(nodeMap);
+    }
+
+    private void ApplyTreeLayout(Dictionary<string, DomainNodeModel> nodeMap)
+    {
+        const double nodeWidth = 140;
+        const double nodeHeight = 56;
+        const double horizontalGap = 30;
+        const double verticalGap = 60;
+
+        // Assign levels via BFS from root nodes
+        var levels = new Dictionary<string, int>();
+        var queue = new Queue<(string name, int level)>();
+
+        foreach (var domain in ViewModel.BusinessDomains.Where(d => d.ParentBusinessDomain == null))
+        {
+            if (domain.Name is not null)
+            {
+                levels[domain.Name] = 0;
+                queue.Enqueue((domain.Name, 0));
+            }
+        }
+
+        // Build children lookup for efficient BFS
+        var childrenLookup = ViewModel.BusinessDomains
+            .Where(d => d.ParentBusinessDomain?.Name is not null && d.Name is not null)
+            .GroupBy(d => d.ParentBusinessDomain!.Name!)
+            .ToDictionary(g => g.Key, g => g.Select(d => d.Name!).ToList());
+
+        while (queue.Count > 0)
+        {
+            var (name, level) = queue.Dequeue();
+            if (!childrenLookup.TryGetValue(name, out var children))
+                continue;
+            foreach (var childName in children)
+            {
+                if (!levels.ContainsKey(childName))
+                {
+                    levels[childName] = level + 1;
+                    queue.Enqueue((childName, level + 1));
+                }
+            }
+        }
+
+        // Group by level and position nodes
+        var nodesByLevel = levels
+            .GroupBy(kv => kv.Value)
+            .OrderBy(g => g.Key)
+            .ToDictionary(g => g.Key, g => g.Select(kv => kv.Key).ToList());
+
+        const double startX = 20;
+        const double startY = 20;
+
+        foreach (var (level, names) in nodesByLevel.OrderBy(kv => kv.Key))
+        {
+            double y = startY + level * (nodeHeight + verticalGap);
+            for (int i = 0; i < names.Count; i++)
+            {
+                if (nodeMap.TryGetValue(names[i], out var node))
+                {
+                    node.Position = new Point(startX + i * (nodeWidth + horizontalGap), y);
+                    node.Size = new Blazor.Diagrams.Core.Geometry.Size(nodeWidth, nodeHeight);
+                }
+            }
+        }
     }
 
     private void OnBusinessDomainSelected(BusinessDomain? selectedDomain)
@@ -117,30 +198,18 @@
         StateHasChanged();
     }
 
-    private async Task InitializeCytoscape()
+    private async void OnDataReloaded()
     {
-        await JSRuntime.InvokeVoidAsync("initializeCytoscape");
+        await InvokeAsync(() =>
+        {
+            ViewModel.GetBusinessDomainData();
+            BuildDiagram();
+            StateHasChanged();
+        });
     }
 
-    private async Task UpdateGraph()
+    public void Dispose()
     {
-        var nodes = new List<object>();
-        var edges = new List<object>();
-
-        foreach (var domain in ViewModel.BusinessDomains)
-        {
-            nodes.Add(new { id = domain.Name, label = domain.Name });
-            
-            if (domain.ParentBusinessDomain != null)
-            {
-                edges.Add(new 
-                { 
-                    source = domain.ParentBusinessDomain.Name, 
-                    target = domain.Name 
-                });
-            }
-        }
-
-        await JSRuntime.InvokeVoidAsync("updateCytoscapeGraph", nodes, edges);
+        MainLayoutViewModel.DataReloaded -= OnDataReloaded;
     }
 }

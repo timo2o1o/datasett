@@ -1,0 +1,313 @@
+@page "/businessconceptrelations"
+
+@using DataSett.Metamodel
+@using DataSett.ViewModel
+@using DataSett.ViewModel.DisplayItems
+
+@using Blazor.Diagrams;
+@using Blazor.Diagrams.Core.Anchors
+@using Blazor.Diagrams.Core.Geometry
+@using Blazor.Diagrams.Core.Models
+@using Blazor.Diagrams.Core.Models.Base
+@using Blazor.Diagrams.Core.PathGenerators;
+@using Blazor.Diagrams.Core.Routers;
+@using Blazor.Diagrams.Options;
+
+@using Blazor.Diagrams.Components
+@using DataSettWorkbench.Components.DiagramNodes
+
+@inject BusinessConceptRelationViewModel ViewModel
+@inject MainLayoutViewModel MainLayoutViewModel
+
+<PageTitle>Business Concept Relations</PageTitle>
+
+<MudText Typo="Typo.h1" Align="Align.Center" GutterBottom="true">
+    <MudIcon Icon="@Icons.Material.Filled.Link" Class="mr-2" Size="MudBlazor.Size.Large" Style="font-size: 4rem;" />
+    Business Concept Relations
+</MudText>
+
+<MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudToolBar Dense="true" Class="mb-2">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Disabled="@(!CanPersistSelection)"
+                           OnClick="PersistSelectedRelation"
+                           StartIcon="@Icons.Material.Filled.Save">
+                    Persist Relation
+                </MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Secondary"
+                           OnClick="AutoLayout"
+                           StartIcon="@Icons.Material.Filled.AutoAwesomeMosaic"
+                           Class="ml-2">
+                    Auto Layout
+                </MudButton>
+                <MudText Typo="Typo.caption" Class="ml-4">
+                    Select a derived (dashed) relation and click Persist or press Space to persist it.
+                </MudText>
+            </MudToolBar>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper>
+                <div class="diagram-container" tabindex="0" @onkeydown="OnKeyDown">
+                    <CascadingValue Value="Diagram" IsFixed="true">
+                        <DiagramCanvas></DiagramCanvas>
+                    </CascadingValue>
+                </div>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@implements IDisposable
+
+@code {
+
+    private BlazorDiagram Diagram { get; set; } = null!;
+
+    private bool CanPersistSelection => ViewModel.CanPersistSelection;
+
+    private BlazorDiagram InitializeDiagram()
+    {
+        var options = new BlazorDiagramOptions
+        {
+            AllowMultiSelection = true,
+            Zoom =
+            {
+                Enabled = false,
+            },
+            Links =
+            {
+                DefaultRouter = new NormalRouter(),
+                DefaultPathGenerator = new SmoothPathGenerator()
+            },
+        };
+        var diagram = new BlazorDiagram(options);
+        diagram.RegisterComponent<DiamondNodeModel, DiamondNode>();
+        diagram.RegisterComponent<RelationLinkModel, RelationLink>();
+        return diagram;
+    }
+
+    protected override void OnInitialized()
+    {
+        MainLayoutViewModel.DataReloaded += OnDataReloaded;
+
+        ViewModel.GetBusinessConceptData();
+
+        Diagram = InitializeDiagram();
+
+        // When a link is removed from the diagram, also remove the
+        // corresponding BusinessConceptRelationItem from its display item.
+        Diagram.Links.Removed += OnLinkRemoved;
+
+        // Track selection changes so the Persist button state updates
+        Diagram.SelectionChanged += OnSelectionChanged;
+
+        BuildDiagramNodes();
+    }
+
+    private void BuildDiagramNodes()
+    {
+        ViewModel.GetBusinessConceptRelationData();
+
+        // Build a lookup from BusinessConcept composite key ("{domain}.{name}") to its diagram node
+        var bcNodeMap = new Dictionary<string, NodeModel>();
+
+        foreach (BusinessConcept currentBC in ViewModel.BusinessConcepts)
+        {
+            var node = Diagram.Nodes.Add(new NodeModel()
+            {
+                Title = currentBC.Name
+            });
+            node.AddPort(PortAlignment.Right);
+
+            bcNodeMap[currentBC.ToString()] = node;
+        }
+
+        foreach (BusinessConceptRelationDisplayitem businessConceptRelationDisplayItem in ViewModel.BusinessConceptRelations)
+        {
+            // Add a diamond-shaped node for each relation
+            var diamondNode = Diagram.Nodes.Add(new DiamondNodeModel(businessConceptRelationDisplayItem));
+
+            // Link the diamond to each related BusinessConcept node
+            foreach (BusinessConceptRelationItem relationItem in businessConceptRelationDisplayItem.BusinessConceptRelationItems)
+            {
+                var bcKey = relationItem.RelatedBusinessConcept?.ToString();
+                if (bcKey is null || !bcNodeMap.TryGetValue(bcKey, out var targetNode))
+                    continue;
+
+                var sourceAnchor = new ShapeIntersectionAnchor(diamondNode);
+                var targetAnchor = new ShapeIntersectionAnchor(targetNode);
+                Diagram.Links.Add(new RelationLinkModel(
+                    sourceAnchor, targetAnchor,
+                    businessConceptRelationDisplayItem,
+                    relationItem));
+            }
+        }
+    }
+
+    private void AutoLayout()
+    {
+        const double clusterPaddingX = 400;
+        const double clusterPaddingY = 320;
+        const double nodeRadius = 140;
+        const int clustersPerRow = 3;
+        const double startX = 80;
+        const double startY = 80;
+        const double diamondOffsetX = 30;
+        const double diamondOffsetY = 30;
+        const double bcNodeOffsetX = 60;
+        const double bcNodeOffsetY = 20;
+        const double unconnectedNodeSpacing = 180;
+
+        var diamondNodes = Diagram.Nodes.OfType<DiamondNodeModel>().ToList();
+        var positionedBcNodes = new HashSet<NodeModel>();
+
+        for (int clusterIndex = 0; clusterIndex < diamondNodes.Count; clusterIndex++)
+        {
+            var diamond = diamondNodes[clusterIndex];
+
+            // Find BC nodes connected to this diamond via relation links.
+            // Derive the node directly from the link's target anchor to avoid
+            // ambiguous name lookups when concepts share a name across domains.
+            var connectedBcNodes = Diagram.Links
+                .OfType<RelationLinkModel>()
+                .Where(l => l.ParentDisplayItem == diamond.ParentDisplayItem)
+                .Select(l => (l.Target as ShapeIntersectionAnchor)?.Node)
+                .Where(n => n is not null)
+                .Select(n => n!)
+                .Distinct()
+                .ToList();
+
+            int col = clusterIndex % clustersPerRow;
+            int row = clusterIndex / clustersPerRow;
+
+            double centerX = startX + col * clusterPaddingX + clusterPaddingX / 2;
+            double centerY = startY + row * clusterPaddingY + clusterPaddingY / 2;
+
+            // Place diamond node at the cluster center
+            diamond.Position = new Point(centerX - diamondOffsetX, centerY - diamondOffsetY);
+            diamond.Refresh();
+
+            // Arrange linked BC nodes in a circle around the diamond
+            int bcCount = connectedBcNodes.Count;
+            for (int i = 0; i < bcCount; i++)
+            {
+                var bcNode = connectedBcNodes[i];
+                if (positionedBcNodes.Contains(bcNode))
+                    continue;
+
+                double angle = (2 * Math.PI * i / Math.Max(bcCount, 1)) - Math.PI / 2;
+                double bcX = centerX + nodeRadius * Math.Cos(angle) - bcNodeOffsetX;
+                double bcY = centerY + nodeRadius * Math.Sin(angle) - bcNodeOffsetY;
+
+                bcNode.Position = new Point(bcX, bcY);
+                bcNode.Refresh();
+                positionedBcNodes.Add(bcNode);
+            }
+        }
+
+        // Place BC nodes not connected to any relation in a row below the clusters
+        var unconnectedNodes = Diagram.Nodes
+            .Where(n => n is not DiamondNodeModel && !positionedBcNodes.Contains(n))
+            .ToList();
+
+        if (unconnectedNodes.Any())
+        {
+            int totalRows = diamondNodes.Count == 0 ? 0 : (diamondNodes.Count + clustersPerRow - 1) / clustersPerRow;
+            double orphanY = startY + totalRows * clusterPaddingY + 50;
+            for (int i = 0; i < unconnectedNodes.Count; i++)
+            {
+                unconnectedNodes[i].Position = new Point(startX + i * unconnectedNodeSpacing, orphanY);
+                unconnectedNodes[i].Refresh();
+            }
+        }
+
+        // Refresh all links so they recalculate their paths after nodes moved
+        foreach (var link in Diagram.Links)
+        {
+            link.Refresh();
+        }
+
+        StateHasChanged();
+    }
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Code == "Space")
+        {
+            PersistSelectedRelation();
+        }
+    }
+
+    private void PersistSelectedRelation()
+    {
+        // Delegate domain mutation to the ViewModel
+        IEnumerable<BusinessConceptRelationDisplayitem> persisted = ViewModel.PersistSelectedRelations();
+
+        // Update diagram visuals for each newly persisted relation
+        foreach (BusinessConceptRelationDisplayitem currentDI in persisted)
+        {
+            var diamondNode = Diagram.Nodes
+                .OfType<DiamondNodeModel>()
+                .FirstOrDefault(n => n.ParentDisplayItem == currentDI);
+
+            if (diamondNode is not null)
+            {
+                diamondNode.Refresh();
+
+                foreach (var link in diamondNode.Links.OfType<RelationLinkModel>())
+                {
+                    link.Refresh();
+                }
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private void OnSelectionChanged(SelectableModel model)
+    {
+        var selectedDisplayItems = Diagram.GetSelectedModels()
+            .OfType<IBusinessConceptRelationDisplayitemNode>()
+            .Select(node => node.ParentDisplayItem)
+            .Where(displayItem => displayItem is not null)
+            .Cast<BusinessConceptRelationDisplayitem>()
+            .Distinct()
+            .ToList();
+
+        ViewModel.UpdateSelection(selectedDisplayItems);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async void OnDataReloaded()
+    {
+        Diagram.Links.Clear();
+        Diagram.Nodes.Clear();
+
+        ViewModel.GetBusinessConceptData();
+        BuildDiagramNodes();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OnLinkRemoved(BaseLinkModel link)
+    {
+        if (link is RelationLinkModel relationLink && 
+            relationLink.ParentDisplayItem != null &&
+            relationLink.ParentRelationItem != null)
+        {
+            ViewModel.RemoveRelationItem(relationLink.ParentDisplayItem, relationLink.ParentRelationItem);
+        }
+    }
+
+    public void Dispose()
+    {
+        MainLayoutViewModel.DataReloaded -= OnDataReloaded;
+        Diagram.Links.Removed -= OnLinkRemoved;
+        Diagram.SelectionChanged -= OnSelectionChanged;
+    }
+
+}

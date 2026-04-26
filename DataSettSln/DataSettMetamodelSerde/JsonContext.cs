@@ -19,14 +19,31 @@ public class JsonContext
     private readonly IList<SourceSystemDTO> _sourceSystemDTOs;
     private readonly IList<SourceInterfaceDTO> _sourceInterfaceDTOs;
 
+    public IEnumerable<SourceSystemDTO> SourceSystemDTOs => _sourceSystemDTOs;
+
+    public IEnumerable<SourceInterfaceDTO> SourceInterfaceDTOs => _sourceInterfaceDTOs;
+
     // Logical Business Concept Model DTOs
     private readonly IList<BusinessDomainDTO> _businessDomainDTOs;
     private readonly IList<BusinessConceptDTO> _businessConceptDTOs;
+    private readonly IList<BusinessConceptRelationDTO> _businessConceptRelationDTOs;
     private readonly IList<BusinessConceptMappingCollectionDTO> _conceptMappingDTOs;
+
+    public IEnumerable<BusinessDomainDTO> BusinessDomainDTOs => _businessDomainDTOs;
+
+    public IEnumerable<BusinessConceptDTO> BusinessConceptDTOs => _businessConceptDTOs;
+
+    public IEnumerable<BusinessConceptRelationDTO> BusinessConceptRelationDTOs => _businessConceptRelationDTOs;
+
+    public IEnumerable<BusinessConceptMappingCollectionDTO> BusinessConceptMappingCollectionDTOs => _conceptMappingDTOs;
 
     // Some private fields to cache deserializing information:
     private readonly IDictionary<string, SourceAttribute> _sourceAttributeCache;
+    private IList<BusinessDomain>? _cachedBusinessDomains;
 
+    private IDictionary<string, SourceAttribute> SourceAttributeCache => _sourceAttributeCache;
+
+    // Constructor initializes the lists and dictionaries:
     public JsonContext()
     {
         _sourceSystemDTOs = new List<SourceSystemDTO>();
@@ -34,22 +51,11 @@ public class JsonContext
 
         _businessDomainDTOs = new List<BusinessDomainDTO>();
         _businessConceptDTOs = new List<BusinessConceptDTO>();
+        _businessConceptRelationDTOs = new List<BusinessConceptRelationDTO>();
         _conceptMappingDTOs = new List<BusinessConceptMappingCollectionDTO>();
 
         _sourceAttributeCache = new Dictionary<string, SourceAttribute>();
     }
-
-    public IEnumerable<SourceSystemDTO> SourceSystemDTOs => _sourceSystemDTOs;
-
-    public IEnumerable<SourceInterfaceDTO> SourceInterfaceDTOs => _sourceInterfaceDTOs;
-
-    public IEnumerable<BusinessDomainDTO> BusinessDomainDTOs => _businessDomainDTOs;
-
-    public IEnumerable<BusinessConceptDTO> BusinessConceptDTOs => _businessConceptDTOs;
-
-    public IEnumerable<BusinessConceptMappingCollectionDTO> BusinessConceptMappingCollectionDTOs => _conceptMappingDTOs;
-
-    private IDictionary<string, SourceAttribute> SourceAttributeCache => _sourceAttributeCache;
 
     public async Task LoadAsync(string repositoryPath)
     {
@@ -58,17 +64,20 @@ public class JsonContext
 
         _businessDomainDTOs.Clear();
         _businessConceptDTOs.Clear();
+        _businessConceptRelationDTOs.Clear();
         _conceptMappingDTOs.Clear();
+
+        _cachedBusinessDomains = null;
 
         if (Directory.Exists(repositoryPath))
         {
 
+            // Physical Source System DTOs:
             string sourceSystemPath = Path.Combine(repositoryPath, "PhysicalSourceSystemModel");
 
             foreach (SourceSystemDTO currentSrcSystem in await DeserializeMetadataObjectsAsync<SourceSystemDTO>(sourceSystemPath, "SourceSystem_*.json"))
             {
                 _sourceSystemDTOs.Add(currentSrcSystem);
-
             }
 
             foreach (SourceInterfaceDTO currentInterface in await DeserializeMetadataObjectsAsync<SourceInterfaceDTO>(sourceSystemPath, "SourceInterface_*.json"))
@@ -76,6 +85,7 @@ public class JsonContext
                 _sourceInterfaceDTOs.Add(currentInterface);
             }
 
+            // Logical Business Concept Model DTOs
             string logicalBOMPath = Path.Combine(repositoryPath, "LogicalBusinessConceptModel");
             
             string businessDomainsFilePath = Path.Combine(logicalBOMPath, "BusinessDomains.json");
@@ -88,6 +98,12 @@ public class JsonContext
             foreach (BusinessConceptDTO currentBC in await DeserializeListOfMetadataConceptsAsync<BusinessConceptDTO>(businessConceptsFilePath))
             {
                 _businessConceptDTOs.Add(currentBC);
+            }
+
+            string businessConceptRelationsFilePath = Path.Combine(logicalBOMPath, "BusinessConceptRelations.json");
+            foreach (BusinessConceptRelationDTO currentRelation in await DeserializeListOfMetadataConceptsAsync<BusinessConceptRelationDTO>(businessConceptRelationsFilePath))
+            {
+                _businessConceptRelationDTOs.Add(currentRelation);
             }
 
             foreach (BusinessConceptMappingCollectionDTO currentMappingCollection in await DeserializeMetadataObjectsAsync<BusinessConceptMappingCollectionDTO>(logicalBOMPath, "BusinessConceptMappings_*.json"))
@@ -271,39 +287,63 @@ public class JsonContext
 
     public IEnumerable<BusinessDomain> GetBusinessDomains()
     {
-        
-        IList<BusinessDomain> businessDomains = new List<BusinessDomain>();
-
-        foreach (BusinessDomainDTO dto in BusinessDomainDTOs)
+        if (_cachedBusinessDomains != null)
         {
-            if (!string.IsNullOrEmpty(dto.Name))
-            {
-                // Watch out: List of business domains gets updated within the method!
-                _ = CreateBusinessDomainFromDTO(dto, businessDomains);
-            }
+            return _cachedBusinessDomains;
         }
+        else
+        { 
 
-        foreach (BusinessDomain currentBusinessDomain in businessDomains)
-        {
+            IList<BusinessDomain> businessDomains = new List<BusinessDomain>();
+            IDictionary<string, BusinessConcept> businessConceptCache = new Dictionary<string, BusinessConcept>();
 
-            foreach (BusinessConceptDTO currentBCDTO in BusinessConceptDTOs)
+            foreach (BusinessDomainDTO dto in BusinessDomainDTOs)
+            {
+                if (!string.IsNullOrEmpty(dto.Name))
+                {
+                    // Watch out: List of business domains gets updated within the method!
+                    _ = CreateBusinessDomainFromDTO(dto, businessDomains);
+                }
+            }
+
+            foreach (BusinessDomain currentBusinessDomain in businessDomains)
             {
 
-                if (currentBCDTO.BusinessDomainId == currentBusinessDomain.Name)
+                foreach (BusinessConceptDTO currentBCDTO in BusinessConceptDTOs)
                 {
-                    BusinessConcept businessConcept = BusinessConcept.FromDTO(currentBCDTO, currentBusinessDomain);
 
-                    businessConcept.BusinessConceptMappings = GetMappingsOfBusinessConceptFromDTO(currentBCDTO.BusinessConceptId, businessConcept).ToList();
+                    if (currentBCDTO.BusinessDomainId == currentBusinessDomain.Name)
+                    {
+                        BusinessConcept businessConcept = BusinessConcept.FromDTO(currentBCDTO, currentBusinessDomain);
 
-                    currentBusinessDomain.BusinessConcepts.Add(businessConcept);
+                        businessConcept.BusinessConceptMappings = GetMappingsOfBusinessConceptFromDTO(currentBCDTO.BusinessConceptId, businessConcept).ToList();
+
+                        currentBusinessDomain.BusinessConcepts.Add(businessConcept);
+
+                        businessConceptCache.Add(currentBCDTO.BusinessConceptId, businessConcept);
+                    }
 
                 }
 
             }
 
-        }
+            // We need a complete list of all business concepts in order to create the BCRelations afterwards.
+            // That's why we iterate over the business domains twice:
+            foreach (BusinessDomain currentBusinessDomain in businessDomains)
+            { 
+                foreach (BusinessConceptRelationDTO currentBCRDTO in BusinessConceptRelationDTOs)
+                {
+                    if (currentBCRDTO.BusinessDomainId == currentBusinessDomain.Name)
+                    {
+                        BusinessConceptRelation businessConceptRelation = BusinessConceptRelation.FromDTO(currentBCRDTO, currentBusinessDomain, businessConceptCache);
+                        currentBusinessDomain.BusinessConceptRelations.Add(businessConceptRelation);
+                    }
+                }
+            }
 
-        return businessDomains;
+            _cachedBusinessDomains = businessDomains;
+            return businessDomains;
+        }
     }
 
     public async Task WriteLBCMAsync(string repositoryPath, IEnumerable<BusinessDomain> businessDomains)
@@ -313,6 +353,7 @@ public class JsonContext
 
         List<BusinessDomainDTO> businessDomainDTOs = new List<BusinessDomainDTO>();
         List<BusinessConceptDTO> businessConceptDTOs = new List<BusinessConceptDTO>();
+        List<BusinessConceptRelationDTO> businessConceptRelationDTOs = new List<BusinessConceptRelationDTO>();
 
         foreach (BusinessDomain currentBD in businessDomains)
         {
@@ -337,10 +378,17 @@ public class JsonContext
                 await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, $"BusinessConceptMappings_{currentBD.Name}_{currentBC.Name}.json"), bcmCollection);
             }
 
+            foreach (BusinessConceptRelation currentBCR in currentBD.BusinessConceptRelations)
+            {
+                BusinessConceptRelationDTO bcrDto = BusinessConceptRelation.ToDTO(currentBCR, dto.BusinessDomainId ?? string.Empty);
+                businessConceptRelationDTOs.Add(bcrDto);
+            }
+
         }
 
         await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, "BusinessDomains.json"), businessDomainDTOs);
         await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, "BusinessConcepts.json"), businessConceptDTOs);
+        await SerializeMetadataObjectsAsync(Path.Combine(lbcmPath, "BusinessConceptRelations.json"), businessConceptRelationDTOs);
 
     }
 

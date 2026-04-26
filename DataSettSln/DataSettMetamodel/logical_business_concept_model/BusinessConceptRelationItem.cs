@@ -12,5 +12,48 @@ namespace DataSett.Metamodel
         /// </summary>
         public BusinessConcept? RelatedBusinessConcept { get; set; }
 
+        public static BusinessConceptRelationItem FromDTO(BusinessConceptRelationItemDTO dto, IDictionary<string, BusinessConcept> businessConceptCache)
+        {
+
+            BusinessConceptRelationItem newItem = new BusinessConceptRelationItem
+            {
+                IsLeadingKey = dto.IsLeadingKey
+            };
+
+            if (dto.RelatedBusinessConceptId != null)
+            {
+                string bcId = dto.RelatedBusinessConceptId;
+
+                if (businessConceptCache.ContainsKey(bcId))
+                {
+                    newItem.RelatedBusinessConcept = businessConceptCache[dto.RelatedBusinessConceptId];
+                }
+
+            }
+            
+            return newItem;
+        }
+
+        public static BusinessConceptRelationItemDTO ToDTO(BusinessConceptRelationItem item)
+        {
+            string? relatedBusinessConceptId = null;
+            if (item.RelatedBusinessConcept != null)
+            {
+                string? parentBusinessDomainName = item.RelatedBusinessConcept.ParentBusinessDomain?.Name;
+                string? businessConceptName = item.RelatedBusinessConcept.Name;
+
+                if (!string.IsNullOrWhiteSpace(parentBusinessDomainName) && !string.IsNullOrWhiteSpace(businessConceptName))
+                {
+                    relatedBusinessConceptId = $"{parentBusinessDomainName}.{businessConceptName}";
+                }
+            }
+
+            return new BusinessConceptRelationItemDTO
+            {
+                IsLeadingKey = item.IsLeadingKey,
+                RelatedBusinessConceptId = relatedBusinessConceptId
+            };
+        }
+
     }
 }

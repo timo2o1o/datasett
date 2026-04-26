@@ -2,14 +2,13 @@ using DataSett.Metamodel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace DataSett.ViewModel;
+namespace DataSett.ViewModel.DisplayItems;
 
 /// <summary>
 /// UI wrapper that presents a unified view of both persisted and unmapped source attributes.
 /// </summary>
-public class MappingDisplayItem : INotifyPropertyChanged
+public class BusinessConceptMappingDisplayitem : DisplayitemBase<BusinessConceptMapping>
 {
-    private readonly BusinessConceptMapping? _existingMapping;
     private readonly SourceAttribute _sourceAttribute;
 
     // Editable backing fields for new/unmapped items
@@ -22,9 +21,8 @@ public class MappingDisplayItem : INotifyPropertyChanged
     private string _attributeSetName;
     private AttributeProperties _mappingProperties;
 
-    public MappingDisplayItem(BusinessConceptMapping existingMapping)
+    public BusinessConceptMappingDisplayitem(BusinessConceptMapping existingMapping) : base(existingMapping)
     {
-        _existingMapping = existingMapping;
         _sourceAttribute = existingMapping.SourceAttribute!;
         
         // Initialize from existing mapping
@@ -38,9 +36,8 @@ public class MappingDisplayItem : INotifyPropertyChanged
         _mappingProperties = existingMapping.MappingProperties;
     }
 
-    public MappingDisplayItem(SourceAttribute unmappedAttribute)
+    public BusinessConceptMappingDisplayitem(SourceAttribute unmappedAttribute) : base(null)
     {
-        _existingMapping = null;
         _sourceAttribute = unmappedAttribute;
         
         // Initialize defaults for new mapping
@@ -56,26 +53,6 @@ public class MappingDisplayItem : INotifyPropertyChanged
 
     public SourceAttribute SourceAttribute => _sourceAttribute;
     
-    public bool IsPersisted => _existingMapping != null;
-    
-    public bool IsDirty
-    {
-        get
-        {
-            if (_existingMapping == null)
-            {
-                // Unmapped attributes are only dirty when the user has assigned a business concept
-                return _parentBusinessConcept != null;
-            }
-            return _parentBusinessConcept != _existingMapping.ParentBusinessConcept
-                || _assignedKeyPart != _existingMapping.AssignedKeyPart
-                || _harmonizedName != _existingMapping.HarmonizedName
-                || _orderNo != _existingMapping.OrderNo
-                || _role != _existingMapping.Role
-                || _historyType != _existingMapping.HistoryType;
-        }
-    }
-
     // Editable properties for UI binding
     public BusinessConcept? ParentBusinessConcept
     {
@@ -127,10 +104,22 @@ public class MappingDisplayItem : INotifyPropertyChanged
         return (Role == SourceAttributeRole.Descriptive);
     }
 
+    public bool IsKeyPartEnabled()
+    {
+        return ParentBusinessConcept != null && Role != SourceAttributeRole.Descriptive;
+    }
+
     public SourceAttributeRole Role
     {
         get => _role;
-        set => SetField(ref _role, value);
+        set
+        {
+            if (SetField(ref _role, value))
+            {
+                if (value == SourceAttributeRole.Descriptive)
+                    AssignedKeyPart = null;
+            }
+        }
     }
 
     public HistoryType HistoryType
@@ -151,24 +140,21 @@ public class MappingDisplayItem : INotifyPropertyChanged
         set => SetField(ref _mappingProperties, value);
     }
 
-    /// <summary>
-    /// Applies changes to the domain model. Call this at save time.
-    /// </summary>
-    public void ApplyChanges()
+    public override void ApplyChanges()
     {
         if (!IsDirty && IsPersisted) return;
 
         // Remove from old parent if it was persisted and parent changed
-        if (_existingMapping != null 
-            && _existingMapping.ParentBusinessConcept != null 
-            && _existingMapping.ParentBusinessConcept != _parentBusinessConcept)
+        if (_existingItem != null 
+            && _existingItem.ParentBusinessConcept != null 
+            && _existingItem.ParentBusinessConcept != _parentBusinessConcept)
         {
-            _existingMapping.ParentBusinessConcept.BusinessConceptMappings.Remove(_existingMapping);
+            _existingItem.ParentBusinessConcept.BusinessConceptMappings.Remove(_existingItem);
         }
 
         if (_parentBusinessConcept != null)
         {
-            var mapping = _existingMapping ?? new BusinessConceptMapping { SourceAttribute = _sourceAttribute };
+            var mapping = _existingItem ?? new BusinessConceptMapping { SourceAttribute = _sourceAttribute };
             
             // Update all properties
             mapping.ParentBusinessConcept = _parentBusinessConcept;
@@ -187,17 +173,22 @@ public class MappingDisplayItem : INotifyPropertyChanged
         }
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-    
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-    private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    public override bool IsDirty
     {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        OnPropertyChanged(nameof(IsDirty));
-        return true;
+        get
+        {
+            if (_existingItem == null)
+            {
+                // Unmapped attributes are only dirty when the user has assigned a business concept
+                return _parentBusinessConcept != null;
+            }
+            return _parentBusinessConcept != _existingItem.ParentBusinessConcept
+                || _assignedKeyPart != _existingItem.AssignedKeyPart
+                || _harmonizedName != _existingItem.HarmonizedName
+                || _orderNo != _existingItem.OrderNo
+                || _role != _existingItem.Role
+                || _historyType != _existingItem.HistoryType;
+        }
     }
+
 }

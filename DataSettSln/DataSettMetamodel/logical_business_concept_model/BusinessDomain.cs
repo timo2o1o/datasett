@@ -11,6 +11,7 @@ namespace DataSett.Metamodel
         public BusinessDomain()
         {
             BusinessConcepts = new List<BusinessConcept>();
+            BusinessConceptRelations = new List<BusinessConceptRelation>();
             ChildBusinessDomains = new List<BusinessDomain>();
         }
 
@@ -28,6 +29,9 @@ namespace DataSett.Metamodel
         /// </summary>
         [JsonIgnore]
         public IList<BusinessConcept> BusinessConcepts { get; set; }
+
+        [JsonIgnore]
+        public IList<BusinessConceptRelation> BusinessConceptRelations { get; set; }
 
         /// <summary>
         /// Creates a domain entity from a DTO (navigation properties must be set separately)
