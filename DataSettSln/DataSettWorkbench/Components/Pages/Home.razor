@@ -71,6 +71,16 @@
                                     </MudStack>
                                 </EditTemplate>
                             </PropertyColumn>
+                            <PropertyColumn Property="x => x.Role">
+                                <EditTemplate>
+                                    <MudSelect @bind-Value="context.Item.Role" Required RequiredError="Please select a role." Margin="@Margin.Dense">
+                                        @foreach (var role in Enum.GetValues<SourceAttributeRole>())
+                                        {
+                                            <MudSelectItem Value="@(role)">@role</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </EditTemplate>
+                            </PropertyColumn>
                             <PropertyColumn Property="x => x.AssignedKeyPart != null ? x.AssignedKeyPart.Name : string.Empty" Title="KeyPart">
                                 <EditTemplate>
                                     <MudSelect @bind-Value="context.Item.AssignedKeyPart"
@@ -80,16 +90,6 @@
                                         @foreach (var keyPart in context.Item.AvailableKeyParts)
                                         {
                                             <MudSelectItem Value="@(keyPart)">@keyPart.Name</MudSelectItem>
-                                        }
-                                    </MudSelect>
-                                </EditTemplate>
-                            </PropertyColumn>
-                            <PropertyColumn Property="x => x.Role">
-                                <EditTemplate>
-                                    <MudSelect @bind-Value="context.Item.Role" Required RequiredError="Please select a role." Margin="@Margin.Dense">
-                                        @foreach (var role in Enum.GetValues<SourceAttributeRole>())
-                                        {
-                                            <MudSelectItem Value="@(role)">@role</MudSelectItem>
                                         }
                                     </MudSelect>
                                 </EditTemplate>
