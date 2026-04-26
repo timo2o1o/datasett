@@ -5,7 +5,8 @@
     <input class="diamond-label"
            value="@Node.RelationName"
            @onchange="OnRelationNameChanged"
-           @onpointerdown:stopPropagation="true" />
+           @onpointerdown:stopPropagation="true"
+           @onkeydown:stopPropagation="true" />
 </div>
 
 @code {
