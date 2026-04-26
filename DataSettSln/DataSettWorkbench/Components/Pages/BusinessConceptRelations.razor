@@ -287,6 +287,12 @@
 
     private async void OnDataReloaded()
     {
+        Diagram.Links.Clear();
+        Diagram.Nodes.Clear();
+
+        ViewModel.GetBusinessConceptData();
+        ViewModel.GetBusinessConceptRelationData();
+
         await InvokeAsync(StateHasChanged);
     }
 
