@@ -15,7 +15,7 @@ namespace DataSett.ViewModel
 {
     public class BusinessConceptRelationViewModel : INotifyPropertyChanged
     {
-        public BusinessConceptRelationViewModel(IMetaDataIOService metaDataIOService, IOptions<AppSettings> appSettings)
+        public BusinessConceptRelationViewModel(IMetaDataIOService metaDataIOService)
         {
             MetaDataIOService = metaDataIOService;
             _businessConcepts = new ObservableCollection<BusinessConcept>();
