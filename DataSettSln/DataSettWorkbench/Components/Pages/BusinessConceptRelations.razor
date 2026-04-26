@@ -169,15 +169,13 @@
         {
             var diamond = diamondNodes[clusterIndex];
 
-            // Find BC nodes connected to this diamond via relation links
+            // Find BC nodes connected to this diamond via relation links.
+            // Derive the node directly from the link's target anchor to avoid
+            // ambiguous name lookups when concepts share a name across domains.
             var connectedBcNodes = Diagram.Links
                 .OfType<RelationLinkModel>()
                 .Where(l => l.ParentDisplayItem == diamond.ParentDisplayItem)
-                .Select(l =>
-                {
-                    var bcName = l.ParentRelationItem.RelatedBusinessConcept?.Name;
-                    return Diagram.Nodes.FirstOrDefault(n => n.Title == bcName && n is not DiamondNodeModel);
-                })
+                .Select(l => (l.Target as ShapeIntersectionAnchor)?.Node)
                 .Where(n => n is not null)
                 .Select(n => n!)
                 .Distinct()
