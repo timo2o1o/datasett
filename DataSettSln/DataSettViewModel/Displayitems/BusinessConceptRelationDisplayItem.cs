@@ -32,7 +32,18 @@ public class BusinessConceptRelationDisplayitem : DisplayitemBase<BusinessConcep
     public string? RelationName
     {
         get => _relationName;
-        set => SetField(ref _relationName, value);
+        set
+        {
+            if (!SetField(ref _relationName, value))
+            {
+                return;
+            }
+
+            if (_existingItem != null)
+            {
+                _existingItem.Name = value;
+            }
+        }
     }
 
     public IList<BusinessConceptRelationItem> BusinessConceptRelationItems
