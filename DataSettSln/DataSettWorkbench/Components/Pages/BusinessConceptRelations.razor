@@ -105,6 +105,13 @@
         // Track selection changes so the Persist button state updates
         Diagram.SelectionChanged += OnSelectionChanged;
 
+        BuildDiagramNodes();
+    }
+
+    private void BuildDiagramNodes()
+    {
+        ViewModel.GetBusinessConceptRelationData();
+
         // Build a lookup from BusinessConcept composite key ("{domain}.{name}") to its diagram node
         var bcNodeMap = new Dictionary<string, NodeModel>();
 
@@ -118,8 +125,6 @@
 
             bcNodeMap[currentBC.ToString()] = node;
         }
-
-        ViewModel.GetBusinessConceptRelationData();
 
         foreach (BusinessConceptRelationDisplayitem businessConceptRelationDisplayItem in ViewModel.BusinessConceptRelations)
         {
@@ -285,7 +290,7 @@
         Diagram.Nodes.Clear();
 
         ViewModel.GetBusinessConceptData();
-        ViewModel.GetBusinessConceptRelationData();
+        BuildDiagramNodes();
 
         await InvokeAsync(StateHasChanged);
     }
