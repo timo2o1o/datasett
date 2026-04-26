@@ -11,6 +11,7 @@ namespace DataSett.Metamodel
             RelatedConcepts = new List<BusinessConceptRelationItem>();
         }
 
+        [JsonIgnore]
         public BusinessDomain? ParentBusinessDomain { get; set; }
 
         public IList<BusinessConceptRelationItem> RelatedConcepts { get; set; }
