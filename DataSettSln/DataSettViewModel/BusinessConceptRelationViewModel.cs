@@ -118,8 +118,8 @@ namespace DataSett.ViewModel
 
             // This method derives BusinessConceptRelations from the BusinessConceptMappings. The logic is as follows:
             // 1.   For each SourceInterface, we check the BusinessConceptMappings for role "BusinessKey".
-            // 2.   If a SourceInterface got more than two BusinessConceptMappings poiting to different
-            //      BusinessConcepts this defines a new possible BusinessConceptRelation.
+            // 2.   If a SourceInterface has BusinessConceptMappings pointing to two or more different
+            //      BusinessConcepts, this defines a new possible BusinessConceptRelation.
             var derivedRelations = businessConceptMappings
                 .Where(m => m.Role == SourceAttributeRole.BusinessKey && m.SourceAttribute != null)
                 .GroupBy(m => m.SourceAttribute!.ParentSourceInterface)
