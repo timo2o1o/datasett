@@ -31,13 +31,6 @@
         <MudItem xs="12">
             <MudToolBar Dense="true" Class="mb-2">
                 <MudButton Variant="Variant.Filled"
-                           Color="Color.Primary"
-                           Disabled="@(!CanPersistSelection)"
-                           OnClick="PersistSelectedRelation"
-                           StartIcon="@Icons.Material.Filled.Save">
-                    Persist Relation
-                </MudButton>
-                <MudButton Variant="Variant.Filled"
                            Color="Color.Secondary"
                            OnClick="AutoLayout"
                            StartIcon="@Icons.Material.Filled.AutoAwesomeMosaic"
@@ -45,17 +38,21 @@
                     Auto Layout
                 </MudButton>
                 <MudButton Variant="Variant.Filled"
-                           Color="Color.Warning"
+                           Color="Color.Primary"
+                           Disabled="@(!CanPersistSelection)"
+                           OnClick="PersistSelectedRelation"
+                           StartIcon="@Icons.Material.Filled.Save"
+                           Class="ml-2">
+                    Persist Relation
+                </MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
                            Disabled="@(!CanToggleLeadingKey)"
                            OnClick="ToggleLeadingKeyForSelection"
-                           StartIcon="@Icons.Material.Filled.FormatBold"
+                           StartIcon="@Icons.Material.Filled.Key"
                            Class="ml-2">
                     Toggle Leading Key
                 </MudButton>
-                <MudText Typo="Typo.caption" Class="ml-4">
-                    Select a derived (dashed) relation and click Persist or press Space to persist it. |
-                    Select a link and click Toggle Leading Key or press Alt+Space to mark it as a leading key.
-                </MudText>
             </MudToolBar>
         </MudItem>
         <MudItem xs="12">
@@ -160,6 +157,11 @@
 
     private void AutoLayout()
     {
+        // TODO:
+        // This method is completely vibe coded.
+        // Need to overhaul this when there is time,
+        // but for now it provides a basic layout that is better than the default absolute positioning.
+
         const double clusterPaddingX = 400;
         const double clusterPaddingY = 320;
         const double nodeRadius = 140;
@@ -246,7 +248,7 @@
 
     private void OnKeyDown(KeyboardEventArgs e)
     {
-        if (e.Code == "Space" && e.AltKey)
+        if (e.Code == "KeyL")
         {
             ToggleLeadingKeyForSelection();
         }
@@ -285,7 +287,7 @@
     private void OnSelectionChanged(SelectableModel model)
     {
         var selectedDisplayItems = Diagram.GetSelectedModels()
-            .OfType<IBusinessConceptRelationDisplayitemNode>()
+            .OfType<DiamondNodeModel>()
             .Select(node => node.ParentDisplayItem)
             .Where(displayItem => displayItem is not null)
             .Cast<BusinessConceptRelationDisplayitem>()
