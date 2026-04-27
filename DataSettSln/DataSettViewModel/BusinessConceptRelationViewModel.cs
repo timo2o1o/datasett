@@ -101,9 +101,9 @@ namespace DataSett.ViewModel
 
             bool newValue = !_selectedRelationItems.All(i => i.IsLeadingKey == true);
 
-            foreach (var item in _selectedRelationItems)
+            foreach (var currentRelationItem in _selectedRelationItems)
             {
-                item.IsLeadingKey = newValue;
+                currentRelationItem.IsLeadingKey = newValue;
             }
 
             return _selectedRelationItems.ToList();
