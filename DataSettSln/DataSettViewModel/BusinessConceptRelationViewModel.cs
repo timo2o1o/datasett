@@ -45,6 +45,7 @@ namespace DataSett.ViewModel
         }
 
         private readonly List<BusinessConceptRelationDisplayitem> _selectedRelations = new();
+        private readonly List<BusinessConceptRelationItem> _selectedRelationItems = new();
 
         /// <summary>
         /// The currently selected relation display items as reported by the view.
@@ -58,6 +59,12 @@ namespace DataSett.ViewModel
         public bool CanPersistSelection => _selectedRelations.Any(r => !r.IsPersisted);
 
         /// <summary>
+        /// Returns <c>true</c> when there is at least one link selected whose
+        /// <see cref="BusinessConceptRelationItem.IsLeadingKey"/> can be toggled.
+        /// </summary>
+        public bool CanToggleLeadingKey => _selectedRelationItems.Any();
+
+        /// <summary>
         /// Replaces the current selection with the given display items.
         /// Raises <see cref="PropertyChanged"/> for <see cref="SelectedRelations"/>
         /// and <see cref="CanPersistSelection"/>.
@@ -68,6 +75,38 @@ namespace DataSett.ViewModel
             _selectedRelations.AddRange(selectedItems);
             OnPropertyChanged(nameof(SelectedRelations));
             OnPropertyChanged(nameof(CanPersistSelection));
+        }
+
+        /// <summary>
+        /// Replaces the current link-level selection with the given relation items.
+        /// Raises <see cref="PropertyChanged"/> for <see cref="CanToggleLeadingKey"/>.
+        /// </summary>
+        public void UpdateLinkSelection(IEnumerable<BusinessConceptRelationItem> selectedItems)
+        {
+            _selectedRelationItems.Clear();
+            _selectedRelationItems.AddRange(selectedItems);
+            OnPropertyChanged(nameof(CanToggleLeadingKey));
+        }
+
+        /// <summary>
+        /// Toggles <see cref="BusinessConceptRelationItem.IsLeadingKey"/> for all
+        /// currently selected relation items. If all items are already leading keys
+        /// the value is set to <c>false</c>; otherwise all are set to <c>true</c>.
+        /// Returns the affected items so the view can refresh the corresponding links.
+        /// </summary>
+        public IEnumerable<BusinessConceptRelationItem> ToggleLeadingKey()
+        {
+            if (!_selectedRelationItems.Any())
+                return [];
+
+            bool newValue = !_selectedRelationItems.All(i => i.IsLeadingKey == true);
+
+            foreach (var item in _selectedRelationItems)
+            {
+                item.IsLeadingKey = newValue;
+            }
+
+            return _selectedRelationItems.ToList();
         }
 
         public void GetBusinessConceptData()
