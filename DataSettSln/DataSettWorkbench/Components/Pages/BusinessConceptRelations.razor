@@ -44,8 +44,17 @@
                            Class="ml-2">
                     Auto Layout
                 </MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Warning"
+                           Disabled="@(!CanToggleLeadingKey)"
+                           OnClick="ToggleLeadingKeyForSelection"
+                           StartIcon="@Icons.Material.Filled.FormatBold"
+                           Class="ml-2">
+                    Toggle Leading Key
+                </MudButton>
                 <MudText Typo="Typo.caption" Class="ml-4">
-                    Select a derived (dashed) relation and click Persist or press Space to persist it.
+                    Select a derived (dashed) relation and click Persist or press Space to persist it. |
+                    Select a link and click Toggle Leading Key or press Alt+Space to mark it as a leading key.
                 </MudText>
             </MudToolBar>
         </MudItem>
@@ -68,6 +77,7 @@
     private BlazorDiagram Diagram { get; set; } = null!;
 
     private bool CanPersistSelection => ViewModel.CanPersistSelection;
+    private bool CanToggleLeadingKey => ViewModel.CanToggleLeadingKey;
 
     private BlazorDiagram InitializeDiagram()
     {
@@ -236,7 +246,11 @@
 
     private void OnKeyDown(KeyboardEventArgs e)
     {
-        if (e.Code == "Space")
+        if (e.Code == "Space" && e.AltKey)
+        {
+            ToggleLeadingKeyForSelection();
+        }
+        else if (e.Code == "Space")
         {
             PersistSelectedRelation();
         }
@@ -279,7 +293,29 @@
             .ToList();
 
         ViewModel.UpdateSelection(selectedDisplayItems);
+
+        var selectedRelationItems = Diagram.GetSelectedModels()
+            .OfType<RelationLinkModel>()
+            .Select(link => link.ParentRelationItem)
+            .ToList();
+
+        ViewModel.UpdateLinkSelection(selectedRelationItems);
+
         InvokeAsync(StateHasChanged);
+    }
+
+    private void ToggleLeadingKeyForSelection()
+    {
+        IEnumerable<BusinessConceptRelationItem> toggled = ViewModel.ToggleLeadingKey();
+
+        // Refresh all links whose relation item was toggled
+        foreach (var link in Diagram.Links.OfType<RelationLinkModel>()
+            .Where(l => toggled.Contains(l.ParentRelationItem)))
+        {
+            link.Refresh();
+        }
+
+        StateHasChanged();
     }
 
     private async void OnDataReloaded()

@@ -5,6 +5,8 @@
     var d = Link.PathGeneratorResult.FullPath.ToString();
     var stroke = Link.Selected ? "dodgerblue" : (Link.Color ?? "black");
     var dashArray = Link.IsPersisted ? null : "8 4";
+    const int leadingKeyStrokeWidthIncrease = 2;
+    var baseWidth = Link.IsLeadingKey ? Link.Width + leadingKeyStrokeWidthIncrease : Link.Width;
 
     @* Wider invisible hit area for easier selection *@
     <path d="@d"
@@ -15,7 +17,7 @@
     <path d="@d"
           fill="none"
           stroke="@stroke"
-          stroke-width="@(Link.Selected ? Link.Width + 1 : Link.Width)"
+          stroke-width="@(Link.Selected ? baseWidth + 1 : baseWidth)"
           stroke-dasharray="@dashArray" />
 }
 

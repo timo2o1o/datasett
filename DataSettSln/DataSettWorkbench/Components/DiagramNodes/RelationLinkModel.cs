@@ -16,6 +16,7 @@ public class RelationLinkModel : LinkModel, IBusinessConceptRelationDisplayitemN
     }
 
     public bool IsPersisted => ParentDisplayItem.IsPersisted;
+    public bool IsLeadingKey => ParentRelationItem.IsLeadingKey == true;
     public BusinessConceptRelationDisplayitem ParentDisplayItem { get; }
     public BusinessConceptRelationItem ParentRelationItem { get; }
 }
