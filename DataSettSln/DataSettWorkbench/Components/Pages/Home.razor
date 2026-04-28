@@ -108,6 +108,17 @@
                                     </MudSelect>
                                 </EditTemplate>
                             </PropertyColumn>
+                            <TemplateColumn Title="Additional Role">
+                                <EditTemplate>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                   Color="Color.Primary"
+                                                   Size="Size.Small"
+                                                   Disabled="context.Item.Role != SourceAttributeRole.BusinessKey"
+                                                   OnClick="@(() => CreateNewBCMapping(context.Item))"
+                                               >
+                                    </MudIconButton>
+                                </EditTemplate>
+                            </TemplateColumn>
                             <PropertyColumn Property="x => x.AttributeSetName">
                                 <EditTemplate>
                                     <MudTextField @bind-Value="context.Item.AttributeSetName"
@@ -227,9 +238,16 @@
         }
     }
 
+    private async Task CreateNewBCMapping(BusinessConceptMappingDisplayitem contextItem)
+    {
+        BusinessConceptMappingDisplayitem newDisplayitem = MainLayoutViewModel.CreateNewBCMapping(contextItem);
+        // Add it to the DataGrid and sort it (again):
+        
+    }
+    
     public void Dispose()
     {
         MainLayoutViewModel.DataReloaded -= OnDataReloaded;
     }
-
+    
 }
